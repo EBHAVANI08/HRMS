@@ -13,6 +13,7 @@ import { OnboardingView } from '@/components/onboarding-view';
 import { EngagementView } from '@/components/engagement-view';
 import { AnalyticsView } from '@/components/analytics-view';
 import { AIAssistantView as AiAssistantView } from '@/components/ai-assistant-view';
+import { ComplianceDashboard } from '@/components/compliance/compliance-dashboard';
 
 const viewMap: Record<string, React.ComponentType> = {
   dashboard: RoleBasedDashboardView,
@@ -25,6 +26,7 @@ const viewMap: Record<string, React.ComponentType> = {
   engagement: EngagementView,
   analytics: AnalyticsView,
   'ai-assistant': AiAssistantView,
+  compliance: ComplianceDashboard,
 };
 
 export default function HomePage() {

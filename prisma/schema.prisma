@@ -164,3 +164,114 @@ model Loan {
 
   employee     Employee @relation(fields: [employeeId], references: [id])
 }
+
+// ─── Compliance & Audit Models ───
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  timestamp    DateTime @default(now())
+  action       String   // "score_override", "resume_analyzed", "blind_screening", "proposed_action", "human_confirm", "data_deleted"
+  actor        String   // "system" | "human"
+  actorId      String
+  actorName    String?
+  targetType   String   // "candidate" | "job" | "score" | "compliance"
+  targetId     String
+  details      String   // JSON string with full details
+  hash         String   // SHA-256 tamper-proof hash
+  previousHash String?  // Chain link to previous entry
+  createdAt    DateTime @default(now())
+}
+
+model ScoreOverride {
+  id             String   @id @default(cuid())
+  timestamp      DateTime @default(now())
+  userId         String
+  userName       String
+  candidateId    String
+  candidateName  String
+  jobId          String
+  jobTitle       String
+  dimension      String   // "skills" | "experience" | "education" | "cultureFit"
+  itemId         String   // Specific scored item
+  originalScore  Int      // 0-5
+  newScore       Int      // 0-5
+  reason         String   // MANDATORY - cannot be empty
+  auditLogId     String?  // Link to audit log
+  candidateScore CandidateScore @relation(fields: [candidateId], references: [candidateId])
+  createdAt      DateTime @default(now())
+}
+
+model CandidateScore {
+  id              String   @id @default(cuid())
+  candidateId     String   @unique
+  candidateName   String
+  jobId           String
+  jobTitle        String
+  overallScore    Float    // 0-5
+  skillsScore     Float
+  experienceScore Float
+  educationScore  Float
+  cultureScore    Float
+  confidence      Float    // 0-1
+  riskLevel       String   // "low" | "medium" | "high" | "critical"
+  proposedAction  String   // "proposed_interview" | "proposed_rejection" | "proposed_hold"
+  humanConfirmed  Boolean  @default(false)
+  confirmedBy     String?
+  confirmedAt     DateTime?
+  blindScore      Float?   // Score without PII
+  biasAlert       Boolean  @default(false)
+  analysisJson    String   // Full GlassBoxResult JSON
+  resumeHash      String   // SHA-256 of original resume
+  redactedHash    String?  // SHA-256 of redacted resume
+  retentionDays   Int      @default(180)
+  deletionDate    DateTime // Auto-deletion date
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  overrides       ScoreOverride[]
+}
+
+model BiasMetric {
+  id              String   @id @default(cuid())
+  auditDate       DateTime @default(now())
+  auditType       String   // "4_5ths_rule" | "impact_ratio" | "ground_truth" | "calibration"
+  demographicGroup String  // "gender" | "age" | "caste" | "location" | "overall"
+  category        String   // "Male" | "Female" | "25-34" etc.
+  totalCandidates Int
+  selectedCount   Int
+  selectionRate   Float
+  impactRatio     Float?   // Must be >= 0.8
+  passFourFifths  Boolean
+  remediationNeeded Boolean @default(false)
+  auditPeriod     String   // "2025-Q1" etc.
+  thirdPartyAudited Boolean @default(false)
+  details         String?  // JSON details
+  createdAt       DateTime @default(now())
+}
+
+model DataRetentionPolicy {
+  id              String   @id @default(cuid())
+  dataType        String   // "resume_text" | "ai_scores" | "audit_logs" | "override_reasons" | "bias_metrics"
+  retentionDays   Int
+  description     String
+  gdprCompliant   Boolean  @default(true)
+  autoDelete      Boolean  @default(true)
+  lastCleanup     DateTime?
+  nextCleanup     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ComplianceAssessment {
+  id              String   @id @default(cuid())
+  framework       String   // "eu_ai_act" | "nyc_ll144" | "dpdp_act" | "gdpr"
+  status          String   // "compliant" | "partially_compliant" | "non_compliant"
+  assessmentDate  DateTime @default(now())
+  nextAssessment  DateTime
+  findings        String   // JSON
+  remediationActions String? // JSON
+  assessorName    String?
+  version         String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

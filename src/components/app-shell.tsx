@@ -32,6 +32,7 @@ import {
   ArrowRight,
   Star,
   Eye,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -81,6 +82,7 @@ const navItems = [
   { id: "onboarding", label: "Onboarding", icon: UserPlus },
   { id: "engagement", label: "Engagement", icon: Heart },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
+  { id: "compliance", label: "Compliance", icon: Shield },
   { id: "ai-assistant", label: "AI Assistant", icon: Sparkles },
 ];
 
