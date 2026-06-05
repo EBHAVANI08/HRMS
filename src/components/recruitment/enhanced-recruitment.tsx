@@ -385,6 +385,112 @@ Graduated 2024
 Certifications
 None`,
   },
+  {
+    id: "mr6", name: "Arjun Mehta", email: "arjun.m@gmail.com",
+    text: `Arjun Mehta
+Bangalore, India | arjun.m@gmail.com | +91 99887 76655
+
+Summary
+AI Engineer with 3 years of experience in ML, NLP, and DL. Built production LLM pipelines and RAG systems for enterprise HR platforms. Strong in Python, TensorFlow, and PyTorch.
+
+Skills
+ML, NLP, DL, CV, Python, TensorFlow, PyTorch, LLM, RAG, Transformers, Docker, Kubernetes, AWS, MLOps, SQL, Git, Pandas, NumPy, scikit-learn
+
+Experience
+AI Engineer at IntelliCorp
+Jun 2022 – Present
+- Built ML pipelines for resume parsing using NLP and DL techniques
+- Fine-tuned LLMs for candidate-job matching with RAG architecture
+- Deployed models on AWS SageMaker with Docker and Kubernetes
+- Implemented MLOps practices for model versioning and monitoring
+
+Junior ML Engineer at DataSense AI
+Aug 2020 – May 2022
+- Developed CV models for document extraction
+- Created NLP pipelines for text classification and entity recognition
+- Built recommendation engine using collaborative filtering
+
+Education
+B.Tech in Computer Science, IIT Bombay
+Graduated 2020
+
+Certifications
+AWS Certified Machine Learning - Specialty`,
+  },
+  {
+    id: "mr7", name: "Priya Nair", email: "priya.n@gmail.com",
+    text: `Priya Nair
+Hyderabad, India | priya.n@gmail.com | +91 88776 65544
+
+Summary
+Fresher with strong fundamentals in AI/ML. Built academic projects in NLP, CV, and GenAI. Seeking entry-level AI Developer role to apply my skills in production ML systems.
+
+Skills
+Python, ML, NLP, DL, CV, GenAI, PyTorch, TensorFlow, Pandas, NumPy, scikit-learn, SQL, Git, Mathematics, Statistics
+
+Projects
+Sentiment Analysis Tool (NLP)
+- Built a sentiment classifier using BERT and HuggingFace Transformers
+- Achieved 92% accuracy on movie review dataset
+- Deployed using FastAPI and Docker
+
+Image Classification System (CV)
+- Developed CNN model for plant disease detection
+- Used transfer learning with ResNet50
+- 95% classification accuracy on test set
+
+Chatbot with RAG (GenAI)
+- Built a RAG-based chatbot using LangChain and OpenAI API
+- Implemented vector search with FAISS for document retrieval
+- Created Streamlit frontend for user interaction
+
+Education
+B.Tech in AI & Machine Learning, IIIT Hyderabad
+Graduated 2025
+
+Certifications
+Deep Learning Specialization (Coursera)`,
+  },
+  {
+    id: "mr8", name: "Dr. Kavitha Rajan", email: "kavitha.r@gmail.com",
+    text: `Dr. Kavitha Rajan
+Bangalore, India | kavitha.r@gmail.com | +91 77665 54433
+
+Summary
+Senior AI Research Scientist with 8 years of experience leading ML teams. Expert in NLP, CV, LLM fine-tuning (LoRA, QLoRA), RAG pipelines, and responsible AI. Published 15+ papers in top-tier conferences (NeurIPS, ICML, ACL).
+
+Skills
+Python, ML, NLP, CV, DL, LLM, RAG, LoRA, QLoRA, PEFT, Transformers, PyTorch, TensorFlow, MLOps, Docker, Kubernetes, AWS, GCP, AI Ethics, Responsible AI, System Design, Leadership, Research, GenAI, GAN, CNN, RNN
+
+Experience
+Principal AI Scientist at DeepTech Labs
+Jan 2021 – Present
+- Lead a team of 12 AI engineers building LLM-powered enterprise solutions
+- Architected RAG pipeline processing 10M+ documents with 99.5% uptime
+- Fine-tuned LLMs using LoRA/QLoRA for domain-specific tasks (HR, Finance, Legal)
+- Published 8 papers on efficient LLM inference and bias mitigation
+- Ensure AI compliance with EU AI Act and responsible AI practices
+
+Senior ML Engineer at AI Solutions Inc
+Mar 2018 – Dec 2020
+- Built production NLP pipelines for document understanding
+- Led CV team for real-time object detection in manufacturing
+- Implemented MLOps practices reducing model deployment time by 70%
+
+ML Engineer at StartupML
+Jun 2016 – Feb 2018
+- Developed recommendation systems using collaborative filtering
+- Built NLP models for customer feedback analysis
+
+Education
+PhD in Computer Science (AI/ML), IISc Bangalore
+MS in Computer Science, Georgia Tech
+BTech in Computer Science, NIT Trichy
+
+Certifications
+AWS Certified Machine Learning - Specialty
+GCP Professional Machine Learning Engineer`,
+  },
 ];
 
 /* ──────────────── Helper Functions ──────────────── */
@@ -1641,6 +1747,106 @@ const AI_JOB_TEMPLATES: { label: string; data: Omit<JobPosting, "id" | "applican
       benefits: ["Competitive salary", "Health insurance", "Learning budget", "Flexible work hours"],
     },
   },
+  {
+    label: "Frontend Developer",
+    data: {
+      title: "Frontend Developer",
+      department: "Engineering",
+      location: "Bangalore, IN",
+      type: "Full-time",
+      status: "draft",
+      openings: 2,
+      salary: "₹12-22 LPA",
+      urgent: false,
+      hiringManager: "Rajesh Kumar",
+      description: "We're looking for a skilled Frontend Developer to build beautiful, responsive, and accessible web interfaces for our HRMS platform using React, Next.js, and TypeScript.",
+      requirements: ["2+ years of frontend development experience", "Proficiency in React, Next.js, and TypeScript", "Experience with state management (Redux, Zustand)", "Understanding of responsive design and accessibility", "Knowledge of Git and CI/CD"],
+      responsibilities: ["Build and maintain React/Next.js components", "Implement responsive designs from Figma mockups", "Optimize application performance", "Write unit and integration tests", "Collaborate with backend and design teams"],
+      experienceLevel: "2-5",
+      skills: ["React", "Next.js", "TypeScript", "JavaScript", "Tailwind CSS", "Redux", "Git", "REST API", "HTML", "CSS"],
+      benefits: ["Competitive salary", "Health insurance", "Learning budget", "Flexible work hours"],
+    },
+  },
+  {
+    label: "Backend Developer",
+    data: {
+      title: "Backend Developer",
+      department: "Engineering",
+      location: "Pune, IN",
+      type: "Full-time",
+      status: "draft",
+      openings: 2,
+      salary: "₹14-25 LPA",
+      urgent: false,
+      hiringManager: "Rajesh Kumar",
+      description: "Join our backend team to design and build scalable APIs, microservices, and database systems that power our HRMS platform.",
+      requirements: ["3+ years of backend development experience", "Expert in Node.js or Python", "Experience with SQL and NoSQL databases", "Knowledge of microservices and REST API design", "Familiarity with cloud platforms (AWS/GCP)"],
+      responsibilities: ["Design and implement RESTful APIs", "Build scalable microservices", "Optimize database queries and schema", "Implement authentication and security", "Write unit and integration tests"],
+      experienceLevel: "3-5",
+      skills: ["Node.js", "Python", "PostgreSQL", "MongoDB", "Docker", "AWS", "REST API", "Git", "Redis", "CI/CD"],
+      benefits: ["Competitive salary", "Health insurance", "Learning budget", "Flexible work hours"],
+    },
+  },
+  {
+    label: "Product Designer",
+    data: {
+      title: "Product Designer",
+      department: "Design",
+      location: "Delhi, IN (Hybrid)",
+      type: "Full-time",
+      status: "draft",
+      openings: 1,
+      salary: "₹18-30 LPA",
+      urgent: false,
+      hiringManager: "Kavitha Reddy",
+      description: "Craft intuitive, beautiful experiences for our HRMS platform. You will work closely with product managers and engineers to ship features that delight users.",
+      requirements: ["4+ years of product design experience", "Proficiency in Figma", "Strong portfolio showcasing UX/UI work", "Experience with design systems and accessibility", "Understanding of user research methods"],
+      responsibilities: ["Design end-to-end user flows", "Maintain and evolve our design system", "Conduct user research and usability testing", "Create interactive prototypes", "Present designs to stakeholders"],
+      experienceLevel: "3-5",
+      skills: ["Figma", "User Research", "Prototyping", "Design Systems", "Accessibility", "Wireframing", "UI/UX", "Responsive Design"],
+      benefits: ["Competitive salary", "Health insurance", "Conference budget", "Flexible work hours"],
+    },
+  },
+  {
+    label: "DevOps Engineer",
+    data: {
+      title: "DevOps Engineer",
+      department: "Engineering",
+      location: "Bangalore, IN (Remote)",
+      type: "Full-time",
+      status: "draft",
+      openings: 1,
+      salary: "₹20-35 LPA",
+      urgent: false,
+      hiringManager: "Rajesh Kumar",
+      description: "Help us scale our infrastructure and ensure 99.9% uptime for our HRMS platform. You will design CI/CD pipelines, manage cloud infrastructure, and automate everything.",
+      requirements: ["4+ years in DevOps/SRE", "Expert in AWS or GCP", "Experience with Kubernetes, Docker, Terraform", "Strong scripting skills (Bash, Python)", "Knowledge of monitoring and alerting tools"],
+      responsibilities: ["Design and maintain CI/CD pipelines", "Manage cloud infrastructure with IaC", "Implement monitoring and alerting", "Automate deployment processes", "Ensure system reliability and security"],
+      experienceLevel: "3-5",
+      skills: ["AWS", "Docker", "Kubernetes", "Terraform", "CI/CD", "Python", "Bash", "Monitoring", "Linux", "Git"],
+      benefits: ["Competitive salary", "Health insurance", "Remote-first", "Learning budget"],
+    },
+  },
+  {
+    label: "Data Analyst",
+    data: {
+      title: "Data Analyst",
+      department: "Analytics",
+      location: "Mumbai, IN",
+      type: "Full-time",
+      status: "draft",
+      openings: 1,
+      salary: "₹10-18 LPA",
+      urgent: false,
+      hiringManager: "Srinivas M",
+      description: "Join our analytics team to turn data into actionable insights. You will analyze HR data, build dashboards, and help drive data-informed decision making.",
+      requirements: ["2+ years in data analysis", "Proficiency in SQL, Python, and Excel", "Experience with BI tools (Tableau, Power BI)", "Strong analytical and problem-solving skills", "Understanding of statistics"],
+      responsibilities: ["Analyze HR data and create reports", "Build dashboards for stakeholders", "Perform ad-hoc analysis", "Identify trends and patterns", "Support data-driven decision making"],
+      experienceLevel: "1-3",
+      skills: ["SQL", "Python", "Tableau", "Power BI", "Excel", "Statistics", "Data Analytics", "ETL"],
+      benefits: ["Competitive salary", "Health insurance", "Learning budget", "Flexible work hours"],
+    },
+  },
 ];
 
 const EXPERIENCE_LEVEL_CONFIG: Record<string, { label: string; color: string; bgColor: string }> = {
@@ -1823,8 +2029,8 @@ function CreateEditJobDialog({
               {isEdit ? <Files className="size-5 text-white" /> : <Plus className="size-5 text-white" />}
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">{isEdit ? "Edit Job Role" : "Create New Job Role"}</h2>
-              <p className="text-xs text-white/70">{isEdit ? "Update job details and requirements" : "Add a new position to your hiring pipeline"}</p>
+              <DialogTitle className="text-base font-bold text-white">{isEdit ? "Edit Job Role" : "Create New Job Role"}</DialogTitle>
+              <DialogDescription className="text-xs text-white/70">{isEdit ? "Update job details and requirements" : "Add a new position to your hiring pipeline"}</DialogDescription>
             </div>
           </div>
         </div>
@@ -1834,14 +2040,22 @@ function CreateEditJobDialog({
           <div className="p-5 space-y-5">
             <div>
               <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-1">Choose a Template</h3>
-              <p className="text-xs text-[var(--saptta-mute)]">Start with a pre-built AI role template or create from scratch</p>
+              <p className="text-xs text-[var(--saptta-mute)]">Start with a pre-built role template or create from scratch</p>
             </div>
 
-            {/* AI Role Templates */}
-            <div className="space-y-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">AI & Machine Learning Roles</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {AI_JOB_TEMPLATES.map((template) => {
+            {/* Group templates by department */}
+            {Object.entries(
+              AI_JOB_TEMPLATES.reduce((groups, t) => {
+                const dept = t.data.department;
+                if (!groups[dept]) groups[dept] = [];
+                groups[dept].push(t);
+                return groups;
+              }, {} as Record<string, typeof AI_JOB_TEMPLATES>)
+            ).map(([dept, templates]) => (
+              <div key={dept} className="space-y-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">{dept}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {templates.map((template) => {
                   const expCfg = EXPERIENCE_LEVEL_CONFIG[template.data.experienceLevel || "mid"];
                   return (
                     <motion.div
@@ -1881,8 +2095,9 @@ function CreateEditJobDialog({
                     </motion.div>
                   );
                 })}
+                </div>
               </div>
-            </div>
+            ))}
 
             <Separator />
 

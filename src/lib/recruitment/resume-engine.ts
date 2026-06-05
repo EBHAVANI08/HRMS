@@ -117,68 +117,279 @@ const STOP_WORDS = new Set([
   'within', 'without', 'towards', 'upon', 'into', 'per',
 ]);
 
-/* ──────────────── Skill Synonyms Map ──────────────── */
+/* ──────────────── Skill Synonyms & Abbreviation Map ──────────────── */
 
+/**
+ * SKILL_SYNONYMS: Maps a canonical skill name to its known synonyms/abbreviations.
+ * Used for bidirectional matching — both the JD and resume can use either form.
+ *
+ * SKILL_ABBREVIATION_MAP: Maps short-form abbreviations to their full expanded forms.
+ * When a resume contains "ML", "NLP", "DL", "CV" etc., these get expanded so the
+ * matching engine can recognize them against full-form JD requirements.
+ */
 const SKILL_SYNONYMS: Record<string, string[]> = {
-  'javascript': ['js', 'es6', 'es2015', 'ecmascript'],
-  'typescript': ['ts'],
-  'react': ['reactjs', 'react.js'],
-  'nextjs': ['next.js', 'next'],
-  'nodejs': ['node', 'node.js'],
-  'python': ['py'],
-  'postgresql': ['postgres', 'pg'],
-  'mongodb': ['mongo'],
-  'kubernetes': ['k8s'],
-  'docker': ['containerization'],
-  'aws': ['amazon web services'],
-  'gcp': ['google cloud', 'google cloud platform'],
-  'ci/cd': ['cicd', 'continuous integration', 'continuous delivery', 'continuous deployment'],
-  'machine learning': ['ml'],
-  'artificial intelligence': ['ai'],
-  'natural language processing': ['nlp'],
-  'devops': ['sre', 'site reliability'],
-  'ui/ux': ['user interface', 'user experience', 'ux/ui'],
-  'figma': ['figma design'],
-  'sql': ['structured query language'],
-  'rest api': ['restful', 'rest apis'],
-  'graphql': ['gql'],
-  'redux': ['redux toolkit', 'rtk'],
-  'tailwind': ['tailwindcss', 'tailwind css'],
-  'css': ['cascading style sheets'],
-  'html': ['html5'],
-  'java': ['j2ee', 'jee'],
-  'c#': ['csharp', 'c sharp'],
-  '.net': ['dotnet', 'dot net'],
-  'angular': ['angularjs', 'angular.js'],
-  'vue': ['vuejs', 'vue.js'],
-  'svelte': ['sveltejs'],
-  'express': ['expressjs', 'express.js'],
-  'django': ['django framework'],
-  'flask': ['flask framework'],
-  'spring': ['spring boot', 'springboot'],
-  'react native': ['reactnative'],
-  'flutter': ['flutter sdk'],
-  'swift': ['swift ios'],
-  'kotlin': ['kotlin android'],
-  'terraform': ['iac', 'infrastructure as code'],
-  'jenkins': ['ci server'],
-  'git': ['github', 'gitlab'],
-  'jira': ['atlassian jira'],
-  'agile': ['scrum', 'kanban'],
-  'saas': ['software as a service'],
-  'b2b': ['business to business'],
-  'hrms': ['human resource management', 'hr management'],
-  'ats': ['applicant tracking', 'recruitment software'],
+  // ── Programming Languages ──
+  'javascript': ['js', 'es6', 'es2015', 'ecmascript', 'es2016', 'es2017', 'es2020', 'esnext'],
+  'typescript': ['ts', 'tsx'],
+  'python': ['py', 'python3', 'python2'],
+  'java': ['j2ee', 'jee', 'jdk', 'jvm', 'java se', 'java ee'],
+  'c': ['c language', 'ansi c'],
+  'c++': ['cpp', 'c plus plus', 'cplusplus'],
+  'c#': ['csharp', 'c sharp', 'csharp.net'],
+  '.net': ['dotnet', 'dot net', 'asp.net', 'dotnet core'],
+  'go': ['golang', 'go lang'],
+  'rust': ['rustlang'],
+  'ruby': ['ruby on rails', 'ror'],
+  'php': ['php7', 'php8', 'laravel'],
+  'swift': ['swift ios', 'swift5'],
+  'kotlin': ['kotlin android', 'kt'],
+  'scala': ['scala lang'],
+  'r': ['r lang', 'rlang', 'r programming', 'rstats'],
+  'matlab': ['matrix laboratory'],
+  'perl': ['perl5'],
+  'lua': ['lua script'],
+
+  // ── Frontend Frameworks ──
+  'react': ['reactjs', 'react.js', 'react js', 'react 18', 'react 19'],
+  'nextjs': ['next.js', 'next', 'next js', 'nextjs 14', 'nextjs 15'],
+  'angular': ['angularjs', 'angular.js', 'angular js', 'ng'],
+  'vue': ['vuejs', 'vue.js', 'vue js', 'vue3', 'vue 3'],
+  'svelte': ['sveltejs', 'svelte kit', 'sveltekit'],
+  'remix': ['remix run'],
+  'gatsby': ['gatsbyjs'],
+  'nuxt': ['nuxtjs', 'nuxt.js'],
+
+  // ── Backend Frameworks ──
+  'nodejs': ['node', 'node.js', 'node js', 'express.js', 'express'],
+  'express': ['expressjs', 'express.js', 'express js'],
+  'django': ['django framework', 'django rest', 'drf', 'django rest framework'],
+  'flask': ['flask framework', 'flask api'],
+  'fastapi': ['fast api', 'fast-api'],
+  'spring': ['spring boot', 'springboot', 'spring boot 3', 'spring framework'],
+  'rails': ['ruby on rails', 'ror'],
+  'laravel': ['laravel php'],
+  'nestjs': ['nest.js', 'nest js'],
+  'gin': ['gin gonic'],
+
+  // ── Databases ──
+  'postgresql': ['postgres', 'pg', 'psql', 'postgres sql'],
+  'mongodb': ['mongo', 'mongoose'],
+  'mysql': ['my sql', 'mariadb'],
+  'redis': ['redis cache', 'redis server'],
+  'elasticsearch': ['elastic', 'es', 'elastic search', 'opensearch'],
+  'cassandra': ['apache cassandra', 'cql'],
+  'dynamodb': ['dynamo db', 'aws dynamo'],
+  'sqlite': ['sqlite3'],
+  'neo4j': ['neo4j graph', 'cypher'],
+  'oracle db': ['oracle database', 'pl/sql', 'plsql'],
+  'sql server': ['mssql', 'ms sql', 't-sql', 'tsql'],
+
+  // ── Cloud & DevOps ──
+  'aws': ['amazon web services', 'amazon aws', 'aws cloud'],
+  'gcp': ['google cloud', 'google cloud platform', 'gcloud'],
+  'azure': ['microsoft azure', 'azure cloud', 'ms azure'],
+  'docker': ['containerization', 'docker compose', 'docker-compose', 'container'],
+  'kubernetes': ['k8s', 'kube', 'k8s cluster', 'helm'],
+  'terraform': ['iac', 'infrastructure as code', 'tf'],
+  'jenkins': ['ci server', 'jenkins pipeline'],
+  'github actions': ['gh actions', 'gha'],
+  'gitlab ci': ['gitlab pipeline'],
+  'circleci': ['circle ci'],
+  'argocd': ['argo cd', 'gitops'],
+  'ansible': ['ansible playbook', 'ansible tower'],
+  'cloudformation': ['cfn', 'aws cloudformation'],
+  'nginx': ['nginx server', 'reverse proxy'],
+  'apache': ['apache server', 'httpd'],
+
+  // ── AI / Machine Learning ──
+  'machine learning': ['ml', 'ml algorithms', 'ml models', 'ml engineering', 'ml ops', 'predictive modeling'],
+  'artificial intelligence': ['ai', 'ai/ml', 'ai ml', 'ai systems', 'ai engineering'],
+  'deep learning': ['dl', 'deep neural networks', 'dnn', 'deep nn', 'neural networks', 'nn'],
+  'natural language processing': ['nlp', 'text mining', 'text analytics', 'language models', 'computational linguistics'],
+  'computer vision': ['cv', 'image processing', 'visual recognition', 'object detection', 'image classification'],
+  'large language models': ['llm', 'llms', 'gpt', 'transformer models', 'foundation models', 'generative ai', 'genai', 'gen ai'],
+  'reinforcement learning': ['rl', 'rlhf', 'reward modeling'],
+  'generative adversarial networks': ['gan', 'gans', 'generative models'],
+  'convolutional neural networks': ['cnn', 'convnet', 'convolutional networks'],
+  'recurrent neural networks': ['rnn', 'lstm', 'gru', 'sequential models'],
+  'transformer architecture': ['transformers', 'attention mechanism', 'self-attention', 'bert', 'gpt architecture'],
+  'retrieval augmented generation': ['rag', 'retrieval augmented', 'rag pipeline', 'vector search'],
+  'prompt engineering': ['prompting', 'prompt design', 'prompt optimization', 'chain of thought', 'cot', 'few-shot', 'zero-shot'],
+  'model fine-tuning': ['fine-tuning', 'finetuning', 'lora', 'qlora', 'peft', 'adapter', 'transfer learning'],
+  'mlops': ['ml ops', 'ml operations', 'model deployment', 'model serving', 'ml infrastructure', 'ml platform'],
+  'feature engineering': ['feature extraction', 'feature selection', 'feature store'],
+  'data preprocessing': ['data cleaning', 'data wrangling', 'etl', 'data transformation'],
+  'exploratory data analysis': ['eda', 'data exploration', 'data profiling'],
+  'a/b testing': ['ab testing', 'split testing', 'experimentation', 'controlled experiments'],
+  'recommender systems': ['recommendation engine', 'collaborative filtering', 'recsys'],
+
+  // ── AI/ML Frameworks & Libraries ──
+  'tensorflow': ['tf', 'tensorflow 2', 'tf2', 'keras'],
+  'pytorch': ['torch', 'pytorch lightning', 'lightning'],
+  'scikit-learn': ['sklearn', 'scikit learn', 'sk-learn'],
+  'pandas': ['pd', 'pandas dataframe'],
+  'numpy': ['np', 'numerical python'],
+  'matplotlib': ['plt', 'pyplot'],
+  'seaborn': ['sns'],
+  'opencv': ['cv2', 'computer vision library'],
+  'hugging face': ['huggingface', 'hf', 'transformers library', 'hf transformers'],
+  'langchain': ['lang chain', 'lc'],
+  'mlflow': ['ml flow', 'experiment tracking'],
+  'weights & biases': ['wandb', 'w&b', 'wb'],
+  'spacy': ['spacy nlp', 'spaCy'],
+  'nltk': ['natural language toolkit'],
+  'gensim': ['topic modeling'],
+  'statsmodels': ['statistical models'],
+  'xgboost': ['extreme gradient boosting', 'xgb'],
+  'lightgbm': ['lgbm', 'light gbm', 'lgboost'],
+  'catboost': ['cat boost', 'cb'],
+  'ray': ['ray framework', 'distributed computing'],
+  'apache spark': ['spark', 'pyspark', 'spark sql', 'spark ml'],
+  'databricks': ['databricks platform', 'delta lake'],
+  'airflow': ['apache airflow', 'dag', 'workflow orchestration'],
+  'kafka': ['apache kafka', 'event streaming', 'message queue'],
+  'dbt': ['data build tool', 'dbt core'],
+
+  // ── Data & Analytics ──
+  'sql': ['structured query language', 'sql queries', 'sql server'],
+  'tableau': ['tableau desktop', 'tableau server', 'tableau prep'],
+  'power bi': ['powerbi', 'pbi', 'dax'],
+  'looker': ['lookml', 'looker studio'],
+  'snowflake': ['snowflake db', 'snowflake warehouse'],
+  'data warehousing': ['data warehouse', 'dw', 'data mart', 'olap'],
+  'etl': ['extract transform load', 'data pipeline', 'data integration'],
+  'data lake': ['datalake', 'data lakehouse', 'lakehouse'],
+  'data governance': ['data quality', 'data catalog', 'data lineage'],
+  'business intelligence': ['bi', 'bi tools', 'business analytics', 'reporting', 'dashboards'],
+  'data engineering': ['data engineer', 'data infrastructure', 'data platform'],
+  'data science': ['ds', 'data scientist', 'statistical analysis'],
+  'data analytics': ['da', 'data analyst', 'analytics', 'quantitative analysis'],
+
+  // ── Design ──
+  'figma': ['figma design', 'figma prototype'],
+  'sketch': ['sketch app', 'sketch design'],
+  'adobe xd': ['xd', 'adobe experience design'],
+  'ui/ux': ['user interface', 'user experience', 'ux/ui', 'ux design', 'ui design', 'product design'],
+  'design systems': ['design system', 'component library', 'design tokens'],
+  'prototyping': ['prototype', 'interactive prototype', 'wireframe prototype'],
+  'wireframing': ['wireframe', 'wireframes', 'low fidelity'],
+  'user research': ['ux research', 'usability research', 'user studies'],
+  'accessibility': ['a11y', 'wcag', 'aria', 'inclusive design'],
+
+  // ── Mobile ──
+  'react native': ['reactnative', 'react native cli', 'expo'],
+  'flutter': ['flutter sdk', 'dart', 'flutter app'],
+  'ios': ['iphone', 'ipad', 'swiftui', 'uikit'],
+  'android': ['android sdk', 'jetpack compose', 'android studio'],
+
+  // ── Soft Skills / Methodologies ──
+  'agile': ['scrum', 'kanban', 'agile methodology', 'sprint', 'agile framework'],
+  'devops': ['sre', 'site reliability', 'devsecops', 'platform engineering'],
+  'saas': ['software as a service', 'cloud software', 'web app'],
+  'b2b': ['business to business', 'enterprise'],
+  'b2c': ['business to consumer', 'consumer'],
+  'hrms': ['human resource management', 'hr management', 'hr system', 'hris'],
+  'ats': ['applicant tracking', 'recruitment software', 'recruiting platform'],
+  'crm': ['customer relationship management', 'salesforce'],
+  'erp': ['enterprise resource planning', 'sap', 'oracle erp'],
+
+  // ── Version Control & Tools ──
+  'git': ['github', 'gitlab', 'bitbucket', 'version control'],
+  'jira': ['atlassian jira', 'issue tracking'],
+  'confluence': ['atlassian confluence', 'wiki'],
+  'notion': ['notion app', 'notion workspace'],
+  'slack': ['slack api', 'slack bot'],
+  'postman': ['api testing', 'rest client', 'http client'],
+
+  // ── Security ──
+  'cybersecurity': ['infosec', 'information security', 'security engineering', 'security ops', 'secops'],
+  'penetration testing': ['pentesting', 'pen test', 'ethical hacking', 'red team'],
+  'oauth': ['oauth2', 'openid connect', 'oidc', 'sso'],
+  'encryption': ['cryptography', 'crypto', 'tls', 'ssl', 'https'],
+
+  // ── Testing ──
+  'unit testing': ['unit test', 'jest', 'mocha', 'pytest', 'junit'],
+  'integration testing': ['integration test', 'e2e testing', 'end to end testing'],
+  'selenium': ['selenium webdriver', 'webdriver'],
+  'cypress': ['cypress io', 'cypress testing'],
+  'playwright': ['playwright testing', 'ms playwright'],
+  'load testing': ['performance testing', 'stress testing', 'jmeter', 'k6'],
 };
+
+/**
+ * REVERSE_SYNONYM_MAP: For quick lookup — given any abbreviation/synonym,
+ * find all canonical forms it could map to. Built automatically from SKILL_SYNONYMS.
+ */
+const REVERSE_SYNONYM_MAP: Record<string, string[]> = {};
+
+// Build the reverse map
+for (const [canonical, synonyms] of Object.entries(SKILL_SYNONYMS)) {
+  for (const syn of synonyms) {
+    const key = syn.toLowerCase();
+    if (!REVERSE_SYNONYM_MAP[key]) REVERSE_SYNONYM_MAP[key] = [];
+    if (!REVERSE_SYNONYM_MAP[key].includes(canonical)) {
+      REVERSE_SYNONYM_MAP[key].push(canonical);
+    }
+  }
+}
+
+/**
+ * Expand a skill abbreviation or short form to all possible canonical full forms.
+ * E.g., "ml" → ["machine learning"], "nlp" → ["natural language processing"],
+ * "dl" → ["deep learning"], "cv" → ["computer vision"]
+ */
+export function expandSkillAbbreviation(shortForm: string): string[] {
+  const lower = shortForm.toLowerCase().trim();
+
+  // Direct reverse lookup
+  const fromReverse = REVERSE_SYNONYM_MAP[lower] || [];
+
+  // Check if it's already a canonical form
+  const isCanonical = SKILL_SYNONYMS[lower] !== undefined;
+
+  // Combine results
+  const results = new Set<string>();
+  if (isCanonical) results.add(lower);
+  for (const c of fromReverse) results.add(c);
+
+  return Array.from(results);
+}
+
+/**
+ * Get all possible forms (canonical + synonyms) for a given skill term.
+ * Used during matching to check every possible variation.
+ */
+export function getAllSkillForms(skillTerm: string): string[] {
+  const lower = skillTerm.toLowerCase().trim();
+  const forms = new Set<string>();
+  forms.add(lower);
+
+  // If it's a canonical form, add all synonyms
+  if (SKILL_SYNONYMS[lower]) {
+    for (const syn of SKILL_SYNONYMS[lower]) forms.add(syn.toLowerCase());
+  }
+
+  // If it's a synonym/abbreviation, add canonical forms and their synonyms
+  const canonicals = REVERSE_SYNONYM_MAP[lower] || [];
+  for (const canonical of canonicals) {
+    forms.add(canonical.toLowerCase());
+    if (SKILL_SYNONYMS[canonical]) {
+      for (const syn of SKILL_SYNONYMS[canonical]) forms.add(syn.toLowerCase());
+    }
+  }
+
+  return Array.from(forms);
+}
 
 /* ──────────────── Technical Skills Master List ──────────────── */
 
 const TECH_SKILLS_MASTER: Record<string, string[]> = {
-  'engineering': ['react', 'nextjs', 'typescript', 'javascript', 'python', 'java', 'nodejs', 'go', 'rust', 'c++', 'ruby', 'php', 'swift', 'kotlin', 'docker', 'kubernetes', 'aws', 'gcp', 'azure', 'terraform', 'ci/cd', 'git', 'sql', 'postgresql', 'mongodb', 'redis', 'elasticsearch', 'graphql', 'rest api', 'microservices', 'system design', 'algorithms', 'data structures', 'redux', 'tailwind', 'css', 'html', 'angular', 'vue', 'svelte', 'express', 'django', 'flask', 'spring', 'react native', 'flutter', 'devops', 'sre'],
-  'design': ['figma', 'sketch', 'adobe xd', 'invision', 'photoshop', 'illustrator', 'after effects', 'prototyping', 'wireframing', 'user research', 'usability testing', 'design systems', 'accessibility', 'responsive design', 'interaction design', 'information architecture'],
-  'data': ['python', 'sql', 'spark', 'airflow', 'kafka', 'hadoop', 'tableau', 'power bi', 'looker', 'snowflake', 'databricks', 'dbt', 'etl', 'data warehousing', 'machine learning', 'deep learning', 'nlp', 'computer vision', 'statistics', 'a/b testing', 'pandas', 'numpy', 'scikit-learn', 'tensorflow', 'pytorch'],
-  'sales': ['salesforce', 'hubspot', 'crm', 'b2b', 'enterprise sales', 'saaas', 'pipeline management', 'negotiation', 'revenue forecasting', 'cold calling', 'lead generation', 'account management', 'proposal writing'],
-  'hr': ['hrms', 'ats', 'recruitment', 'onboarding', 'performance management', 'compensation', 'labor laws', 'pf', 'esi', 'tds', 'gratuity', 'payroll', 'employee engagement', 'talent management', 'succession planning'],
+  'engineering': ['react', 'nextjs', 'typescript', 'javascript', 'python', 'java', 'nodejs', 'go', 'rust', 'c++', 'ruby', 'php', 'swift', 'kotlin', 'docker', 'kubernetes', 'aws', 'gcp', 'azure', 'terraform', 'ci/cd', 'git', 'sql', 'postgresql', 'mongodb', 'redis', 'elasticsearch', 'graphql', 'rest api', 'microservices', 'system design', 'algorithms', 'data structures', 'redux', 'tailwind', 'css', 'html', 'angular', 'vue', 'svelte', 'express', 'django', 'flask', 'spring', 'react native', 'flutter', 'devops', 'sre', 'fastapi', 'nestjs', 'remix', 'nuxt', 'selenium', 'cypress', 'playwright', 'jest', 'pytest'],
+  'ai & machine learning': ['python', 'machine learning', 'ml', 'deep learning', 'dl', 'natural language processing', 'nlp', 'computer vision', 'cv', 'artificial intelligence', 'ai', 'large language models', 'llm', 'llms', 'tensorflow', 'tf', 'pytorch', 'torch', 'scikit-learn', 'sklearn', 'pandas', 'numpy', 'keras', 'opencv', 'cv2', 'hugging face', 'huggingface', 'langchain', 'mlflow', 'spacy', 'nltk', 'transformers', 'bert', 'gpt', 'rag', 'retrieval augmented generation', 'prompt engineering', 'mlops', 'model fine-tuning', 'lora', 'qlora', 'peft', 'reinforcement learning', 'rl', 'generative adversarial networks', 'gan', 'convolutional neural networks', 'cnn', 'recurrent neural networks', 'rnn', 'lstm', 'xgboost', 'lightgbm', 'catboost', 'feature engineering', 'data preprocessing', 'eda', 'exploratory data analysis', 'a/b testing', 'recommender systems', 'spark', 'pyspark', 'airflow', 'kafka', 'databricks', 'weights & biases', 'wandb', 'ray', 'statistics', 'mathematics', 'linear algebra', 'calculus', 'probability', 'genai', 'generative ai', 'neural networks', 'nn', 'dnn', 'transfer learning', 'fine-tuning', 'model deployment', 'model serving', 'ai ethics', 'responsible ai'],
+  'design': ['figma', 'sketch', 'adobe xd', 'invision', 'photoshop', 'illustrator', 'after effects', 'prototyping', 'wireframing', 'user research', 'usability testing', 'design systems', 'accessibility', 'responsive design', 'interaction design', 'information architecture', 'a11y', 'wcag', 'ux design', 'ui design', 'product design'],
+  'data': ['python', 'sql', 'spark', 'airflow', 'kafka', 'hadoop', 'tableau', 'power bi', 'looker', 'snowflake', 'databricks', 'dbt', 'etl', 'data warehousing', 'machine learning', 'deep learning', 'nlp', 'computer vision', 'statistics', 'a/b testing', 'pandas', 'numpy', 'scikit-learn', 'tensorflow', 'pytorch', 'data engineering', 'data science', 'data analytics', 'data governance', 'data lake', 'business intelligence', 'bi', 'pyspark', 'delta lake', 'data pipeline', 'data modeling', 'snowflake', 'redshift'],
+  'sales': ['salesforce', 'hubspot', 'crm', 'b2b', 'enterprise sales', 'saas', 'pipeline management', 'negotiation', 'revenue forecasting', 'cold calling', 'lead generation', 'account management', 'proposal writing'],
+  'hr': ['hrms', 'ats', 'recruitment', 'onboarding', 'performance management', 'compensation', 'labor laws', 'pf', 'esi', 'tds', 'gratuity', 'payroll', 'employee engagement', 'talent management', 'succession planning', 'hris'],
   'marketing': ['google analytics', 'seo', 'sem', 'content marketing', 'social media', 'email marketing', 'marketing automation', 'hubspot', 'marketo', 'google ads', 'facebook ads', 'copywriting', 'brand strategy'],
   'finance': ['tally', 'gst', 'taxation', 'auditing', 'financial modeling', 'budgeting', 'forecasting', 'sap', 'erp', 'accounts payable', 'accounts receivable', 'reconciliation'],
 };
@@ -327,7 +538,10 @@ export function computeCosineSimilarity(jdKeywords: JDKeywords, resume: ResumeEx
 }
 
 /**
- * Compute keyword-level match between JD and resume
+ * Compute keyword-level match between JD and resume.
+ * Uses comprehensive abbreviation expansion — matches "ML" in resume against
+ * "Machine Learning" in JD (and vice versa), "NLP" against "Natural Language Processing",
+ * etc. This ensures candidates who write skills in short form are not penalized.
  */
 export function computeKeywordMatch(jdKeywords: JDKeywords, resume: ResumeExtracted): KeywordMatchResult {
   const categories = [
@@ -338,6 +552,16 @@ export function computeKeywordMatch(jdKeywords: JDKeywords, resume: ResumeExtrac
     { name: 'softSkills', jdItems: jdKeywords.softSkills, resumeItems: resume.softSkills.map(s => s.value) },
     { name: 'domain', jdItems: jdKeywords.domain, resumeItems: resume.skills.map(s => s.value) },
   ];
+
+  // Pre-compute all possible forms for each resume item (expands abbreviations)
+  const resumeFormsMap = new Map<string, string[]>();
+  for (const cat of categories) {
+    for (const item of cat.resumeItems) {
+      if (!resumeFormsMap.has(item.toLowerCase())) {
+        resumeFormsMap.set(item.toLowerCase(), getAllSkillForms(item));
+      }
+    }
+  }
 
   let totalKeywords = 0;
   let totalMatched = 0;
@@ -353,21 +577,59 @@ export function computeKeywordMatch(jdKeywords: JDKeywords, resume: ResumeExtrac
       totalKeywords++;
       const jdLower = jdItem.toLowerCase();
       let isMatch = false;
+      let matchType = '';
 
-      // Direct match
+      // 1. Direct match (exact string equality)
       if (cat.resumeItems.some(r => r.toLowerCase() === jdLower)) {
         isMatch = true;
+        matchType = 'exact';
       }
-      // Synonym match
+
+      // 2. Abbreviation-expanded match — get ALL forms for the JD term
+      //    E.g., "machine learning" → also checks "ml", "ML algorithms", etc.
+      //    E.g., "ml" → also checks "machine learning", "ML engineering", etc.
+      if (!isMatch) {
+        const jdForms = getAllSkillForms(jdItem);
+        for (const form of jdForms) {
+          if (cat.resumeItems.some(r => r.toLowerCase() === form)) {
+            isMatch = true;
+            matchType = 'abbreviation-expanded';
+            break;
+          }
+        }
+      }
+
+      // 3. Reverse check — for each resume item, check if its expanded forms include the JD term
+      //    This catches cases like: resume has "ML", JD has "Machine Learning"
+      if (!isMatch) {
+        for (const resumeItem of cat.resumeItems) {
+          const resumeForms = resumeFormsMap.get(resumeItem.toLowerCase()) || getAllSkillForms(resumeItem);
+          if (resumeForms.includes(jdLower)) {
+            isMatch = true;
+            matchType = 'reverse-abbreviation';
+            break;
+          }
+        }
+      }
+
+      // 4. Synonym match (legacy compatibility)
       if (!isMatch) {
         const synonyms = SKILL_SYNONYMS[jdLower];
         if (synonyms && cat.resumeItems.some(r => synonyms.includes(r.toLowerCase()))) {
           isMatch = true;
+          matchType = 'synonym';
         }
       }
-      // Partial match (e.g., "react" in "react, next.js")
+
+      // 5. Partial match (e.g., "react" in "react, next.js")
       if (!isMatch) {
-        isMatch = cat.resumeItems.some(r => r.toLowerCase().includes(jdLower) || jdLower.includes(r.toLowerCase()));
+        isMatch = cat.resumeItems.some(r => {
+          const rLower = r.toLowerCase();
+          // Avoid false positives for very short terms like "c", "r", "go"
+          if (jdLower.length <= 2 || rLower.length <= 2) return false;
+          return rLower.includes(jdLower) || jdLower.includes(rLower);
+        });
+        if (isMatch) matchType = 'partial';
       }
 
       if (isMatch) {
@@ -654,6 +916,30 @@ function extractSkillsFromText(tokens: string[], fullText: string): string[] {
     }
   }
 
+  // Expand abbreviations found in the JD text
+  // E.g., if JD says "ML", also add "Machine Learning" as a keyword
+  const jdAbbreviationPatterns: { pattern: RegExp; fullForm: string }[] = [
+    { pattern: /\bML\b/gi, fullForm: 'Machine Learning' },
+    { pattern: /\bNLP\b/gi, fullForm: 'Natural Language Processing' },
+    { pattern: /\bDL\b/gi, fullForm: 'Deep Learning' },
+    { pattern: /\bCV\b(?!2)/gi, fullForm: 'Computer Vision' },
+    { pattern: /\bAI\b/gi, fullForm: 'Artificial Intelligence' },
+    { pattern: /\bLLM\b/gi, fullForm: 'Large Language Models' },
+    { pattern: /\bLLMs\b/gi, fullForm: 'Large Language Models' },
+    { pattern: /\bRAG\b/gi, fullForm: 'Retrieval Augmented Generation' },
+    { pattern: /\bGAN\b/gi, fullForm: 'Generative Adversarial Networks' },
+    { pattern: /\bCNN\b/gi, fullForm: 'Convolutional Neural Networks' },
+    { pattern: /\bRNN\b/gi, fullForm: 'Recurrent Neural Networks' },
+    { pattern: /\bMLOps\b/gi, fullForm: 'MLOps' },
+    { pattern: /\bGenAI\b/gi, fullForm: 'Generative AI' },
+  ];
+
+  for (const { pattern, fullForm } of jdAbbreviationPatterns) {
+    if (pattern.test(fullText) && !skills.has(fullForm)) {
+      skills.add(fullForm);
+    }
+  }
+
   // Also check for compound terms
   const compoundPatterns = [
     /react\s*native/gi, /next\.?\s*js/gi, /node\.?\s*js/gi, /machine\s*learning/gi,
@@ -661,6 +947,10 @@ function extractSkillsFromText(tokens: string[], fullText: string): string[] {
     /product\s*management/gi, /business\s*development/gi, /cloud\s*computing/gi,
     /full\s*stack/gi, /front\s*end/gi, /back\s*end/gi, /data\s*science/gi,
     /data\s*analytics/gi, /business\s*intelligence/gi, /quality\s*assurance/gi,
+    /large\s*language\s*models?/gi, /natural\s*language\s*processing/gi,
+    /computer\s*vision/gi, /reinforcement\s*learning/gi, /generative\s*ai/gi,
+    /prompt\s*engineering/gi, /model\s*fine.?\s*tuning/gi, /feature\s*engineering/gi,
+    /transfer\s*learning/gi, /retrieval\s*augmented\s*generation/gi,
   ];
 
   for (const pattern of compoundPatterns) {
@@ -800,6 +1090,57 @@ function extractSkillsFromResume(text: string, sections: Record<string, string>)
     }
   }
 
+  // Also check for abbreviation short forms that might not be in TECH_SKILLS_MASTER
+  // e.g., "ML", "NLP", "DL", "CV" etc. — expand them to full forms
+  const abbreviationPatterns: { pattern: RegExp; fullForm: string; confidence: number }[] = [
+    { pattern: /\bML\b/gi, fullForm: 'Machine Learning', confidence: 0.85 },
+    { pattern: /\bNLP\b/gi, fullForm: 'Natural Language Processing', confidence: 0.9 },
+    { pattern: /\bDL\b/gi, fullForm: 'Deep Learning', confidence: 0.85 },
+    { pattern: /\bCV\b(?!2)/gi, fullForm: 'Computer Vision', confidence: 0.8 },
+    { pattern: /\bAI\b/gi, fullForm: 'Artificial Intelligence', confidence: 0.85 },
+    { pattern: /\bLLM\b/gi, fullForm: 'Large Language Models', confidence: 0.9 },
+    { pattern: /\bLLMs\b/gi, fullForm: 'Large Language Models', confidence: 0.9 },
+    { pattern: /\bRAG\b/gi, fullForm: 'Retrieval Augmented Generation', confidence: 0.9 },
+    { pattern: /\bGAN\b/gi, fullForm: 'Generative Adversarial Networks', confidence: 0.85 },
+    { pattern: /\bGANs\b/gi, fullForm: 'Generative Adversarial Networks', confidence: 0.85 },
+    { pattern: /\bCNN\b/gi, fullForm: 'Convolutional Neural Networks', confidence: 0.85 },
+    { pattern: /\bRNN\b/gi, fullForm: 'Recurrent Neural Networks', confidence: 0.85 },
+    { pattern: /\bLSTM\b/gi, fullForm: 'Long Short-Term Memory', confidence: 0.85 },
+    { pattern: /\bMLOps\b/gi, fullForm: 'MLOps', confidence: 0.9 },
+    { pattern: /\bGenAI\b/gi, fullForm: 'Generative AI', confidence: 0.9 },
+    { pattern: /\bRL\b/gi, fullForm: 'Reinforcement Learning', confidence: 0.8 },
+    { pattern: /\bEDA\b/gi, fullForm: 'Exploratory Data Analysis', confidence: 0.8 },
+    { pattern: /\bSRE\b/gi, fullForm: 'Site Reliability Engineering', confidence: 0.85 },
+    { pattern: /\bK8s\b/gi, fullForm: 'Kubernetes', confidence: 0.95 },
+    { pattern: /\bGCP\b/gi, fullForm: 'Google Cloud Platform', confidence: 0.9 },
+    { pattern: /\bAWS\b/gi, fullForm: 'Amazon Web Services', confidence: 0.9 },
+    { pattern: /\bIaC\b/gi, fullForm: 'Infrastructure as Code', confidence: 0.85 },
+    { pattern: /\bCI\/CD\b/gi, fullForm: 'CI/CD', confidence: 0.95 },
+    { pattern: /\bSaaS\b/gi, fullForm: 'Software as a Service', confidence: 0.9 },
+    { pattern: /\bB2B\b/gi, fullForm: 'Business to Business', confidence: 0.9 },
+    { pattern: /\bERP\b/gi, fullForm: 'Enterprise Resource Planning', confidence: 0.9 },
+    { pattern: /\bCRM\b/gi, fullForm: 'Customer Relationship Management', confidence: 0.9 },
+    { pattern: /\bA11y\b/gi, fullForm: 'Accessibility', confidence: 0.9 },
+  ];
+
+  for (const { pattern, fullForm, confidence } of abbreviationPatterns) {
+    if (pattern.test(allText)) {
+      // Only add if the full form isn't already detected
+      const fullFormLower = fullForm.toLowerCase();
+      if (!skills.some(s => s.value.toLowerCase() === fullFormLower)) {
+        const inSkillsSection = skillsSection.includes(allText.match(pattern)?.[0]?.toLowerCase() || '');
+        skills.push({
+          value: fullForm,
+          confidence: inSkillsSection ? Math.min(confidence + 0.1, 0.98) : confidence,
+          source: inSkillsSection
+            ? `Skills section (expanded from abbreviation ${pattern.source.replace(/\\b/g, '')})`
+            : `Detected abbreviation in resume (expanded to ${fullForm})`,
+          verified: false,
+        });
+      }
+    }
+  }
+
   // Also check for compound terms
   const compoundPatterns = [
     { pattern: /react\s*native/gi, name: 'React Native' },
@@ -808,6 +1149,18 @@ function extractSkillsFromResume(text: string, sections: Record<string, string>)
     { pattern: /machine\s*learning/gi, name: 'Machine Learning' },
     { pattern: /deep\s*learning/gi, name: 'Deep Learning' },
     { pattern: /full\s*stack/gi, name: 'Full Stack' },
+    { pattern: /large\s*language\s*models?/gi, name: 'Large Language Models' },
+    { pattern: /natural\s*language\s*processing/gi, name: 'Natural Language Processing' },
+    { pattern: /computer\s*vision/gi, name: 'Computer Vision' },
+    { pattern: /reinforcement\s*learning/gi, name: 'Reinforcement Learning' },
+    { pattern: /generative\s*ai/gi, name: 'Generative AI' },
+    { pattern: /prompt\s*engineering/gi, name: 'Prompt Engineering' },
+    { pattern: /model\s*fine.?\s*tuning/gi, name: 'Model Fine-tuning' },
+    { pattern: /feature\s*engineering/gi, name: 'Feature Engineering' },
+    { pattern: /data\s*science/gi, name: 'Data Science' },
+    { pattern: /data\s*engineering/gi, name: 'Data Engineering' },
+    { pattern: /data\s*analytics/gi, name: 'Data Analytics' },
+    { pattern: /transfer\s*learning/gi, name: 'Transfer Learning' },
   ];
 
   for (const { pattern, name } of compoundPatterns) {
@@ -998,12 +1351,10 @@ function isVerifiedInText(item: string, lowerText: string): boolean {
   const itemLower = item.toLowerCase();
   if (lowerText.includes(itemLower)) return true;
 
-  // Check synonyms
-  const synonyms = SKILL_SYNONYMS[itemLower];
-  if (synonyms) {
-    for (const syn of synonyms) {
-      if (lowerText.includes(syn.toLowerCase())) return true;
-    }
+  // Check all expanded forms (abbreviations, synonyms, etc.)
+  const allForms = getAllSkillForms(item);
+  for (const form of allForms) {
+    if (lowerText.includes(form.toLowerCase())) return true;
   }
 
   // Check partial match for multi-word items
@@ -1047,12 +1398,28 @@ function generateRecommendations(
   // Skills gap
   const skillsCat = keywordMatch.categoryBreakdown.find(c => c.category === 'skills');
   if (skillsCat && skillsCat.missedItems.length > 0) {
-    recs.push(`Skills gap identified: ${skillsCat.missedItems.slice(0, 5).join(', ')}. Consider if these are must-have or nice-to-have.`);
+    recs.push(`Skills gap identified: ${skillsCat.missedItems.slice(0, 5).join(', ')}. Consider if these are must-have or nice-to-have. Note: Some skills may be present under different names/abbreviations — verify manually if needed.`);
+  }
+
+  // Check for abbreviation-expanded matches that should be verified
+  const expandedMatches: string[] = [];
+  for (const skill of resume.skills) {
+    if (skill.source.includes('expanded from abbreviation') || skill.source.includes('Detected abbreviation')) {
+      expandedMatches.push(`${skill.value} (from abbreviation)`);
+    }
+  }
+  if (expandedMatches.length > 0) {
+    recs.push(`Abbreviation-expanded skills detected: ${expandedMatches.slice(0, 5).join(', ')}. These were auto-expanded from short forms (e.g., ML→Machine Learning, NLP→Natural Language Processing). Verify during interview.`);
   }
 
   // Experience gap
   if (resume.yearsOfExperience < 3) {
     recs.push('Candidate has limited experience. Consider for junior/entry-level positions or assess project depth.');
+  }
+
+  // Experience surplus
+  if (resume.yearsOfExperience > 8) {
+    recs.push('Senior candidate with significant experience. Ensure role level and compensation match expectations.');
   }
 
   // Certifications
@@ -1069,6 +1436,11 @@ function generateRecommendations(
   // Interview focus
   if (keywordMatch.matchPercentage >= 60 && keywordMatch.matchPercentage < 80) {
     recs.push('Moderate match. Focus interview on gap areas to assess learnability and adaptability.');
+  }
+
+  // Low match warning
+  if (keywordMatch.matchPercentage < 50) {
+    recs.push('Low keyword match detected. This candidate may be better suited for a different role. Review resume manually before rejecting.');
   }
 
   return recs;
