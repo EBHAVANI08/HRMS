@@ -218,6 +218,12 @@ const MOCK_JOBS: JobPosting[] = [
   { id: "j4", title: "Sales Manager", department: "Sales", location: "Chennai, IN", type: "Full-time", status: "open", openings: 1, applicants: 9, daysOpen: 14, salary: "₹30-40 LPA", postedDate: "2025-02-08", urgent: true, hiringManager: "Vikram Singh", description: "Seeking an experienced Sales Manager to lead our enterprise sales team. You will drive revenue growth and build strong client relationships in the B2B SaaS space.", requirements: ["7+ years in B2B SaaS sales", "3+ years in leadership", "Proven track record of meeting quotas", "Experience with enterprise sales cycles", "Strong negotiation skills"], responsibilities: ["Lead and mentor the sales team", "Develop sales strategies and targets", "Manage key enterprise accounts", "Forecast revenue and pipeline", "Collaborate with marketing on campaigns"] },
   { id: "j5", title: "HR Business Partner", department: "HR & Admin", location: "Hyderabad, IN", type: "Full-time", status: "open", openings: 1, applicants: 15, daysOpen: 18, salary: "₹20-28 LPA", postedDate: "2025-02-04", urgent: false, hiringManager: "Anita Deshmukh", description: "Looking for an HR Business Partner to align people strategies with business objectives. You will work closely with department heads to drive talent management and employee engagement.", requirements: ["5+ years in HR business partnering", "Strong understanding of labor laws", "Experience with performance management", "Excellent communication skills", "CHRP/SHRM certification preferred"], responsibilities: ["Partner with business leaders on people strategies", "Drive talent development programs", "Manage employee relations", "Support organizational change initiatives", "Analyze HR metrics and provide insights"] },
   { id: "j6", title: "DevOps Engineer", department: "Engineering", location: "Bangalore, IN (Remote)", type: "Full-time", status: "open", openings: 2, applicants: 26, daysOpen: 10, salary: "₹24-34 LPA", postedDate: "2025-02-12", urgent: false, hiringManager: "Rajesh Kumar", description: "We need a DevOps Engineer to help us scale our infrastructure. You will design and maintain our CI/CD pipelines and ensure 99.9% uptime for our platform.", requirements: ["4+ years in DevOps/SRE", "Expert in AWS/GCP", "Experience with Kubernetes, Docker", "Strong scripting skills (Bash, Python)", "Knowledge of monitoring tools"], responsibilities: ["Design and maintain CI/CD pipelines", "Manage cloud infrastructure", "Implement monitoring and alerting", "Automate deployment processes", "Ensure system reliability and security"] },
+  { id: "j7", title: "Backend Developer", department: "Engineering", location: "Bangalore, IN", type: "Full-time", status: "open", openings: 3, applicants: 41, daysOpen: 15, salary: "₹22-32 LPA", postedDate: "2025-02-10", urgent: true, hiringManager: "Rajesh Kumar", description: "Looking for a skilled Backend Developer to design and build scalable server-side applications. You will work on our core platform APIs, database architecture, and microservices infrastructure.", requirements: ["4+ years of backend development experience", "Expert in Node.js, Python, or Java", "Experience with SQL and NoSQL databases", "Knowledge of microservices architecture", "Familiarity with REST API design and GraphQL", "Understanding of cloud platforms (AWS/GCP)"], responsibilities: ["Design and implement RESTful APIs and microservices", "Optimize database queries and schema design", "Build scalable and maintainable backend systems", "Implement authentication, authorization, and security", "Write unit and integration tests", "Collaborate with frontend and mobile teams"] },
+  { id: "j8", title: "Full Stack Developer", department: "Engineering", location: "Pune, IN (Hybrid)", type: "Full-time", status: "open", openings: 2, applicants: 30, daysOpen: 8, salary: "₹20-30 LPA", postedDate: "2025-02-14", urgent: false, hiringManager: "Rajesh Kumar", description: "Seeking a versatile Full Stack Developer who can work across the entire application stack. You will build features end-to-end, from database design to pixel-perfect UI implementation.", requirements: ["3+ years of full-stack development", "Proficiency in React/Next.js and Node.js", "Experience with PostgreSQL or MongoDB", "Understanding of DevOps basics (CI/CD, Docker)", "Knowledge of version control (Git)"], responsibilities: ["Build end-to-end features across the stack", "Design and implement database schemas", "Create responsive and accessible UI components", "Integrate third-party APIs and services", "Participate in code reviews and architecture discussions"] },
+  { id: "j9", title: "QA Engineer", department: "Engineering", location: "Hyderabad, IN", type: "Full-time", status: "open", openings: 1, applicants: 12, daysOpen: 20, salary: "₹14-22 LPA", postedDate: "2025-01-30", urgent: false, hiringManager: "Kavitha Reddy", description: "We need a detail-oriented QA Engineer to ensure the quality of our HRMS platform. You will design test plans, automate regression tests, and work closely with developers to deliver bug-free releases.", requirements: ["3+ years in QA/testing", "Experience with automated testing (Selenium, Cypress, or Playwright)", "Strong understanding of SDLC and testing methodologies", "Knowledge of API testing tools (Postman, REST Assured)", "Experience with performance testing is a plus"], responsibilities: ["Design and execute test plans and test cases", "Automate regression and smoke test suites", "Report and track defects using JIRA", "Perform API and integration testing", "Collaborate with developers on bug fixes and root cause analysis"] },
+  { id: "j10", title: "Digital Marketing Manager", department: "Marketing", location: "Delhi, IN", type: "Full-time", status: "open", openings: 1, applicants: 19, daysOpen: 12, salary: "₹18-26 LPA", postedDate: "2025-02-06", urgent: false, hiringManager: "Vikram Singh", description: "Looking for a creative and data-driven Digital Marketing Manager to lead our online marketing efforts. You will own our digital presence, drive lead generation, and optimize conversion funnels.", requirements: ["5+ years in digital marketing", "Expert in SEO, SEM, and social media marketing", "Experience with Google Analytics and marketing automation", "Strong copywriting and content strategy skills", "Experience with B2B SaaS marketing preferred"], responsibilities: ["Develop and execute digital marketing strategies", "Manage PPC campaigns and optimize for ROI", "Create content calendars and oversee social media", "Analyze campaign performance and report insights", "Manage marketing budget and vendor relationships"] },
+  { id: "j11", title: "Financial Analyst", department: "Finance", location: "Mumbai, IN", type: "Full-time", status: "open", openings: 1, applicants: 8, daysOpen: 25, salary: "₹16-24 LPA", postedDate: "2025-01-25", urgent: false, hiringManager: "Priya Sharma", description: "Seeking a Financial Analyst to support our financial planning and analysis. You will prepare budgets, forecast revenues, and provide actionable financial insights to leadership.", requirements: ["3+ years in financial analysis", "Strong proficiency in Excel and financial modeling", "Knowledge of accounting principles (GAAP/IFRS)", "Experience with ERP systems (SAP, Oracle)", "CFA or MBA preferred"], responsibilities: ["Prepare monthly and quarterly financial reports", "Build financial models for forecasting", "Analyze budget vs actuals and explain variances", "Support strategic planning with data-driven insights", "Ensure compliance with financial regulations"] },
+  { id: "j12", title: "Technical Recruiter", department: "HR & Admin", location: "Bangalore, IN (Remote)", type: "Full-time", status: "open", openings: 2, applicants: 14, daysOpen: 7, salary: "₹12-20 LPA", postedDate: "2025-02-15", urgent: true, hiringManager: "Kavitha Reddy", description: "We need a Technical Recruiter who understands software engineering roles and can source top talent. You will manage the full recruitment lifecycle from sourcing to offer closure for our engineering team.", requirements: ["2+ years in technical recruitment", "Strong understanding of software engineering roles and technologies", "Experience with ATS platforms and sourcing tools", "Excellent candidate engagement and relationship-building skills", "Knowledge of IT staffing market trends"], responsibilities: ["Source and screen technical candidates", "Manage end-to-end recruitment for engineering roles", "Build and maintain talent pipelines", "Conduct initial phone screens and coordinate interviews", "Negotiate offers and manage candidate experience"] },
 ];
 
 /* ──────────────── Mock Resume Texts ──────────────── */
@@ -728,6 +734,9 @@ function ResumeAnalyzerTab() {
   const [candidateEmail, setCandEmail] = useState("");
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [fileParsing, setFileParsing] = useState(false);
+  const [parseError, setParseError] = useState("");
+  const [uploadedFileName, setUploadedFileName] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAnalyze = () => {
@@ -750,15 +759,65 @@ function ResumeAnalyzerTab() {
     }, 1200);
   };
 
+  const parseFileViaAPI = async (file: File) => {
+    setFileParsing(true);
+    setParseError("");
+    setUploadedFileName(file.name);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/recruitment/parse-resume", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setResumeText(data.text);
+        // Auto-detect candidate name from first line
+        const firstLine = data.text.split("\n")[0]?.trim() || "";
+        if (firstLine && !candidateName) {
+          setCandidateName(firstLine);
+        }
+        // Auto-detect email
+        const emailMatch = data.text.match(/[\w.-]+@[\w.-]+\.\w+/);
+        if (emailMatch && !candidateEmail) {
+          setCandEmail(emailMatch[0]);
+        }
+      } else {
+        setParseError(data.error || "Failed to parse file");
+        // Fallback: try reading as plain text for .txt files
+        if (file.name.endsWith(".txt")) {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const text = ev.target?.result as string;
+            setResumeText(text);
+          };
+          reader.readAsText(file);
+        }
+      }
+    } catch (err: any) {
+      setParseError("Network error. Please check your connection and try again.");
+      // Fallback for .txt files
+      if (file.name.endsWith(".txt")) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const text = ev.target?.result as string;
+          setResumeText(text);
+        };
+        reader.readAsText(file);
+      }
+    } finally {
+      setFileParsing(false);
+    }
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const text = ev.target?.result as string;
-        setResumeText(text);
-      };
-      reader.readAsText(file);
+      parseFileViaAPI(file);
     }
   };
 
@@ -767,12 +826,7 @@ function ResumeAnalyzerTab() {
     setDragOver(false);
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const text = ev.target?.result as string;
-        setResumeText(text);
-      };
-      reader.readAsText(file);
+      parseFileViaAPI(file);
     }
   };
 
@@ -788,7 +842,7 @@ function ResumeAnalyzerTab() {
         {/* Left: Resume Input */}
         <motion.div variants={fadeUp} initial="hidden" animate="show">
           <Card className="border-[var(--saptta-line)] rounded-[24px] overflow-hidden">
-            <div className="bg-gradient-to-r from-[#FF9900] to-[#ff8f5c] p-4">
+            <div className="bg-[#FF9900] p-4">
               <div className="flex items-center gap-3">
                 <div className="size-9 rounded-[14px] bg-white/20 flex items-center justify-center"><Brain className="size-4 text-white" /></div>
                 <div><h3 className="text-sm font-bold text-white">Resume Analyzer</h3><p className="text-[10px] text-white/70">AI-powered resume matching</p></div>
@@ -801,13 +855,43 @@ function ResumeAnalyzerTab() {
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => !fileParsing && fileInputRef.current?.click()}
               >
                 <input ref={fileInputRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.txt" onChange={handleFileUpload} />
-                <Upload className="size-7 text-[var(--saptta-mute)] mx-auto mb-2" />
-                <p className="text-sm font-medium text-[var(--saptta-ink)]">Drop resume here or click to upload</p>
-                <p className="text-[10px] text-[var(--saptta-mute)] mt-1">Supports PDF, DOCX, TXT (Max 10MB)</p>
+                {fileParsing ? (
+                  <>
+                    <Loader2 className="size-7 text-[#FF9900] mx-auto mb-2 animate-spin" />
+                    <p className="text-sm font-medium text-[var(--saptta-ink)]">Parsing {uploadedFileName}...</p>
+                    <p className="text-[10px] text-[var(--saptta-mute)] mt-1">Extracting text from document</p>
+                  </>
+                ) : uploadedFileName && !parseError ? (
+                  <>
+                    <CheckCircle2 className="size-7 text-green-500 mx-auto mb-2" />
+                    <p className="text-sm font-medium text-[var(--saptta-ink)]">{uploadedFileName}</p>
+                    <p className="text-[10px] text-green-600 mt-1">File parsed successfully — click to replace</p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="size-7 text-[var(--saptta-mute)] mx-auto mb-2" />
+                    <p className="text-sm font-medium text-[var(--saptta-ink)]">Drop resume here or click to upload</p>
+                    <p className="text-[10px] text-[var(--saptta-mute)] mt-1">Supports PDF, DOCX, TXT (Max 10MB)</p>
+                  </>
+                )}
               </div>
+
+              {/* Parse Error */}
+              {parseError && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2">
+                  <AlertTriangle className="size-4 text-red-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-medium text-red-700">File Parse Error</p>
+                    <p className="text-[10px] text-red-600 mt-0.5">{parseError}</p>
+                  </div>
+                  <Button variant="ghost" size="sm" className="ml-auto h-6 px-2" onClick={() => setParseError("")}>
+                    <X className="size-3" />
+                  </Button>
+                </div>
+              )}
 
               {/* Or paste text */}
               <div>
@@ -838,7 +922,7 @@ function ResumeAnalyzerTab() {
         {/* Right: JD Selection + Analyze */}
         <motion.div variants={fadeUp} initial="hidden" animate="show">
           <Card className="border-[var(--saptta-line)] rounded-[24px] overflow-hidden h-full">
-            <div className="bg-gradient-to-r from-[#003d7a] to-[#7a5a4a] p-4">
+            <div className="bg-[#0066CC] p-4">
               <div className="flex items-center gap-3">
                 <div className="size-9 rounded-[14px] bg-white/20 flex items-center justify-center"><Target className="size-4 text-white" /></div>
                 <div><h3 className="text-sm font-bold text-white">Match Against Job</h3><p className="text-[10px] text-white/70">Select JD for comparison</p></div>
@@ -846,11 +930,23 @@ function ResumeAnalyzerTab() {
             </div>
             <CardContent className="p-4 space-y-4">
               <div>
-                <label className="text-xs font-medium text-[var(--saptta-mute)] mb-1.5 block">Select Job Description</label>
+                <label className="text-xs font-medium text-[var(--saptta-mute)] mb-1.5 block">Select Job Description / Role</label>
                 <Select value={selectedJD} onValueChange={setSelectedJD}>
-                  <SelectTrigger className="rounded-xl h-9 text-xs"><SelectValue placeholder="Choose a job to match against" /></SelectTrigger>
+                  <SelectTrigger className="rounded-xl h-9 text-xs"><SelectValue placeholder="Choose a job role to match against" /></SelectTrigger>
                   <SelectContent>
-                    {MOCK_JOBS.filter((j) => j.status === "open").map((j) => (<SelectItem key={j.id} value={j.id}>{j.title} — {j.department}</SelectItem>))}
+                    {(() => {
+                      const departments = [...new Set(MOCK_JOBS.map(j => j.department))];
+                      return departments.map(dept => (
+                        <React.Fragment key={dept}>
+                          <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">{dept}</div>
+                          {MOCK_JOBS.filter(j => j.department === dept).map(j => (
+                            <SelectItem key={j.id} value={j.id} className="text-xs">
+                              {j.title} {j.urgent ? "🔴" : ""} — {j.location}
+                            </SelectItem>
+                          ))}
+                        </React.Fragment>
+                      ));
+                    })()}
                   </SelectContent>
                 </Select>
               </div>
@@ -859,9 +955,13 @@ function ResumeAnalyzerTab() {
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="bg-[var(--saptta-bg-2)] rounded-xl p-3 space-y-2">
                   {(() => { const job = MOCK_JOBS.find((j) => j.id === selectedJD); if (!job) return null; return (
                     <>
-                      <p className="text-sm font-semibold text-[var(--saptta-ink)]">{job.title}</p>
-                      <p className="text-xs text-[var(--saptta-mute)]">{job.location} &middot; {job.salary}</p>
-                      <div className="flex flex-wrap gap-1 mt-1">{job.requirements.slice(0, 3).map((r, i) => (<Badge key={i} variant="outline" className="text-[9px] rounded-full border-0 bg-white px-2 py-0">{r.slice(0, 30)}...</Badge>))}</div>
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-[var(--saptta-ink)]">{job.title}</p>
+                        {job.urgent && <Badge className="bg-red-50 text-red-500 text-[9px] rounded-full border-0 px-1.5 py-0 h-4">Urgent</Badge>}
+                      </div>
+                      <p className="text-xs text-[var(--saptta-mute)]">{job.location} &middot; {job.salary} &middot; {job.openings} opening{job.openings > 1 ? 's' : ''}</p>
+                      <p className="text-xs text-[var(--saptta-ink-2)] mt-1 leading-relaxed">{job.description.slice(0, 150)}...</p>
+                      <div className="flex flex-wrap gap-1 mt-1">{job.requirements.slice(0, 4).map((r, i) => (<Badge key={i} variant="outline" className="text-[9px] rounded-full border-0 bg-white px-2 py-0">{r.slice(0, 35)}{r.length > 35 ? '...' : ''}</Badge>))}</div>
                     </>
                   ); })()}
                 </motion.div>
