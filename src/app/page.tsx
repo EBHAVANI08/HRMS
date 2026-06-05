@@ -3,9 +3,9 @@
 import React from 'react';
 import { AppShell } from '@/components/app-shell';
 import { useAppStore } from '@/lib/store';
-import { DashboardView } from '@/components/dashboard-view';
+import { RoleBasedDashboardView } from '@/components/role-based-dashboard';
 import { CoreHRView as CoreHrView } from '@/components/core-hr-view';
-import { RecruitmentView } from '@/components/recruitment-view';
+import { EnhancedRecruitmentView } from '@/components/recruitment/enhanced-recruitment';
 import { AttendanceView } from '@/components/attendance-view';
 import { PayrollView } from '@/components/payroll-view';
 import { PerformanceView } from '@/components/performance-view';
@@ -15,9 +15,9 @@ import { AnalyticsView } from '@/components/analytics-view';
 import { AIAssistantView as AiAssistantView } from '@/components/ai-assistant-view';
 
 const viewMap: Record<string, React.ComponentType> = {
-  dashboard: DashboardView,
+  dashboard: RoleBasedDashboardView,
   'core-hr': CoreHrView,
-  recruitment: RecruitmentView,
+  recruitment: EnhancedRecruitmentView,
   attendance: AttendanceView,
   payroll: PayrollView,
   performance: PerformanceView,
@@ -29,7 +29,7 @@ const viewMap: Record<string, React.ComponentType> = {
 
 export default function HomePage() {
   const { currentView } = useAppStore();
-  const ViewComponent = viewMap[currentView] || DashboardView;
+  const ViewComponent = viewMap[currentView] || RoleBasedDashboardView;
 
   return (
     <AppShell>

@@ -1,0 +1,1659 @@
+"use client";
+
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Briefcase,
+  Plus,
+  Users,
+  Clock,
+  CheckCircle2,
+  ChevronRight,
+  Search,
+  Filter,
+  ArrowRight,
+  Sparkles,
+  FileText,
+  Upload,
+  Brain,
+  Target,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Building2,
+  Zap,
+  FileUp,
+  BarChart3,
+  Loader2,
+  X,
+  IndianRupee,
+  Globe,
+  Linkedin,
+  Twitter,
+  Facebook,
+  Link2,
+  QrCode,
+  Code2,
+  Send,
+  AlertTriangle,
+  ShieldCheck,
+  ShieldAlert,
+  ShieldX,
+  TrendingUp,
+  Eye,
+  Copy,
+  Check,
+  Files,
+  ChevronDown,
+  Bell,
+  Star,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { analyzeResume, batchAnalyzeResumes } from "@/lib/recruitment/resume-engine";
+import type { MatchResult } from "@/lib/recruitment/resume-engine";
+
+/* ──────────────── Animation Config ──────────────── */
+
+const EASE_SMOOTH = [0.22, 0.8, 0.22, 1] as const;
+
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
+};
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE_SMOOTH } },
+};
+const fadeIn = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.3, ease: EASE_SMOOTH } },
+};
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.95 },
+  show: { opacity: 1, scale: 1, transition: { duration: 0.3, ease: EASE_SMOOTH } },
+};
+
+/* ──────────────── Types ──────────────── */
+
+type PipelineStage = "sourced" | "screening" | "interview" | "assessment" | "offer" | "hired" | "rejected";
+type JobStatus = "draft" | "open" | "on-hold" | "closed" | "fulfilled";
+type CandidateSource = "LinkedIn" | "Naukri" | "Referral" | "Website" | "Campus" | "Agency";
+
+interface ScoreBreakdown {
+  skills: number;
+  experience: number;
+  education: number;
+  culture: number;
+  overall: number;
+}
+
+interface Candidate {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  avatar: string;
+  role: string;
+  jobId: string;
+  stage: PipelineStage;
+  source: CandidateSource;
+  matchScore: number;
+  scoreBreakdown: ScoreBreakdown;
+  daysInStage: number;
+  appliedDate: string;
+  lastActivity: string;
+  location: string;
+  experience: string;
+  salary: string;
+  timeline: TimelineEvent[];
+}
+
+interface TimelineEvent {
+  date: string;
+  event: string;
+  type: "applied" | "screened" | "interview" | "assessment" | "offer" | "hired" | "rejected" | "note" | "email";
+}
+
+interface JobPosting {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  status: JobStatus;
+  openings: number;
+  applicants: number;
+  daysOpen: number;
+  salary: string;
+  postedDate: string;
+  urgent: boolean;
+  hiringManager: string;
+  description: string;
+  requirements: string[];
+  responsibilities: string[];
+}
+
+interface HighScoreNotification {
+  id: string;
+  candidateName: string;
+  candidateEmail: string;
+  score: number;
+  jobTitle: string;
+  avatar: string;
+  timestamp: string;
+  read: boolean;
+}
+
+/* ──────────────── Pipeline Stage Config ──────────────── */
+
+const STAGE_CONFIG: Record<PipelineStage, { label: string; color: string; bgColor: string; dotColor: string }> = {
+  sourced: { label: "Sourced", color: "#8b5cf6", bgColor: "#8b5cf615", dotColor: "#8b5cf6" },
+  screening: { label: "Screening", color: "#ff6a2c", bgColor: "#ff6a2c15", dotColor: "#ff6a2c" },
+  interview: { label: "Interview", color: "#f59e0b", bgColor: "#f59e0b15", dotColor: "#f59e0b" },
+  assessment: { label: "Assessment", color: "#c8e056", bgColor: "#c8e05620", dotColor: "#c8e056" },
+  offer: { label: "Offer", color: "#22c55e", bgColor: "#22c55e15", dotColor: "#22c55e" },
+  hired: { label: "Hired", color: "#3b82f6", bgColor: "#3b82f615", dotColor: "#3b82f6" },
+  rejected: { label: "Rejected", color: "#ef4444", bgColor: "#ef444415", dotColor: "#ef4444" },
+};
+
+const STAGE_ORDER: PipelineStage[] = ["sourced", "screening", "interview", "assessment", "offer", "hired", "rejected"];
+
+const JOB_STATUS_CONFIG: Record<JobStatus, { label: string; color: string; bgColor: string }> = {
+  draft: { label: "Draft", color: "#8a8680", bgColor: "#8a868015" },
+  open: { label: "Open", color: "#22c55e", bgColor: "#22c55e15" },
+  "on-hold": { label: "On Hold", color: "#f59e0b", bgColor: "#f59e0b15" },
+  closed: { label: "Closed", color: "#ef4444", bgColor: "#ef444415" },
+  fulfilled: { label: "Fulfilled", color: "#3b82f6", bgColor: "#3b82f615" },
+};
+
+/* ──────────────── Mock Data ──────────────── */
+
+const MOCK_CANDIDATES: Candidate[] = [
+  { id: "c1", name: "Ananya Krishnan", email: "ananya.k@gmail.com", phone: "+91 98765 43210", avatar: "AK", role: "Senior Frontend Developer", jobId: "j1", stage: "interview", source: "LinkedIn", matchScore: 92, scoreBreakdown: { skills: 95, experience: 90, education: 88, culture: 94, overall: 92 }, daysInStage: 3, appliedDate: "2025-02-15", lastActivity: "2 hours ago", location: "Bangalore, IN", experience: "6 years", salary: "₹28 LPA", timeline: [{ date: "Feb 15", event: "Applied via LinkedIn", type: "applied" }, { date: "Feb 16", event: "Resume screened by HR", type: "screened" }, { date: "Feb 18", event: "Technical round scheduled", type: "interview" }, { date: "Feb 20", event: "Interview completed - Strong", type: "interview" }] },
+  { id: "c2", name: "Rohan Patel", email: "rohan.p@outlook.com", phone: "+91 87654 32109", avatar: "RP", role: "Senior Frontend Developer", jobId: "j1", stage: "assessment", source: "Naukri", matchScore: 85, scoreBreakdown: { skills: 88, experience: 82, education: 85, culture: 86, overall: 85 }, daysInStage: 1, appliedDate: "2025-02-10", lastActivity: "1 day ago", location: "Mumbai, IN", experience: "5 years", salary: "₹24 LPA", timeline: [{ date: "Feb 10", event: "Applied via Naukri", type: "applied" }, { date: "Feb 11", event: "Resume screened", type: "screened" }, { date: "Feb 14", event: "Phone screening completed", type: "screened" }, { date: "Feb 17", event: "Technical interview passed", type: "interview" }, { date: "Feb 19", event: "Assessment sent", type: "assessment" }] },
+  { id: "c3", name: "Meera Sharma", email: "meera.s@gmail.com", phone: "+91 76543 21098", avatar: "MS", role: "Product Designer", jobId: "j2", stage: "offer", source: "Referral", matchScore: 94, scoreBreakdown: { skills: 96, experience: 93, education: 90, culture: 97, overall: 94 }, daysInStage: 2, appliedDate: "2025-01-28", lastActivity: "5 hours ago", location: "Delhi, IN", experience: "7 years", salary: "₹32 LPA", timeline: [{ date: "Jan 28", event: "Referred by Priya Sharma", type: "applied" }, { date: "Jan 29", event: "Portfolio reviewed", type: "screened" }, { date: "Feb 2", event: "Design challenge assigned", type: "assessment" }, { date: "Feb 5", event: "Panel interview cleared", type: "interview" }, { date: "Feb 8", event: "Offer approved", type: "offer" }] },
+  { id: "c4", name: "Vikram Desai", email: "vikram.d@gmail.com", phone: "+91 65432 10987", avatar: "VD", role: "Data Engineer", jobId: "j3", stage: "screening", source: "LinkedIn", matchScore: 78, scoreBreakdown: { skills: 80, experience: 75, education: 78, culture: 79, overall: 78 }, daysInStage: 5, appliedDate: "2025-02-18", lastActivity: "5 days ago", location: "Pune, IN", experience: "4 years", salary: "₹20 LPA", timeline: [{ date: "Feb 18", event: "Applied via LinkedIn", type: "applied" }, { date: "Feb 19", event: "Under screening", type: "screened" }] },
+  { id: "c5", name: "Sneha Iyer", email: "sneha.i@gmail.com", phone: "+91 54321 09876", avatar: "SI", role: "Sales Manager", jobId: "j4", stage: "hired", source: "Agency", matchScore: 88, scoreBreakdown: { skills: 90, experience: 87, education: 82, culture: 91, overall: 88 }, daysInStage: 1, appliedDate: "2025-01-10", lastActivity: "1 day ago", location: "Chennai, IN", experience: "8 years", salary: "₹35 LPA", timeline: [{ date: "Jan 10", event: "Sourced via ABC Consulting", type: "applied" }, { date: "Jan 12", event: "Screened by hiring manager", type: "screened" }, { date: "Jan 16", event: "First interview completed", type: "interview" }, { date: "Jan 20", event: "Assessment cleared", type: "assessment" }, { date: "Jan 25", event: "Offer letter sent", type: "offer" }, { date: "Feb 1", event: "Offer accepted", type: "hired" }] },
+  { id: "c6", name: "Arjun Nair", email: "arjun.n@gmail.com", phone: "+91 43210 98765", avatar: "AN", role: "HR Business Partner", jobId: "j5", stage: "sourced", source: "LinkedIn", matchScore: 72, scoreBreakdown: { skills: 70, experience: 74, education: 72, culture: 71, overall: 72 }, daysInStage: 2, appliedDate: "2025-02-20", lastActivity: "2 days ago", location: "Hyderabad, IN", experience: "6 years", salary: "₹22 LPA", timeline: [{ date: "Feb 20", event: "Profile sourced from LinkedIn", type: "applied" }] },
+  { id: "c7", name: "Priya Gupta", email: "priya.g@gmail.com", phone: "+91 32109 87654", avatar: "PG", role: "Senior Frontend Developer", jobId: "j1", stage: "rejected", source: "Website", matchScore: 45, scoreBreakdown: { skills: 50, experience: 40, education: 48, culture: 42, overall: 45 }, daysInStage: 4, appliedDate: "2025-02-12", lastActivity: "4 days ago", location: "Kolkata, IN", experience: "2 years", salary: "₹14 LPA", timeline: [{ date: "Feb 12", event: "Applied via website", type: "applied" }, { date: "Feb 13", event: "Resume screened", type: "screened" }, { date: "Feb 15", event: "Rejected - insufficient experience", type: "rejected" }] },
+  { id: "c8", name: "Karthik Reddy", email: "karthik.r@gmail.com", phone: "+91 21098 76543", avatar: "KR", role: "Data Engineer", jobId: "j3", stage: "interview", source: "Campus", matchScore: 68, scoreBreakdown: { skills: 65, experience: 60, education: 78, culture: 70, overall: 68 }, daysInStage: 4, appliedDate: "2025-02-08", lastActivity: "1 day ago", location: "Bangalore, IN", experience: "1 year", salary: "₹12 LPA", timeline: [{ date: "Feb 8", event: "Applied via campus placement", type: "applied" }, { date: "Feb 10", event: "Screened by recruiter", type: "screened" }, { date: "Feb 14", event: "Interview scheduled", type: "interview" }] },
+  { id: "c9", name: "Deepika Rao", email: "deepika.r@gmail.com", phone: "+91 10987 65432", avatar: "DR", role: "Product Designer", jobId: "j2", stage: "screening", source: "Naukri", matchScore: 81, scoreBreakdown: { skills: 84, experience: 78, education: 80, culture: 82, overall: 81 }, daysInStage: 3, appliedDate: "2025-02-17", lastActivity: "3 days ago", location: "Mumbai, IN", experience: "5 years", salary: "₹26 LPA", timeline: [{ date: "Feb 17", event: "Applied via Naukri", type: "applied" }, { date: "Feb 18", event: "Under screening", type: "screened" }] },
+  { id: "c10", name: "Suresh Kumar", email: "suresh.k@gmail.com", phone: "+91 98765 12345", avatar: "SK", role: "Sales Manager", jobId: "j4", stage: "assessment", source: "Referral", matchScore: 76, scoreBreakdown: { skills: 78, experience: 80, education: 68, culture: 77, overall: 76 }, daysInStage: 2, appliedDate: "2025-02-05", lastActivity: "2 days ago", location: "Delhi, IN", experience: "6 years", salary: "₹28 LPA", timeline: [{ date: "Feb 5", event: "Referred by Amit Joshi", type: "applied" }, { date: "Feb 6", event: "Phone screening completed", type: "screened" }, { date: "Feb 10", event: "Interview with VP Sales", type: "interview" }, { date: "Feb 15", event: "Assessment in progress", type: "assessment" }] },
+  { id: "c11", name: "Lakshmi Venkat", email: "lakshmi.v@gmail.com", phone: "+91 87654 56789", avatar: "LV", role: "DevOps Engineer", jobId: "j6", stage: "interview", source: "LinkedIn", matchScore: 89, scoreBreakdown: { skills: 92, experience: 88, education: 84, culture: 90, overall: 89 }, daysInStage: 2, appliedDate: "2025-02-14", lastActivity: "6 hours ago", location: "Bangalore, IN", experience: "5 years", salary: "₹30 LPA", timeline: [{ date: "Feb 14", event: "Applied via LinkedIn", type: "applied" }, { date: "Feb 15", event: "Screened by technical lead", type: "screened" }, { date: "Feb 18", event: "System design round", type: "interview" }] },
+  { id: "c12", name: "Nikhil Joshi", email: "nikhil.j@gmail.com", phone: "+91 76543 45678", avatar: "NJ", role: "DevOps Engineer", jobId: "j6", stage: "sourced", source: "Agency", matchScore: 64, scoreBreakdown: { skills: 66, experience: 62, education: 60, culture: 68, overall: 64 }, daysInStage: 1, appliedDate: "2025-02-21", lastActivity: "1 day ago", location: "Pune, IN", experience: "3 years", salary: "₹18 LPA", timeline: [{ date: "Feb 21", event: "Sourced via TechStaff Agency", type: "applied" }] },
+];
+
+const MOCK_JOBS: JobPosting[] = [
+  { id: "j1", title: "Senior Frontend Developer", department: "Engineering", location: "Bangalore, IN", type: "Full-time", status: "open", openings: 2, applicants: 34, daysOpen: 28, salary: "₹25-35 LPA", postedDate: "2025-01-25", urgent: true, hiringManager: "Rajesh Kumar", description: "We are looking for an experienced Senior Frontend Developer to join our engineering team. You will be responsible for building and maintaining high-performance web applications using React, Next.js, and TypeScript.", requirements: ["5+ years of frontend development experience", "Expert in React, Next.js, TypeScript", "Experience with state management (Redux, Zustand)", "Strong understanding of web performance optimization", "Familiarity with CI/CD pipelines"], responsibilities: ["Lead frontend architecture decisions", "Mentor junior developers", "Build reusable component libraries", "Optimize application performance", "Collaborate with design and backend teams"] },
+  { id: "j2", title: "Product Designer", department: "Design", location: "Delhi, IN (Hybrid)", type: "Full-time", status: "open", openings: 1, applicants: 22, daysOpen: 21, salary: "₹28-38 LPA", postedDate: "2025-02-01", urgent: false, hiringManager: "Kavitha Reddy", description: "Seeking a talented Product Designer to craft intuitive, beautiful experiences for our HRMS platform. You will work closely with product managers and engineers to ship features that delight users.", requirements: ["4+ years of product design experience", "Proficiency in Figma", "Strong portfolio showcasing UX/UI work", "Experience with design systems", "Understanding of accessibility standards"], responsibilities: ["Design end-to-end user flows", "Maintain and evolve our design system", "Conduct user research and usability testing", "Create interactive prototypes", "Present designs to stakeholders"] },
+  { id: "j3", title: "Data Engineer", department: "Analytics", location: "Pune, IN", type: "Full-time", status: "on-hold", openings: 1, applicants: 18, daysOpen: 35, salary: "₹22-30 LPA", postedDate: "2025-01-18", urgent: false, hiringManager: "Srinivas M", description: "Looking for a Data Engineer to build and optimize our data pipelines. You will work with large datasets and ensure data quality across the organization.", requirements: ["3+ years in data engineering", "Proficiency in Python, SQL", "Experience with Spark, Airflow", "Knowledge of cloud data warehouses", "Understanding of ETL best practices"], responsibilities: ["Build and maintain data pipelines", "Optimize data warehouse performance", "Implement data quality checks", "Collaborate with data scientists", "Document data architecture"] },
+  { id: "j4", title: "Sales Manager", department: "Sales", location: "Chennai, IN", type: "Full-time", status: "open", openings: 1, applicants: 9, daysOpen: 14, salary: "₹30-40 LPA", postedDate: "2025-02-08", urgent: true, hiringManager: "Vikram Singh", description: "Seeking an experienced Sales Manager to lead our enterprise sales team. You will drive revenue growth and build strong client relationships in the B2B SaaS space.", requirements: ["7+ years in B2B SaaS sales", "3+ years in leadership", "Proven track record of meeting quotas", "Experience with enterprise sales cycles", "Strong negotiation skills"], responsibilities: ["Lead and mentor the sales team", "Develop sales strategies and targets", "Manage key enterprise accounts", "Forecast revenue and pipeline", "Collaborate with marketing on campaigns"] },
+  { id: "j5", title: "HR Business Partner", department: "HR & Admin", location: "Hyderabad, IN", type: "Full-time", status: "open", openings: 1, applicants: 15, daysOpen: 18, salary: "₹20-28 LPA", postedDate: "2025-02-04", urgent: false, hiringManager: "Anita Deshmukh", description: "Looking for an HR Business Partner to align people strategies with business objectives. You will work closely with department heads to drive talent management and employee engagement.", requirements: ["5+ years in HR business partnering", "Strong understanding of labor laws", "Experience with performance management", "Excellent communication skills", "CHRP/SHRM certification preferred"], responsibilities: ["Partner with business leaders on people strategies", "Drive talent development programs", "Manage employee relations", "Support organizational change initiatives", "Analyze HR metrics and provide insights"] },
+  { id: "j6", title: "DevOps Engineer", department: "Engineering", location: "Bangalore, IN (Remote)", type: "Full-time", status: "open", openings: 2, applicants: 26, daysOpen: 10, salary: "₹24-34 LPA", postedDate: "2025-02-12", urgent: false, hiringManager: "Rajesh Kumar", description: "We need a DevOps Engineer to help us scale our infrastructure. You will design and maintain our CI/CD pipelines and ensure 99.9% uptime for our platform.", requirements: ["4+ years in DevOps/SRE", "Expert in AWS/GCP", "Experience with Kubernetes, Docker", "Strong scripting skills (Bash, Python)", "Knowledge of monitoring tools"], responsibilities: ["Design and maintain CI/CD pipelines", "Manage cloud infrastructure", "Implement monitoring and alerting", "Automate deployment processes", "Ensure system reliability and security"] },
+];
+
+/* ──────────────── Mock Resume Texts ──────────────── */
+
+const MOCK_RESUME_TEXTS: { id: string; name: string; email: string; text: string }[] = [
+  {
+    id: "mr1", name: "Ananya Krishnan", email: "ananya.k@gmail.com",
+    text: `Ananya Krishnan
+Bangalore, India | ananya.k@gmail.com | +91 98765 43210
+
+Summary
+Senior Frontend Developer with 6+ years of experience building high-performance web applications. Expert in React, Next.js, and TypeScript with a strong focus on performance optimization and developer experience.
+
+Skills
+React, Next.js, TypeScript, JavaScript, Redux, Zustand, Tailwind CSS, HTML5, CSS3, GraphQL, REST API, Git, CI/CD, Docker, Node.js, Webpack, Vite, Jest, React Testing Library, Storybook
+
+Experience
+Senior Frontend Developer at TechCorp India
+Jan 2022 – Present
+- Lead frontend architecture for the HRMS platform serving 50K+ users
+- Built reusable component library with React, TypeScript, and Tailwind CSS
+- Optimized application performance achieving 95+ Lighthouse scores
+- Mentored team of 4 junior developers through code reviews and pair programming
+
+Frontend Developer at StartupXYZ
+Mar 2019 – Dec 2021
+- Developed features using React, Next.js, and TypeScript
+- Implemented state management with Redux and Zustand
+- Collaborated with design team on UI/UX improvements
+- Built CI/CD pipelines using GitHub Actions
+
+Education
+B.Tech in Computer Science, IIT Delhi
+Graduated 2018
+
+Certifications
+AWS Certified Developer - Associate`,
+  },
+  {
+    id: "mr2", name: "Rohan Patel", email: "rohan.p@outlook.com",
+    text: `Rohan Patel
+Mumbai, India | rohan.p@outlook.com | +91 87654 32109
+
+Summary
+Frontend Developer with 5+ years of experience in React and TypeScript ecosystems. Passionate about building accessible, performant web applications.
+
+Skills
+React, TypeScript, JavaScript, Next.js, Redux, CSS, HTML, Git, Webpack, Jest, REST API, Node.js, Tailwind CSS, Figma, Agile
+
+Experience
+Frontend Developer at Digital Solutions Ltd
+Jun 2020 – Present
+- Built and maintained React applications with TypeScript
+- Implemented responsive designs and accessibility standards
+- Developed REST API integrations with Node.js backend
+- Participated in agile sprints and code reviews
+
+Junior Developer at WebCraft Inc
+Aug 2018 – May 2020
+- Developed UI components using React and CSS
+- Fixed bugs and improved application performance
+- Collaborated with senior developers on feature development
+
+Education
+B.Sc in Information Technology, Mumbai University
+Graduated 2018`,
+  },
+  {
+    id: "mr3", name: "Meera Sharma", email: "meera.s@gmail.com",
+    text: `Meera Sharma
+Delhi, India | meera.s@gmail.com | +91 76543 21098
+
+Summary
+Creative Product Designer with 7+ years of experience in UX/UI design, design systems, and user research. Skilled in Figma with a strong portfolio of B2B SaaS products.
+
+Skills
+Figma, Sketch, Adobe XD, Prototyping, Wireframing, User Research, Usability Testing, Design Systems, Accessibility, Responsive Design, Interaction Design, Information Architecture, HTML, CSS
+
+Experience
+Lead Product Designer at DesignHub Pro
+Feb 2021 – Present
+- Led design for B2B SaaS HRMS platform used by 100+ companies
+- Built and maintained design system with 200+ components in Figma
+- Conducted user research and usability testing sessions
+- Collaborated with engineering on design-to-code handoff
+
+Product Designer at CreativeTech
+Mar 2018 – Jan 2021
+- Designed end-to-end user flows for mobile and web applications
+- Created interactive prototypes and design specifications
+- Conducted stakeholder workshops and design critiques
+- Maintained accessibility standards across products
+
+Education
+Master of Design (M.Des), NID Ahmedabad
+Graduated 2018
+
+Certifications
+Google UX Design Professional Certificate`,
+  },
+  {
+    id: "mr4", name: "Vikram Desai", email: "vikram.d@gmail.com",
+    text: `Vikram Desai
+Pune, India | vikram.d@gmail.com | +91 65432 10987
+
+Summary
+Data Engineer with 4 years of experience in building data pipelines and ETL workflows. Proficient in Python, SQL, and cloud data platforms.
+
+Skills
+Python, SQL, Spark, Airflow, AWS, Snowflake, ETL, Data Warehousing, Kafka, Pandas, NumPy, Docker, Git
+
+Experience
+Data Engineer at DataFlow Technologies
+Jul 2021 – Present
+- Built and maintained data pipelines using Apache Airflow and Spark
+- Designed data warehouse schemas on Snowflake
+- Implemented data quality checks and monitoring
+- Collaborated with data scientists on ML feature pipelines
+
+Junior Data Analyst at AnalyticsCo
+Aug 2019 – Jun 2021
+- Performed data analysis using Python and SQL
+- Created dashboards and reports for business stakeholders
+- Assisted in ETL pipeline development
+
+Education
+B.Tech in Computer Science, Pune University
+Graduated 2019`,
+  },
+  {
+    id: "mr5", name: "Suresh Kumar", email: "suresh.k@gmail.com",
+    text: `Suresh Kumar
+Delhi, India | suresh.k@gmail.com | +91 98765 12345
+
+Summary
+Recent computer science graduate with basic knowledge of web development. Looking for entry-level opportunities to grow as a developer.
+
+Skills
+HTML, CSS, JavaScript, Basic React, Python, Git
+
+Experience
+Intern at SmallWeb Agency
+Jan 2025 – Present
+- Assisted in building simple web pages using HTML and CSS
+- Learned React fundamentals through online courses
+
+Education
+BCA, Delhi University
+Graduated 2024
+
+Certifications
+None`,
+  },
+];
+
+/* ──────────────── Helper Functions ──────────────── */
+
+function getScoreColor(score: number): string {
+  if (score >= 85) return "#22c55e";
+  if (score >= 70) return "#c8e056";
+  if (score >= 50) return "#f59e0b";
+  return "#ef4444";
+}
+
+function getScoreBgColor(score: number): string {
+  if (score >= 85) return "#22c55e15";
+  if (score >= 70) return "#c8e05620";
+  if (score >= 50) return "#f59e0b15";
+  return "#ef444415";
+}
+
+/* ──────────────── Score Bar Component ──────────────── */
+
+function ScoreBar({ value, color, showLabel = true }: { value: number; color?: string; showLabel?: boolean }) {
+  const barColor = color || getScoreColor(value);
+  return (
+    <div className="flex items-center gap-2 w-full">
+      <div className="flex-1 h-1.5 bg-[#e8e8e8] dark:bg-[#2a2a2c] rounded-full overflow-hidden">
+        <motion.div
+          className="h-full rounded-full"
+          style={{ backgroundColor: barColor }}
+          initial={{ width: 0 }}
+          animate={{ width: `${value}%` }}
+          transition={{ duration: 0.8, ease: [0.22, 0.8, 0.22, 1] }}
+        />
+      </div>
+      {showLabel && (
+        <span className="text-[11px] font-semibold min-w-[28px] text-right" style={{ color: barColor }}>
+          {value}%
+        </span>
+      )}
+    </div>
+  );
+}
+
+/* ──────────────── Candidate Detail Dialog ──────────────── */
+
+function CandidateDetailDialog({
+  candidate, open, onOpenChange, onMoveStage,
+}: {
+  candidate: Candidate | null; open: boolean; onOpenChange: (open: boolean) => void; onMoveStage: (candidateId: string, newStage: PipelineStage) => void;
+}) {
+  if (!candidate) return null;
+  const cfg = STAGE_CONFIG[candidate.stage];
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
+        <div className="bg-gradient-to-r from-[#0a0a0b] to-[#1a1a1c] p-6 rounded-t-[24px]">
+          <div className="flex items-start gap-4">
+            <Avatar className="size-14 rounded-2xl border-2 border-white/20">
+              <AvatarFallback className="rounded-2xl bg-[#ff6a2c] text-white text-lg font-bold">{candidate.avatar}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl font-bold text-white">{candidate.name}</h2>
+              <p className="text-sm text-white/70 mt-0.5">{candidate.role}</p>
+              <div className="flex items-center gap-3 mt-2 flex-wrap">
+                <Badge className="rounded-full text-[11px] font-medium border-0 px-3 py-0.5" style={{ backgroundColor: cfg.bgColor, color: cfg.color }}>{cfg.label}</Badge>
+                <span className="text-xs text-white/50 flex items-center gap-1"><MapPin className="size-3" /> {candidate.location}</span>
+                <span className="text-xs text-white/50 flex items-center gap-1"><Briefcase className="size-3" /> {candidate.experience}</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-bold" style={{ color: getScoreColor(candidate.matchScore) }}>{candidate.matchScore}</div>
+              <div className="text-[10px] text-white/50 uppercase tracking-wider">Match</div>
+            </div>
+          </div>
+        </div>
+        <div className="p-6 space-y-6">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center gap-2 text-sm"><Mail className="size-3.5 text-[var(--saptta-mute)]" /><span className="text-[var(--saptta-ink-2)]">{candidate.email}</span></div>
+            <div className="flex items-center gap-2 text-sm"><Phone className="size-3.5 text-[var(--saptta-mute)]" /><span className="text-[var(--saptta-ink-2)]">{candidate.phone}</span></div>
+            <div className="flex items-center gap-2 text-sm"><Building2 className="size-3.5 text-[var(--saptta-mute)]" /><span className="text-[var(--saptta-ink-2)]">{candidate.source}</span></div>
+            <div className="flex items-center gap-2 text-sm"><IndianRupee className="size-3.5 text-[var(--saptta-mute)]" /><span className="text-[var(--saptta-ink-2)]">{candidate.salary}</span></div>
+          </div>
+          <Separator />
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-3">Score Breakdown</h3>
+            <div className="space-y-3">
+              {[{ label: "Skills", value: candidate.scoreBreakdown.skills }, { label: "Experience", value: candidate.scoreBreakdown.experience }, { label: "Education", value: candidate.scoreBreakdown.education }, { label: "Culture Fit", value: candidate.scoreBreakdown.culture }].map((item) => (
+                <div key={item.label} className="flex items-center gap-3">
+                  <span className="text-xs text-[var(--saptta-mute)] w-20">{item.label}</span>
+                  <div className="flex-1"><ScoreBar value={item.value} showLabel={false} /></div>
+                  <span className="text-xs font-semibold min-w-[32px] text-right" style={{ color: getScoreColor(item.value) }}>{item.value}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <Separator />
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-3">Activity Timeline</h3>
+            <div className="space-y-0">
+              {candidate.timeline.map((event, i) => {
+                const isLast = i === candidate.timeline.length - 1;
+                return (
+                  <div key={i} className="flex gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className="size-2.5 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: isLast ? "#ff6a2c" : "#d4d4d4" }} />
+                      {!isLast && <div className="w-px flex-1 bg-[#e8e8e8] dark:bg-[#2a2a2c] my-1" />}
+                    </div>
+                    <div className="pb-4">
+                      <p className="text-sm text-[var(--saptta-ink)]">{event.event}</p>
+                      <p className="text-xs text-[var(--saptta-mute)]">{event.date}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <Separator />
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-3">Move to Stage</h3>
+            <div className="flex flex-wrap gap-2">
+              {STAGE_ORDER.filter((s) => s !== candidate.stage).map((stage) => {
+                const sc = STAGE_CONFIG[stage];
+                return (
+                  <Button key={stage} variant="outline" size="sm" className="rounded-full text-xs h-7 border-[var(--saptta-line)] hover:border-[var(--saptta-accent)]" onClick={() => { onMoveStage(candidate.id, stage); onOpenChange(false); }}>
+                    <div className="size-1.5 rounded-full mr-1.5" style={{ backgroundColor: sc.color }} />{sc.label}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ──────────────── Job Detail Dialog ──────────────── */
+
+function JobDetailDialog({ job, open, onOpenChange, candidates, onPublish }: {
+  job: JobPosting | null; open: boolean; onOpenChange: (open: boolean) => void; candidates: Candidate[]; onPublish: (job: JobPosting) => void;
+}) {
+  if (!job) return null;
+  const statusCfg = JOB_STATUS_CONFIG[job.status];
+  const jobCandidates = candidates.filter((c) => c.jobId === job.id);
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
+        <div className="p-6 space-y-5">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-[var(--saptta-ink)]">{job.title}</h2>
+              <div className="flex items-center gap-3 mt-1 flex-wrap">
+                <span className="text-sm text-[var(--saptta-mute)] flex items-center gap-1"><Building2 className="size-3" /> {job.department}</span>
+                <span className="text-sm text-[var(--saptta-mute)] flex items-center gap-1"><MapPin className="size-3" /> {job.location}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge className="rounded-full text-[11px] font-medium border-0 px-3 py-0.5" style={{ backgroundColor: statusCfg.bgColor, color: statusCfg.color }}>{statusCfg.label}</Badge>
+              {job.status === "open" && (
+                <Button size="sm" className="rounded-full bg-[#ff6a2c] text-white hover:bg-[#ff6a2c]/90 h-7 text-[10px] px-3" onClick={() => onPublish(job)}>
+                  <Globe className="size-3 mr-1" />Publish
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="grid grid-cols-4 gap-3">
+            {[{ label: "Openings", value: job.openings, icon: Users }, { label: "Applicants", value: job.applicants, icon: FileText }, { label: "Days Open", value: job.daysOpen, icon: Clock }, { label: "Salary", value: job.salary, icon: IndianRupee }].map((stat) => (
+              <div key={stat.label} className="bg-[var(--saptta-bg-2)] rounded-xl p-3 text-center">
+                <stat.icon className="size-4 text-[var(--saptta-mute)] mx-auto mb-1" />
+                <p className="text-sm font-bold text-[var(--saptta-ink)]">{stat.value}</p>
+                <p className="text-[10px] text-[var(--saptta-mute)]">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+          <Separator />
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-3">Pipeline Overview</h3>
+            <div className="flex gap-1">
+              {STAGE_ORDER.filter((s) => s !== "rejected").map((stage) => {
+                const count = jobCandidates.filter((c) => c.stage === stage).length;
+                const sc = STAGE_CONFIG[stage];
+                return (<div key={stage} className="flex-1 text-center"><div className="h-2 rounded-full mb-1.5" style={{ backgroundColor: count > 0 ? sc.color : "#e8e8e8" }} /><p className="text-xs font-semibold" style={{ color: count > 0 ? sc.color : "#8a8680" }}>{count}</p><p className="text-[9px] text-[var(--saptta-mute)]">{sc.label}</p></div>);
+              })}
+            </div>
+          </div>
+          <Separator />
+          <div><h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2">Job Description</h3><p className="text-sm text-[var(--saptta-ink-2)] leading-relaxed">{job.description}</p></div>
+          <div><h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2">Requirements</h3><ul className="space-y-1.5">{job.requirements.map((req, i) => (<li key={i} className="flex items-start gap-2 text-sm text-[var(--saptta-ink-2)]"><CheckCircle2 className="size-3.5 text-[#c8e056] mt-0.5 shrink-0" />{req}</li>))}</ul></div>
+          <div><h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2">Responsibilities</h3><ul className="space-y-1.5">{job.responsibilities.map((resp, i) => (<li key={i} className="flex items-start gap-2 text-sm text-[var(--saptta-ink-2)]"><ArrowRight className="size-3.5 text-[var(--saptta-accent)] mt-0.5 shrink-0" />{resp}</li>))}</ul></div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ──────────────── JD Publish Dialog ──────────────── */
+
+function JDPublishDialog({ job, open, onOpenChange }: { job: JobPosting | null; open: boolean; onOpenChange: (open: boolean) => void }) {
+  const [careerPageEnabled, setCareerPageEnabled] = useState(true);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedEmbed, setCopiedEmbed] = useState(false);
+  if (!job) return null;
+  const jobUrl = `https://saptta.com/careers/${job.id}/${job.title.toLowerCase().replace(/\s+/g, "-")}`;
+  const linkedInText = `🚀 We're hiring! ${job.title} at saptta\n\n${job.description.slice(0, 200)}...\n\nApply now: ${jobUrl}`;
+  const emailBody = `Subject: Exciting Opportunity: ${job.title} at saptta\n\nDear Candidate,\n\nWe have an exciting opportunity for the role of ${job.title} at saptta.\n\nAbout the Role:\n${job.description.slice(0, 300)}\n\nKey Requirements:\n${job.requirements.slice(0, 3).map((r) => `• ${r}`).join("\n")}\n\nLocation: ${job.location}\nSalary: ${job.salary}\n\nApply here: ${jobUrl}\n\nBest regards,\nsaptta Recruitment Team`;
+  const embedSnippet = `<iframe src="${jobUrl}/embed" width="100%" height="600" frameborder="0" style="border-radius:16px;"></iframe>`;
+
+  const handleCopy = (text: string, type: "link" | "embed") => {
+    navigator.clipboard.writeText(text);
+    if (type === "link") { setCopiedLink(true); setTimeout(() => setCopiedLink(false), 2000); }
+    else { setCopiedEmbed(true); setTimeout(() => setCopiedEmbed(false), 2000); }
+  };
+
+  const publishOptions = [
+    { icon: Globe, title: "Career Page", description: "Publish on your company career page", color: "#22c55e", content: (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between"><span className="text-sm text-[var(--saptta-ink-2)]">Publish on career page</span><Switch checked={careerPageEnabled} onCheckedChange={setCareerPageEnabled} /></div>
+        {careerPageEnabled && <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3"><p className="text-xs text-[var(--saptta-mute)] mb-1">Preview URL</p><p className="text-sm text-[#ff6a2c] font-medium truncate">{jobUrl}</p></div>}
+      </div>
+    )},
+    { icon: Linkedin, title: "LinkedIn", description: "Share on LinkedIn with pre-filled post", color: "#0077b5", content: (
+      <div className="space-y-3">
+        <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3"><p className="text-xs text-[var(--saptta-mute)] mb-1">Pre-filled post text</p><p className="text-sm text-[var(--saptta-ink-2)] whitespace-pre-line">{linkedInText}</p></div>
+        <Button className="w-full rounded-full bg-[#0077b5] text-white hover:bg-[#0077b5]/90 h-9 text-xs" onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(jobUrl)}`, "_blank")}>
+          <Linkedin className="size-4 mr-2" />Share on LinkedIn
+        </Button>
+      </div>
+    )},
+    { icon: Twitter, title: "Twitter / X", description: "Share job posting on Twitter", color: "#1da1f2", content: (
+      <Button className="w-full rounded-full bg-[#1da1f2] text-white hover:bg-[#1da1f2]/90 h-9 text-xs" onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`🚀 We're hiring! ${job.title} at saptta. Apply now!`)}&url=${encodeURIComponent(jobUrl)}`, "_blank")}>
+        <Twitter className="size-4 mr-2" />Share on Twitter / X
+      </Button>
+    )},
+    { icon: Facebook, title: "Facebook", description: "Share on Facebook", color: "#4267b2", content: (
+      <Button className="w-full rounded-full bg-[#4267b2] text-white hover:bg-[#4267b2]/90 h-9 text-xs" onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(jobUrl)}`, "_blank")}>
+        <Facebook className="size-4 mr-2" />Share on Facebook
+      </Button>
+    )},
+    { icon: Link2, title: "Direct Link", description: "Copy shareable URL for the job posting", color: "#ff6a2c", content: (
+      <div className="space-y-3">
+        <div className="flex items-center gap-2"><Input value={jobUrl} readOnly className="rounded-xl text-xs h-9 flex-1" /><Button variant="outline" size="sm" className="rounded-full h-9 px-3" onClick={() => handleCopy(jobUrl, "link")}>{copiedLink ? <Check className="size-3.5 text-green-500" /> : <Copy className="size-3.5" />}</Button></div>
+      </div>
+    )},
+    { icon: Mail, title: "Email Template", description: "Pre-filled email with JD summary", color: "#c8e056", content: (
+      <div className="space-y-3">
+        <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3 max-h-40 overflow-y-auto"><p className="text-xs text-[var(--saptta-ink-2)] whitespace-pre-line">{emailBody}</p></div>
+        <Button className="w-full rounded-full bg-[#c8e056] text-[var(--saptta-ink)] hover:bg-[#c8e056]/90 h-9 text-xs" onClick={() => handleCopy(emailBody, "link")}>
+          <Copy className="size-4 mr-2" />Copy Email Template
+        </Button>
+      </div>
+    )},
+    { icon: QrCode, title: "QR Code", description: "Generate QR code linking to job page", color: "#5a3a2a", content: (
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-32 h-32 bg-[var(--saptta-bg-2)] rounded-xl flex items-center justify-center border-2 border-dashed border-[var(--saptta-line)]">
+          <div className="grid grid-cols-5 gap-0.5">
+            {Array.from({ length: 25 }).map((_, i) => (<div key={i} className="size-2 rounded-[1px]" style={{ backgroundColor: Math.random() > 0.35 ? "#0a0a0a" : "transparent" }} />))}
+          </div>
+        </div>
+        <p className="text-xs text-[var(--saptta-mute)]">Scan to view job posting</p>
+      </div>
+    )},
+    { icon: Code2, title: "Embed Widget", description: "HTML snippet for embedding on external sites", color: "#8b5cf6", content: (
+      <div className="space-y-3">
+        <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3"><code className="text-[10px] text-[var(--saptta-ink-2)] break-all">{embedSnippet}</code></div>
+        <Button variant="outline" className="w-full rounded-full h-9 text-xs" onClick={() => handleCopy(embedSnippet, "embed")}>{copiedEmbed ? <Check className="size-3.5 text-green-500 mr-2" /> : <Copy className="size-3.5 mr-2" />}Copy Embed Code</Button>
+      </div>
+    )},
+  ];
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
+        <div className="bg-gradient-to-r from-[#0a0a0b] to-[#1a1a1c] p-6 rounded-t-[24px]">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-[16px] bg-white/10 flex items-center justify-center"><Globe className="size-5 text-white" /></div>
+            <div><h2 className="text-lg font-bold text-white">Publish Job Posting</h2><p className="text-xs text-white/60">{job.title} &middot; {job.department}</p></div>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {publishOptions.map((opt) => (
+              <motion.div key={opt.title} variants={fadeUp} initial="hidden" animate="show">
+                <Card className="border-[var(--saptta-line)] rounded-[20px] hover:shadow-md transition-all hover:border-[var(--saptta-accent)]/20">
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="size-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${opt.color}15` }}><opt.icon className="size-4" style={{ color: opt.color }} /></div>
+                      <div><p className="text-sm font-semibold text-[var(--saptta-ink)]">{opt.title}</p><p className="text-[10px] text-[var(--saptta-mute)]">{opt.description}</p></div>
+                    </div>
+                    {opt.content}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ──────────────── Email Candidate Dialog ──────────────── */
+
+function EmailCandidateDialog({ open, onOpenChange, candidateName, candidateEmail, jobTitle }: {
+  open: boolean; onOpenChange: (open: boolean) => void; candidateName: string; candidateEmail: string; jobTitle: string;
+}) {
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const subject = `Congratulations! You've been shortlisted for ${jobTitle}`;
+  const body = `Dear ${candidateName},\n\nCongratulations! We are pleased to inform you that you have been shortlisted for the position of ${jobTitle} at saptta.\n\nYour application stood out among many, and we were particularly impressed with your skills and experience.\n\nNext Steps:\n• Our team will reach out to schedule a technical interview within the next 3-5 business days.\n• Please ensure your availability and prepare for a discussion on your experience and projects.\n• If you have any questions, feel free to reply to this email.\n\nWe look forward to speaking with you soon!\n\nBest regards,\nsaptta Recruitment Team\nhttps://saptta.com`;
+
+  const handleSend = () => {
+    setSending(true);
+    setTimeout(() => { setSending(false); setSent(true); setTimeout(() => { setSent(false); onOpenChange(false); }, 1500); }, 1500);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg rounded-[24px] p-0">
+        <div className="bg-gradient-to-r from-[#ff6a2c] to-[#ff8f5c] p-5 rounded-t-[24px]">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-[16px] bg-white/20 flex items-center justify-center"><Mail className="size-5 text-white" /></div>
+            <div><h2 className="text-base font-bold text-white">Email Candidate</h2><p className="text-xs text-white/70">Send shortlist notification</p></div>
+          </div>
+        </div>
+        <div className="p-5 space-y-4">
+          {sent ? (
+            <motion.div className="text-center py-8" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+              <div className="size-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4"><CheckCircle2 className="size-8 text-green-500" /></div>
+              <p className="text-lg font-bold text-[var(--saptta-ink)]">Email Sent!</p>
+              <p className="text-sm text-[var(--saptta-mute)]">Notification sent to {candidateEmail}</p>
+            </motion.div>
+          ) : (
+            <>
+              <div><label className="text-xs font-medium text-[var(--saptta-mute)] mb-1 block">To</label><Input value={candidateEmail} readOnly className="rounded-xl text-xs h-9 bg-[var(--saptta-bg-2)]" /></div>
+              <div><label className="text-xs font-medium text-[var(--saptta-mute)] mb-1 block">Subject</label><Input value={subject} readOnly className="rounded-xl text-xs h-9 bg-[var(--saptta-bg-2)]" /></div>
+              <div><label className="text-xs font-medium text-[var(--saptta-mute)] mb-1 block">Body</label><Textarea value={body} readOnly className="rounded-xl text-xs min-h-[180px] bg-[var(--saptta-bg-2)]" /></div>
+              <Button className="w-full rounded-full bg-[#ff6a2c] text-white hover:bg-[#ff6a2c]/90 h-10" onClick={handleSend} disabled={sending}>
+                {sending ? <><Loader2 className="size-4 mr-2 animate-spin" />Sending...</> : <><Send className="size-4 mr-2" />Send Email</>}
+              </Button>
+            </>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ──────────────── Resume Analyzer Tab ──────────────── */
+
+function ResumeAnalyzerTab() {
+  const [resumeText, setResumeText] = useState("");
+  const [selectedJD, setSelectedJD] = useState<string>("");
+  const [analyzing, setAnalyzing] = useState(false);
+  const [result, setResult] = useState<MatchResult | null>(null);
+  const [candidateName, setCandidateName] = useState("");
+  const [candidateEmail, setCandEmail] = useState("");
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAnalyze = () => {
+    if (!resumeText.trim() || !selectedJD) return;
+    const job = MOCK_JOBS.find((j) => j.id === selectedJD);
+    if (!job) return;
+    setAnalyzing(true);
+    setTimeout(() => {
+      const res = analyzeResume(resumeText, job.description, job.requirements);
+      setResult(res);
+      if (!candidateName) {
+        const firstLine = resumeText.split("\n")[0]?.trim() || "Candidate";
+        setCandidateName(firstLine);
+      }
+      if (!candidateEmail) {
+        const emailMatch = resumeText.match(/[\w.-]+@[\w.-]+\.\w+/);
+        if (emailMatch) setCandEmail(emailMatch[0]);
+      }
+      setAnalyzing(false);
+    }, 1200);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const text = ev.target?.result as string;
+        setResumeText(text);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const text = ev.target?.result as string;
+        setResumeText(text);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const loadMockResume = (id: string) => {
+    const mock = MOCK_RESUME_TEXTS.find((m) => m.id === id);
+    if (mock) { setResumeText(mock.text); setCandidateName(mock.name); setCandEmail(mock.email); }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Input Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Left: Resume Input */}
+        <motion.div variants={fadeUp} initial="hidden" animate="show">
+          <Card className="border-[var(--saptta-line)] rounded-[24px] overflow-hidden">
+            <div className="bg-gradient-to-r from-[#ff6a2c] to-[#ff8f5c] p-4">
+              <div className="flex items-center gap-3">
+                <div className="size-9 rounded-[14px] bg-white/20 flex items-center justify-center"><Brain className="size-4 text-white" /></div>
+                <div><h3 className="text-sm font-bold text-white">Resume Analyzer</h3><p className="text-[10px] text-white/70">AI-powered resume matching</p></div>
+              </div>
+            </div>
+            <CardContent className="p-4 space-y-4">
+              {/* Upload Area */}
+              <div
+                className={`border-2 border-dashed rounded-[16px] p-6 text-center transition-all cursor-pointer ${dragOver ? "border-[#ff6a2c] bg-[#ff6a2c08]" : "border-[var(--saptta-line)] hover:border-[var(--saptta-accent)]/40"}`}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input ref={fileInputRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.txt" onChange={handleFileUpload} />
+                <Upload className="size-7 text-[var(--saptta-mute)] mx-auto mb-2" />
+                <p className="text-sm font-medium text-[var(--saptta-ink)]">Drop resume here or click to upload</p>
+                <p className="text-[10px] text-[var(--saptta-mute)] mt-1">Supports PDF, DOCX, TXT (Max 10MB)</p>
+              </div>
+
+              {/* Or paste text */}
+              <div>
+                <label className="text-xs font-medium text-[var(--saptta-mute)] mb-1.5 block">Or paste resume text</label>
+                <Textarea
+                  placeholder="Paste resume content here..."
+                  className="rounded-xl text-xs min-h-[140px] resize-none"
+                  value={resumeText}
+                  onChange={(e) => setResumeText(e.target.value)}
+                />
+              </div>
+
+              {/* Quick load mock */}
+              <div>
+                <p className="text-[10px] text-[var(--saptta-mute)] mb-1.5">Quick demo — load a sample resume:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {MOCK_RESUME_TEXTS.map((m) => (
+                    <Button key={m.id} variant="outline" size="sm" className="rounded-full text-[9px] h-6 px-2" onClick={() => loadMockResume(m.id)}>
+                      {m.name.split(" ")[0]}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Right: JD Selection + Analyze */}
+        <motion.div variants={fadeUp} initial="hidden" animate="show">
+          <Card className="border-[var(--saptta-line)] rounded-[24px] overflow-hidden h-full">
+            <div className="bg-gradient-to-r from-[#5a3a2a] to-[#7a5a4a] p-4">
+              <div className="flex items-center gap-3">
+                <div className="size-9 rounded-[14px] bg-white/20 flex items-center justify-center"><Target className="size-4 text-white" /></div>
+                <div><h3 className="text-sm font-bold text-white">Match Against Job</h3><p className="text-[10px] text-white/70">Select JD for comparison</p></div>
+              </div>
+            </div>
+            <CardContent className="p-4 space-y-4">
+              <div>
+                <label className="text-xs font-medium text-[var(--saptta-mute)] mb-1.5 block">Select Job Description</label>
+                <Select value={selectedJD} onValueChange={setSelectedJD}>
+                  <SelectTrigger className="rounded-xl h-9 text-xs"><SelectValue placeholder="Choose a job to match against" /></SelectTrigger>
+                  <SelectContent>
+                    {MOCK_JOBS.filter((j) => j.status === "open").map((j) => (<SelectItem key={j.id} value={j.id}>{j.title} — {j.department}</SelectItem>))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {selectedJD && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="bg-[var(--saptta-bg-2)] rounded-xl p-3 space-y-2">
+                  {(() => { const job = MOCK_JOBS.find((j) => j.id === selectedJD); if (!job) return null; return (
+                    <>
+                      <p className="text-sm font-semibold text-[var(--saptta-ink)]">{job.title}</p>
+                      <p className="text-xs text-[var(--saptta-mute)]">{job.location} &middot; {job.salary}</p>
+                      <div className="flex flex-wrap gap-1 mt-1">{job.requirements.slice(0, 3).map((r, i) => (<Badge key={i} variant="outline" className="text-[9px] rounded-full border-0 bg-white px-2 py-0">{r.slice(0, 30)}...</Badge>))}</div>
+                    </>
+                  ); })()}
+                </motion.div>
+              )}
+
+              <Button
+                className="w-full rounded-full bg-[#ff6a2c] text-white hover:bg-[#ff6a2c]/90 h-10 saptta-btn-fill"
+                onClick={handleAnalyze}
+                disabled={!resumeText.trim() || !selectedJD || analyzing}
+              >
+                {analyzing ? <><Loader2 className="size-4 mr-2 animate-spin" />Analyzing Resume...</> : <><Sparkles className="size-4 mr-2" />Analyze Resume</>}
+              </Button>
+
+              {/* Stats Preview */}
+              <div className="grid grid-cols-3 gap-2 pt-2">
+                <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3 text-center">
+                  <p className="text-lg font-bold text-[#ff6a2c]">{MOCK_JOBS.filter((j) => j.status === "open").length}</p>
+                  <p className="text-[9px] text-[var(--saptta-mute)]">Open Jobs</p>
+                </div>
+                <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3 text-center">
+                  <p className="text-lg font-bold text-[#c8e056]">{MOCK_RESUME_TEXTS.length}</p>
+                  <p className="text-[9px] text-[var(--saptta-mute)]">Sample Resumes</p>
+                </div>
+                <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3 text-center">
+                  <p className="text-lg font-bold text-[#5a3a2a]">75%</p>
+                  <p className="text-[9px] text-[var(--saptta-mute)]">Threshold</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Results Section */}
+      <AnimatePresence>
+        {result && (
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.5, ease: [0.22, 0.8, 0.22, 1] }}>
+            <div className="space-y-4">
+              {/* Overall Score + Shortlist Decision */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Overall Match Score */}
+                <motion.div variants={scaleIn} initial="hidden" animate="show" className="md:col-span-1">
+                  <Card className="border-[var(--saptta-line)] rounded-[24px] saptta-card-glow">
+                    <CardContent className="p-6 flex flex-col items-center justify-center text-center">
+                      <p className="text-xs text-[var(--saptta-mute)] uppercase tracking-wider mb-2">Overall Match Score</p>
+                      <div className="relative size-32">
+                        <svg className="size-full -rotate-90" viewBox="0 0 100 100">
+                          <circle cx="50" cy="50" r="45" fill="none" stroke="var(--saptta-bg-2)" strokeWidth="6" />
+                          <motion.circle cx="50" cy="50" r="45" fill="none" stroke={getScoreColor(result.overall)} strokeWidth="6" strokeLinecap="round" strokeDasharray={283} initial={{ strokeDashoffset: 283 }} animate={{ strokeDashoffset: 283 - (283 * result.overall) / 100 }} transition={{ duration: 1.2, ease: [0.22, 0.8, 0.22, 1] }} />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div>
+                            <span className="text-4xl font-bold" style={{ color: getScoreColor(result.overall) }}>{result.overall}</span>
+                            <span className="text-sm font-medium text-[var(--saptta-mute)]">%</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-3">
+                        <Badge className={`rounded-full text-xs font-bold px-4 py-1 border-0 ${result.overall >= 85 ? "bg-green-50 text-green-600" : result.overall >= 70 ? "bg-lime-50 text-lime-600" : result.overall >= 50 ? "bg-yellow-50 text-yellow-600" : "bg-red-50 text-red-500"}`}>
+                          {result.overall >= 85 ? "Excellent Match" : result.overall >= 70 ? "Good Match" : result.overall >= 50 ? "Fair Match" : "Poor Match"}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Shortlist Decision */}
+                <motion.div variants={scaleIn} initial="hidden" animate="show" className="md:col-span-2">
+                  <Card className="border-[var(--saptta-line)] rounded-[24px]">
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className={`size-14 rounded-2xl flex items-center justify-center shrink-0 ${result.shortlisted ? "bg-green-50" : "bg-red-50"}`}>
+                          {result.shortlisted ? <CheckCircle2 className="size-7 text-green-500" /> : <X className="size-7 text-red-500" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <Badge className={`rounded-full text-xs font-bold px-4 py-1 border-0 mb-2 ${result.shortlisted ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
+                            {result.shortlisted ? "SHORTLISTED" : "NOT SHORTLISTED"}
+                          </Badge>
+                          <p className="text-sm text-[var(--saptta-ink-2)] leading-relaxed">{result.shortlistReason}</p>
+                          {result.shortlisted && (
+                            <div className="flex gap-2 mt-4">
+                              <Button size="sm" className="rounded-full bg-[#ff6a2c] text-white hover:bg-[#ff6a2c]/90 h-8 text-xs px-4" onClick={() => alert("HR notification sent!")}>
+                                <Send className="size-3 mr-1.5" />Send to HR
+                              </Button>
+                              <Button size="sm" variant="outline" className="rounded-full h-8 text-xs px-4" onClick={() => setEmailDialogOpen(true)}>
+                                <Mail className="size-3 mr-1.5" />Email Candidate
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </div>
+
+              {/* Keyword Match + Cosine Similarity */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Keyword Match Section */}
+                <motion.div variants={fadeUp} initial="hidden" animate="show">
+                  <Card className="border-[var(--saptta-line)] rounded-[24px]">
+                    <CardHeader className="pb-3 pt-5 px-5"><CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2"><Target className="size-4 text-[#ff6a2c]" />Keyword Match</CardTitle></CardHeader>
+                    <CardContent className="px-5 pb-5 space-y-4">
+                      <div className="flex items-center gap-4">
+                        <div className="text-center"><p className="text-2xl font-bold" style={{ color: getScoreColor(result.keywordMatch.matchPercentage) }}>{result.keywordMatch.matchPercentage}%</p><p className="text-[9px] text-[var(--saptta-mute)]">Match Rate</p></div>
+                        <Separator orientation="vertical" className="h-10" />
+                        <div className="text-center"><p className="text-lg font-bold text-[var(--saptta-ink)]">{result.keywordMatch.matchedKeywords.length}</p><p className="text-[9px] text-[var(--saptta-mute)]">Matched</p></div>
+                        <div className="text-center"><p className="text-lg font-bold text-[var(--saptta-mute)]">{result.keywordMatch.unmatchedKeywords.length}</p><p className="text-[9px] text-[var(--saptta-mute)]">Unmatched</p></div>
+                        <div className="text-center"><p className="text-lg font-bold text-[var(--saptta-ink)]">{result.keywordMatch.totalKeywords}</p><p className="text-[9px] text-[var(--saptta-mute)]">Total</p></div>
+                      </div>
+                      <div className="space-y-2.5">
+                        {result.keywordMatch.categoryBreakdown.map((cat) => (
+                          <div key={cat.category}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[11px] font-medium text-[var(--saptta-ink-2)] capitalize">{cat.category}</span>
+                              <span className="text-[10px] font-semibold" style={{ color: getScoreColor(cat.percentage) }}>{cat.matched}/{cat.total} ({cat.percentage}%)</span>
+                            </div>
+                            <div className="h-1.5 bg-[var(--saptta-bg-2)] rounded-full overflow-hidden">
+                              <motion.div className="h-full rounded-full" style={{ backgroundColor: getScoreColor(cat.percentage) }} initial={{ width: 0 }} animate={{ width: `${cat.percentage}%` }} transition={{ duration: 0.6, ease: [0.22, 0.8, 0.22, 1] }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Cosine Similarity Section */}
+                <motion.div variants={fadeUp} initial="hidden" animate="show">
+                  <Card className="border-[var(--saptta-line)] rounded-[24px]">
+                    <CardHeader className="pb-3 pt-5 px-5"><CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2"><BarChart3 className="size-4 text-[#c8e056]" />Cosine Similarity</CardTitle></CardHeader>
+                    <CardContent className="px-5 pb-5 space-y-4">
+                      <div className="flex items-center gap-4">
+                        <div className="text-center"><p className="text-2xl font-bold" style={{ color: getScoreColor(Math.round(result.cosineSimilarity.score * 100)) }}>{Math.round(result.cosineSimilarity.score * 100)}%</p><p className="text-[9px] text-[var(--saptta-mute)]">Cosine Score</p></div>
+                        <Separator orientation="vertical" className="h-10" />
+                        <div className="text-center"><p className="text-sm font-bold text-[var(--saptta-ink)]">{result.cosineSimilarity.dotProduct.toFixed(1)}</p><p className="text-[9px] text-[var(--saptta-mute)]">Dot Product</p></div>
+                        <div className="text-center"><p className="text-sm font-bold text-[var(--saptta-ink)]">{result.cosineSimilarity.jdVectorMagnitude.toFixed(1)}</p><p className="text-[9px] text-[var(--saptta-mute)]">JD |V|</p></div>
+                        <div className="text-center"><p className="text-sm font-bold text-[var(--saptta-ink)]">{result.cosineSimilarity.resumeVectorMagnitude.toFixed(1)}</p><p className="text-[9px] text-[var(--saptta-mute)]">Res |V|</p></div>
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-medium text-[var(--saptta-ink-2)] mb-2">Top Contributing Terms</p>
+                        <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                          {result.cosineSimilarity.topContributingTerms.map((term, i) => {
+                            const maxWeight = result.cosineSimilarity.topContributingTerms[0]?.weight || 1;
+                            return (
+                              <div key={i} className="flex items-center gap-2">
+                                <span className="text-[10px] text-[var(--saptta-mute)] w-4 text-right">{i + 1}</span>
+                                <span className="text-[10px] font-medium text-[var(--saptta-ink)] min-w-[80px] truncate">{term.term}</span>
+                                <div className="flex-1 h-1.5 bg-[var(--saptta-bg-2)] rounded-full overflow-hidden">
+                                  <motion.div className="h-full rounded-full bg-[#c8e056]" initial={{ width: 0 }} animate={{ width: `${(term.weight / maxWeight) * 100}%` }} transition={{ duration: 0.5, delay: i * 0.03 }} />
+                                </div>
+                                <span className="text-[9px] text-[var(--saptta-mute)] min-w-[30px] text-right">{term.weight.toFixed(1)}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </div>
+
+              {/* Dimension Scores + Anti-Hallucination */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Dimension Scores */}
+                <motion.div variants={fadeUp} initial="hidden" animate="show">
+                  <Card className="border-[var(--saptta-line)] rounded-[24px]">
+                    <CardHeader className="pb-3 pt-5 px-5"><CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2"><TrendingUp className="size-4 text-[#5a3a2a]" />Dimension Scores</CardTitle></CardHeader>
+                    <CardContent className="px-5 pb-5 space-y-3">
+                      {result.dimensionScores.map((dim) => (
+                        <div key={dim.dimension} className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-[var(--saptta-ink)]">{dim.dimension}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] text-[var(--saptta-mute)]">Weight: {dim.weight}%</span>
+                              <span className="text-xs font-bold" style={{ color: getScoreColor(dim.score) }}>{dim.score}%</span>
+                            </div>
+                          </div>
+                          <div className="h-2 bg-[var(--saptta-bg-2)] rounded-full overflow-hidden">
+                            <motion.div className="h-full rounded-full" style={{ backgroundColor: getScoreColor(dim.score) }} initial={{ width: 0 }} animate={{ width: `${dim.score}%` }} transition={{ duration: 0.7, ease: [0.22, 0.8, 0.22, 1] }} />
+                          </div>
+                          <p className="text-[9px] text-[var(--saptta-mute)]">{dim.details}</p>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Anti-Hallucination Report */}
+                <motion.div variants={fadeUp} initial="hidden" animate="show">
+                  <Card className="border-[var(--saptta-line)] rounded-[24px]">
+                    <CardHeader className="pb-3 pt-5 px-5">
+                      <CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2">
+                        {result.antiHallucinationReport.riskLevel === "low" ? <ShieldCheck className="size-4 text-green-500" /> : result.antiHallucinationReport.riskLevel === "medium" ? <ShieldAlert className="size-4 text-yellow-500" /> : <ShieldX className="size-4 text-red-500" />}
+                        Anti-Hallucination Report
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="px-5 pb-5 space-y-4">
+                      <div className="flex items-center gap-4">
+                        <div className="text-center"><p className="text-2xl font-bold" style={{ color: getScoreColor(Math.round(result.antiHallucinationReport.overallConfidence * 100)) }}>{Math.round(result.antiHallucinationReport.overallConfidence * 100)}%</p><p className="text-[9px] text-[var(--saptta-mute)]">Confidence</p></div>
+                        <Separator orientation="vertical" className="h-10" />
+                        <div className="text-center"><p className="text-sm font-bold text-green-500">{result.antiHallucinationReport.verifiedFacts}</p><p className="text-[9px] text-[var(--saptta-mute)]">Verified</p></div>
+                        <div className="text-center"><p className="text-sm font-bold text-yellow-500">{result.antiHallucinationReport.unverifiedFacts}</p><p className="text-[9px] text-[var(--saptta-mute)]">Unverified</p></div>
+                        <Badge className={`rounded-full text-[10px] font-bold border-0 ${result.antiHallucinationReport.riskLevel === "low" ? "bg-green-50 text-green-600" : result.antiHallucinationReport.riskLevel === "medium" ? "bg-yellow-50 text-yellow-600" : "bg-red-50 text-red-500"}`}>
+                          {result.antiHallucinationReport.riskLevel.toUpperCase()} RISK
+                        </Badge>
+                      </div>
+                      {result.antiHallucinationReport.flaggedItems.length > 0 && (
+                        <div className="space-y-2 max-h-40 overflow-y-auto">
+                          <p className="text-[10px] font-medium text-[var(--saptta-mute)] uppercase tracking-wider">Flagged Items</p>
+                          {result.antiHallucinationReport.flaggedItems.map((flag, i) => (
+                            <div key={i} className="flex items-start gap-2 bg-[var(--saptta-bg-2)] rounded-lg p-2.5">
+                              <AlertTriangle className={`size-3.5 mt-0.5 shrink-0 ${flag.severity === "critical" ? "text-red-500" : flag.severity === "warning" ? "text-yellow-500" : "text-blue-400"}`} />
+                              <div><p className="text-[10px] font-medium text-[var(--saptta-ink)]">{flag.item} <Badge className="text-[8px] rounded-full border-0 px-1 py-0 h-3.5 ml-1" style={{ backgroundColor: flag.severity === "critical" ? "#ef444420" : flag.severity === "warning" ? "#f59e0b20" : "#3b82f620", color: flag.severity === "critical" ? "#ef4444" : flag.severity === "warning" ? "#f59e0b" : "#3b82f6" }}>{flag.severity}</Badge></p><p className="text-[9px] text-[var(--saptta-mute)]">{flag.reason}</p></div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </div>
+
+              {/* Recommendations */}
+              {result.recommendations.length > 0 && (
+                <motion.div variants={fadeUp} initial="hidden" animate="show">
+                  <Card className="border-[var(--saptta-line)] rounded-[24px]">
+                    <CardHeader className="pb-3 pt-5 px-5"><CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2"><Sparkles className="size-4 text-[#ff6a2c]" />Recommendations</CardTitle></CardHeader>
+                    <CardContent className="px-5 pb-5">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {result.recommendations.map((rec, i) => (
+                          <div key={i} className="flex items-start gap-2 bg-[var(--saptta-bg-2)] rounded-xl p-3">
+                            <div className="size-5 rounded-full bg-[#ff6a2c15] flex items-center justify-center shrink-0 mt-0.5"><span className="text-[9px] font-bold text-[#ff6a2c]">{i + 1}</span></div>
+                            <p className="text-xs text-[var(--saptta-ink-2)] leading-relaxed">{rec}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Email Dialog */}
+      <EmailCandidateDialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen} candidateName={candidateName || "Candidate"} candidateEmail={candidateEmail || "candidate@email.com"} jobTitle={selectedJD ? MOCK_JOBS.find((j) => j.id === selectedJD)?.title || "" : ""} />
+    </div>
+  );
+}
+
+/* ──────────────── Batch Resume Analysis Tab ──────────────── */
+
+function BatchAnalysisTab({ onHighScore }: { onHighScore: (n: HighScoreNotification) => void }) {
+  const [selectedJD, setSelectedJD] = useState<string>("");
+  const [running, setRunning] = useState(false);
+  const [results, setResults] = useState<{ id: string; name: string; email: string; result: MatchResult }[]>([]);
+  const [filterShortlisted, setFilterShortlisted] = useState(false);
+  const [scoreRange, setScoreRange] = useState<string>("all");
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailTarget, setEmailTarget] = useState({ name: "", email: "", jobTitle: "" });
+
+  const runBatchAnalysis = () => {
+    if (!selectedJD) return;
+    const job = MOCK_JOBS.find((j) => j.id === selectedJD);
+    if (!job) return;
+    setRunning(true);
+    setTimeout(() => {
+      const batchResults = batchAnalyzeResumes(
+        MOCK_RESUME_TEXTS.map((m) => ({ id: m.id, name: m.name, text: m.text })),
+        job.description, job.requirements
+      );
+      const mapped = batchResults.map((r) => ({ id: r.id, name: r.name, email: MOCK_RESUME_TEXTS.find((m) => m.id === r.id)?.email || "", result: r.result }));
+      setResults(mapped.sort((a, b) => b.result.overall - a.result.overall));
+      setRunning(false);
+      // Trigger high-score notifications
+      mapped.forEach((r) => {
+        if (r.result.overall >= 75) {
+          onHighScore({
+            id: `notif-${Date.now()}-${r.id}`,
+            candidateName: r.name,
+            candidateEmail: r.email,
+            score: r.result.overall,
+            jobTitle: job.title,
+            avatar: r.name.split(" ").map((n) => n[0]).join(""),
+            timestamp: "Just now",
+            read: false,
+          });
+        }
+      });
+    }, 2000);
+  };
+
+  const filteredResults = useMemo(() => {
+    return results.filter((r) => {
+      if (filterShortlisted && !r.result.shortlisted) return false;
+      if (scoreRange === "high" && r.result.overall < 85) return false;
+      if (scoreRange === "medium" && (r.result.overall < 70 || r.result.overall >= 85)) return false;
+      if (scoreRange === "low" && r.result.overall >= 70) return false;
+      return true;
+    });
+  }, [results, filterShortlisted, scoreRange]);
+
+  const shortlistedCount = results.filter((r) => r.result.shortlisted).length;
+
+  const handleEmailCandidate = (name: string, email: string) => {
+    const job = MOCK_JOBS.find((j) => j.id === selectedJD);
+    setEmailTarget({ name, email, jobTitle: job?.title || "" });
+    setEmailDialogOpen(true);
+  };
+
+  const handleBulkEmail = () => {
+    const shortlisted = results.filter((r) => r.result.shortlisted);
+    alert(`Bulk email sent to ${shortlisted.length} shortlisted candidates: ${shortlisted.map((s) => s.email).join(", ")}`);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Controls */}
+      <div className="flex flex-wrap items-center gap-3">
+        <Select value={selectedJD} onValueChange={setSelectedJD}>
+          <SelectTrigger className="h-9 text-xs rounded-full w-[240px]"><SelectValue placeholder="Select Job Description" /></SelectTrigger>
+          <SelectContent>{MOCK_JOBS.filter((j) => j.status === "open").map((j) => (<SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>))}</SelectContent>
+        </Select>
+        <Button className="rounded-full bg-[#ff6a2c] text-white hover:bg-[#ff6a2c]/90 h-9 text-xs px-4" onClick={runBatchAnalysis} disabled={!selectedJD || running}>
+          {running ? <><Loader2 className="size-3.5 mr-1.5 animate-spin" />Analyzing...</> : <><Files className="size-3.5 mr-1.5" />Analyze All Resumes</>}
+        </Button>
+        {results.length > 0 && (
+          <>
+            <Button variant={filterShortlisted ? "default" : "outline"} size="sm" className={`rounded-full text-xs h-8 ${filterShortlisted ? "bg-green-500 text-white hover:bg-green-500/90" : ""}`} onClick={() => setFilterShortlisted(!filterShortlisted)}>
+              <CheckCircle2 className="size-3 mr-1" />Shortlisted Only ({shortlistedCount})
+            </Button>
+            <Select value={scoreRange} onValueChange={setScoreRange}>
+              <SelectTrigger className="h-8 text-xs rounded-full w-[130px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Scores</SelectItem>
+                <SelectItem value="high">High (85+)</SelectItem>
+                <SelectItem value="medium">Medium (70-84)</SelectItem>
+                <SelectItem value="low">Low (&lt;70)</SelectItem>
+              </SelectContent>
+            </Select>
+            {shortlistedCount > 0 && (
+              <Button variant="outline" size="sm" className="rounded-full text-xs h-8" onClick={handleBulkEmail}>
+                <Mail className="size-3 mr-1" />Bulk Email Shortlisted ({shortlistedCount})
+              </Button>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Results Table */}
+      {results.length > 0 && (
+        <Card className="border-[var(--saptta-line)] rounded-[24px] overflow-hidden">
+          <ScrollArea className="max-h-[520px]">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">Candidate</TableHead>
+                  <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">Overall Score</TableHead>
+                  <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">Keyword Match</TableHead>
+                  <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">Cosine Similarity</TableHead>
+                  <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">Shortlisted</TableHead>
+                  <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredResults.map((r) => (
+                  <TableRow key={r.id} className="hover:bg-[var(--saptta-bg-2)] transition-colors">
+                    <TableCell>
+                      <div className="flex items-center gap-2.5">
+                        <Avatar className="size-8 rounded-lg"><AvatarFallback className="rounded-lg text-[10px] font-bold" style={{ backgroundColor: getScoreBgColor(r.result.overall), color: getScoreColor(r.result.overall) }}>{r.name.split(" ").map((n) => n[0]).join("")}</AvatarFallback></Avatar>
+                        <div><p className="text-sm font-medium text-[var(--saptta-ink)]">{r.name}</p><p className="text-[11px] text-[var(--saptta-mute)]">{r.email}</p></div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2 min-w-[100px]">
+                        <div className="flex-1 h-1.5 bg-[var(--saptta-bg-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ backgroundColor: getScoreColor(r.result.overall), width: `${r.result.overall}%` }} /></div>
+                        <span className="text-xs font-semibold" style={{ color: getScoreColor(r.result.overall) }}>{r.result.overall}%</span>
+                      </div>
+                    </TableCell>
+                    <TableCell><span className="text-xs font-medium" style={{ color: getScoreColor(r.result.keywordMatch.matchPercentage) }}>{r.result.keywordMatch.matchPercentage}%</span></TableCell>
+                    <TableCell><span className="text-xs font-medium" style={{ color: getScoreColor(Math.round(r.result.cosineSimilarity.score * 100)) }}>{Math.round(r.result.cosineSimilarity.score * 100)}%</span></TableCell>
+                    <TableCell>
+                      <Badge className={`rounded-full text-[10px] font-bold border-0 px-2.5 ${r.result.shortlisted ? "bg-green-50 text-green-600" : "bg-red-50 text-red-500"}`}>
+                        {r.result.shortlisted ? "Yes" : "No"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" className="size-7 rounded-full p-0" title="View Details"><Eye className="size-3.5 text-[var(--saptta-mute)]" /></Button>
+                        {r.result.shortlisted && (
+                          <Button variant="ghost" size="sm" className="size-7 rounded-full p-0" title="Email Candidate" onClick={() => handleEmailCandidate(r.name, r.email)}><Mail className="size-3.5 text-[#ff6a2c]" /></Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        </Card>
+      )}
+
+      {results.length === 0 && !running && (
+        <Card className="border-[var(--saptta-line)] rounded-[24px]">
+          <CardContent className="p-12 text-center">
+            <FileUp className="size-12 text-[var(--saptta-mute)] mx-auto mb-4" />
+            <p className="text-sm font-medium text-[var(--saptta-ink)]">No analysis results yet</p>
+            <p className="text-xs text-[var(--saptta-mute)] mt-1">Select a job and click &quot;Analyze All Resumes&quot; to start batch analysis</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {running && (
+        <Card className="border-[var(--saptta-line)] rounded-[24px]">
+          <CardContent className="p-12 text-center">
+            <Loader2 className="size-12 text-[#ff6a2c] mx-auto mb-4 animate-spin" />
+            <p className="text-sm font-medium text-[var(--saptta-ink)]">Analyzing {MOCK_RESUME_TEXTS.length} resumes...</p>
+            <p className="text-xs text-[var(--saptta-mute)] mt-1">Running keyword matching, cosine similarity, and anti-hallucination checks</p>
+          </CardContent>
+        </Card>
+      )}
+
+      <EmailCandidateDialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen} candidateName={emailTarget.name} candidateEmail={emailTarget.email} jobTitle={emailTarget.jobTitle} />
+    </div>
+  );
+}
+
+/* ──────────────── Pipeline Tab (Kanban) ──────────────── */
+
+function PipelineTab({ candidates, onMoveStage }: { candidates: Candidate[]; onMoveStage: (id: string, stage: PipelineStage) => void }) {
+  const [jobFilter, setJobFilter] = useState<string>("all");
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+
+  const filtered = useMemo(() => {
+    return candidates.filter((c) => {
+      if (jobFilter !== "all" && c.jobId !== jobFilter) return false;
+      if (sourceFilter !== "all" && c.source !== sourceFilter) return false;
+      return true;
+    });
+  }, [candidates, jobFilter, sourceFilter]);
+
+  const grouped = useMemo(() => {
+    const map: Record<PipelineStage, Candidate[]> = { sourced: [], screening: [], interview: [], assessment: [], offer: [], hired: [], rejected: [] };
+    filtered.forEach((c) => map[c.stage].push(c));
+    return map;
+  }, [filtered]);
+
+  const sources = useMemo(() => [...new Set(candidates.map((c) => c.source))], [candidates]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2"><Filter className="size-4 text-[var(--saptta-mute)]" /><span className="text-xs text-[var(--saptta-mute)] font-medium">Filters:</span></div>
+        <Select value={jobFilter} onValueChange={setJobFilter}>
+          <SelectTrigger className="h-8 text-xs rounded-full w-[200px]"><SelectValue placeholder="All Jobs" /></SelectTrigger>
+          <SelectContent><SelectItem value="all">All Jobs</SelectItem>{MOCK_JOBS.map((j) => (<SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>))}</SelectContent>
+        </Select>
+        <Select value={sourceFilter} onValueChange={setSourceFilter}>
+          <SelectTrigger className="h-8 text-xs rounded-full w-[160px]"><SelectValue placeholder="All Sources" /></SelectTrigger>
+          <SelectContent><SelectItem value="all">All Sources</SelectItem>{sources.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}</SelectContent>
+        </Select>
+        <Badge variant="outline" className="rounded-full text-[10px] px-3">{filtered.length} candidates</Badge>
+      </div>
+      <div className="overflow-x-auto pb-4">
+        <div className="flex gap-3 min-w-[1200px]">
+          {STAGE_ORDER.map((stage) => {
+            const cfg = STAGE_CONFIG[stage];
+            const stageCandidates = grouped[stage];
+            return (
+              <div key={stage} className="flex-1 min-w-[160px]">
+                <div className="flex items-center justify-between mb-3 px-1">
+                  <div className="flex items-center gap-2"><div className="size-2.5 rounded-full" style={{ backgroundColor: cfg.color }} /><span className="text-xs font-semibold text-[var(--saptta-ink)]">{cfg.label}</span></div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: cfg.bgColor, color: cfg.color }}>{stageCandidates.length}</span>
+                </div>
+                <div className="space-y-2 min-h-[120px]">
+                  <AnimatePresence mode="popLayout">
+                    {stageCandidates.map((c) => (
+                      <motion.div key={c.id} layout initial={{ opacity: 0, scale: 0.9, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: -8 }} transition={{ duration: 0.3, ease: [0.22, 0.8, 0.22, 1] }}>
+                        <Card className="border-[var(--saptta-line)] rounded-[16px] cursor-pointer hover:shadow-md transition-all duration-300 hover:border-[var(--saptta-accent)]/30 group" onClick={() => { setSelectedCandidate(c); setDetailOpen(true); }}>
+                          <CardContent className="p-3 space-y-2.5">
+                            <div className="flex items-center gap-2">
+                              <Avatar className="size-7 rounded-lg"><AvatarFallback className="rounded-lg text-[10px] font-bold" style={{ backgroundColor: getScoreBgColor(c.matchScore), color: getScoreColor(c.matchScore) }}>{c.avatar}</AvatarFallback></Avatar>
+                              <div className="min-w-0 flex-1"><p className="text-xs font-semibold text-[var(--saptta-ink)] truncate">{c.name}</p><p className="text-[10px] text-[var(--saptta-mute)] truncate">{c.role}</p></div>
+                            </div>
+                            <ScoreBar value={c.matchScore} />
+                            <div className="flex items-center justify-between">
+                              <Badge variant="outline" className="text-[9px] rounded-full h-5 px-1.5 border-0" style={{ backgroundColor: cfg.bgColor, color: cfg.color }}>{c.source}</Badge>
+                              <span className="text-[10px] text-[var(--saptta-mute)] flex items-center gap-0.5"><Clock className="size-2.5" /> {c.daysInStage}d</span>
+                            </div>
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex gap-1">
+                                {STAGE_ORDER.filter((s) => s !== c.stage && s !== "rejected").slice(0, 3).map((s) => {
+                                  const sc = STAGE_CONFIG[s];
+                                  const nextIdx = STAGE_ORDER.indexOf(c.stage) + 1;
+                                  if (STAGE_ORDER.indexOf(s) !== nextIdx) return null;
+                                  return (
+                                    <Button key={s} variant="ghost" size="sm" className="h-5 text-[9px] rounded-full px-2 w-full" style={{ backgroundColor: sc.bgColor, color: sc.color }} onClick={(e) => { e.stopPropagation(); onMoveStage(c.id, s); }}>
+                                      <ArrowRight className="size-2.5 mr-0.5" />{sc.label}
+                                    </Button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <CandidateDetailDialog candidate={selectedCandidate} open={detailOpen} onOpenChange={setDetailOpen} onMoveStage={onMoveStage} />
+    </div>
+  );
+}
+
+/* ──────────────── Jobs Tab ──────────────── */
+
+function JobsTab({ candidates, onPublish }: { candidates: Candidate[]; onPublish: (job: JobPosting) => void }) {
+  const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
+  const [jobDetailOpen, setJobDetailOpen] = useState(false);
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div><p className="text-sm text-[var(--saptta-mute)]">{MOCK_JOBS.filter((j) => j.status === "open").length} active positions</p></div>
+        <Button className="rounded-full bg-[#ff6a2c] text-white hover:bg-[#ff6a2c]/90 h-8 text-xs px-4"><Plus className="size-3.5 mr-1.5" />Create Job</Button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {MOCK_JOBS.map((job, i) => {
+          const statusCfg = JOB_STATUS_CONFIG[job.status];
+          return (
+            <motion.div key={job.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06, duration: 0.4, ease: [0.22, 0.8, 0.22, 1] }}>
+              <Card className="border-[var(--saptta-line)] rounded-[24px] hover:shadow-lg transition-all duration-300 hover:border-[var(--saptta-accent)]/30 cursor-pointer group" onClick={() => { setSelectedJob(job); setJobDetailOpen(true); }}>
+                <CardContent className="p-5 space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2"><h3 className="text-sm font-semibold text-[var(--saptta-ink)] truncate">{job.title}</h3>{job.urgent && <Badge className="bg-red-50 text-red-500 text-[9px] rounded-full border-0 px-1.5 py-0 h-4">Urgent</Badge>}</div>
+                      <p className="text-xs text-[var(--saptta-mute)] mt-0.5">{job.department}</p>
+                    </div>
+                    <Badge className="rounded-full text-[10px] font-medium border-0 px-2.5 py-0.5 shrink-0" style={{ backgroundColor: statusCfg.bgColor, color: statusCfg.color }}>{statusCfg.label}</Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5 text-xs text-[var(--saptta-mute)]"><MapPin className="size-3" /> {job.location}</div>
+                    <div className="flex items-center gap-1.5 text-xs text-[var(--saptta-mute)]"><IndianRupee className="size-3" /> {job.salary}</div>
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="text-center"><p className="text-lg font-bold text-[var(--saptta-ink)]">{job.openings}</p><p className="text-[10px] text-[var(--saptta-mute)]">Openings</p></div>
+                    <div className="text-center"><p className="text-lg font-bold text-[var(--saptta-accent)]">{job.applicants}</p><p className="text-[10px] text-[var(--saptta-mute)]">Applicants</p></div>
+                    <div className="text-center"><p className="text-lg font-bold text-[var(--saptta-ink-2)]">{job.daysOpen}</p><p className="text-[10px] text-[var(--saptta-mute)]">Days Open</p></div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-[var(--saptta-mute)]">Posted {job.postedDate}</span>
+                    <ChevronRight className="size-4 text-[var(--saptta-mute)] group-hover:text-[var(--saptta-accent)] transition-colors" />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          );
+        })}
+      </div>
+      <JobDetailDialog job={selectedJob} open={jobDetailOpen} onOpenChange={setJobDetailOpen} candidates={candidates} onPublish={onPublish} />
+    </div>
+  );
+}
+
+/* ──────────────── Candidates Tab ──────────────── */
+
+function CandidatesTab({ candidates, onMoveStage }: { candidates: Candidate[]; onMoveStage: (id: string, stage: PipelineStage) => void }) {
+  const [search, setSearch] = useState("");
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const filtered = useMemo(() => {
+    if (!search) return candidates;
+    const q = search.toLowerCase();
+    return candidates.filter((c) => c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.role.toLowerCase().includes(q) || c.source.toLowerCase().includes(q));
+  }, [candidates, search]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[var(--saptta-mute)]" />
+          <Input placeholder="Search candidates by name, email, role..." className="pl-9 h-9 rounded-full text-xs" value={search} onChange={(e) => setSearch(e.target.value)} />
+        </div>
+        <Badge variant="outline" className="rounded-full text-[10px] px-3">{filtered.length} results</Badge>
+      </div>
+      <Card className="border-[var(--saptta-line)] rounded-[24px] overflow-hidden">
+        <ScrollArea className="max-h-[520px]">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">Candidate</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">Source</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">Applied For</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">Stage</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">Match Score</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">Last Activity</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)] w-10" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((c) => {
+                const stageCfg = STAGE_CONFIG[c.stage];
+                return (
+                  <TableRow key={c.id} className="cursor-pointer hover:bg-[var(--saptta-bg-2)] transition-colors" onClick={() => { setSelectedCandidate(c); setDetailOpen(true); }}>
+                    <TableCell><div className="flex items-center gap-2.5"><Avatar className="size-8 rounded-lg"><AvatarFallback className="rounded-lg text-[10px] font-bold" style={{ backgroundColor: getScoreBgColor(c.matchScore), color: getScoreColor(c.matchScore) }}>{c.avatar}</AvatarFallback></Avatar><div><p className="text-sm font-medium text-[var(--saptta-ink)]">{c.name}</p><p className="text-[11px] text-[var(--saptta-mute)]">{c.email}</p></div></div></TableCell>
+                    <TableCell><Badge variant="outline" className="text-[10px] rounded-full border-0 bg-[var(--saptta-bg-2)] px-2 py-0.5">{c.source}</Badge></TableCell>
+                    <TableCell><span className="text-sm text-[var(--saptta-ink-2)]">{c.role}</span></TableCell>
+                    <TableCell><Badge className="rounded-full text-[10px] font-medium border-0 px-2.5 py-0.5" style={{ backgroundColor: stageCfg.bgColor, color: stageCfg.color }}>{stageCfg.label}</Badge></TableCell>
+                    <TableCell><div className="flex items-center gap-2 min-w-[100px]"><ScoreBar value={c.matchScore} showLabel={false} /><span className="text-xs font-semibold" style={{ color: getScoreColor(c.matchScore) }}>{c.matchScore}%</span></div></TableCell>
+                    <TableCell><span className="text-xs text-[var(--saptta-mute)]">{c.lastActivity}</span></TableCell>
+                    <TableCell><ChevronRight className="size-4 text-[var(--saptta-mute)]" /></TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      </Card>
+      <CandidateDetailDialog candidate={selectedCandidate} open={detailOpen} onOpenChange={setDetailOpen} onMoveStage={onMoveStage} />
+    </div>
+  );
+}
+
+/* ──────────────── High Score Notification Banner ──────────────── */
+
+function HighScoreBanner({ notification, onDismiss, onViewProfile, onEmail }: {
+  notification: HighScoreNotification; onDismiss: () => void; onViewProfile: () => void; onEmail: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.95 }}
+      transition={{ duration: 0.4, ease: [0.22, 0.8, 0.22, 1] }}
+      className="bg-gradient-to-r from-[#ff6a2c] to-[#ff8f5c] rounded-[20px] p-4 shadow-lg"
+    >
+      <div className="flex items-center gap-4">
+        <div className="size-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+          <Star className="size-5 text-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-white">High-scoring candidate detected!</p>
+          <p className="text-xs text-white/80">{notification.candidateName} scored <span className="font-bold">{notification.score}%</span> for {notification.jobTitle}</p>
+        </div>
+        <div className="flex gap-2 shrink-0">
+          <Button size="sm" className="rounded-full bg-white text-[#ff6a2c] hover:bg-white/90 h-7 text-[10px] px-3" onClick={onViewProfile}>
+            <Eye className="size-3 mr-1" />View Profile
+          </Button>
+          <Button size="sm" className="rounded-full bg-white/20 text-white hover:bg-white/30 h-7 text-[10px] px-3" onClick={onEmail}>
+            <Mail className="size-3 mr-1" />Email
+          </Button>
+          <Button size="sm" variant="ghost" className="size-7 rounded-full p-0 text-white/70 hover:text-white hover:bg-white/10" onClick={onDismiss}>
+            <X className="size-3.5" />
+          </Button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ──────────────── Main Component ──────────────── */
+
+export function EnhancedRecruitmentView() {
+  const [candidates, setCandidates] = useState<Candidate[]>(MOCK_CANDIDATES);
+  const [publishJob, setPublishJob] = useState<JobPosting | null>(null);
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [notifications, setNotifications] = useState<HighScoreNotification[]>([]);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailTarget, setEmailTarget] = useState({ name: "", email: "", jobTitle: "" });
+
+  const handleMoveStage = useCallback((candidateId: string, newStage: PipelineStage) => {
+    setCandidates((prev) => prev.map((c) => (c.id === candidateId ? { ...c, stage: newStage } : c)));
+  }, []);
+
+  const handlePublish = useCallback((job: JobPosting) => {
+    setPublishJob(job);
+    setPublishOpen(true);
+  }, []);
+
+  const handleHighScore = useCallback((notification: HighScoreNotification) => {
+    setNotifications((prev) => [notification, ...prev]);
+  }, []);
+
+  const dismissNotification = useCallback((id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }, []);
+
+  const openEmailForNotification = useCallback((notif: HighScoreNotification) => {
+    setEmailTarget({ name: notif.candidateName, email: notif.candidateEmail, jobTitle: notif.jobTitle });
+    setEmailDialogOpen(true);
+  }, []);
+
+  // Stats
+  const openJobs = MOCK_JOBS.filter((j) => j.status === "open").length;
+  const totalApplicants = MOCK_JOBS.reduce((sum, j) => sum + j.applicants, 0);
+  const avgTimeToHire = 18;
+  const offerRate = Math.round((candidates.filter((c) => c.stage === "hired").length / candidates.length) * 100);
+
+  return (
+    <div className="space-y-6">
+      {/* High Score Notifications */}
+      <AnimatePresence>
+        {notifications.slice(0, 3).map((notif) => (
+          <HighScoreBanner
+            key={notif.id}
+            notification={notif}
+            onDismiss={() => dismissNotification(notif.id)}
+            onViewProfile={() => dismissNotification(notif.id)}
+            onEmail={() => { openEmailForNotification(notif); dismissNotification(notif.id); }}
+          />
+        ))}
+      </AnimatePresence>
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-[var(--saptta-ink)]">Recruitment</h1>
+          <p className="text-sm text-[var(--saptta-mute)] mt-0.5">Manage your hiring pipeline and find the best talent</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {notifications.length > 0 && (
+            <Button variant="outline" size="sm" className="rounded-full text-xs h-8 relative">
+              <Bell className="size-3.5 mr-1.5" />
+              Notifications
+              <span className="absolute -top-1 -right-1 size-4 rounded-full bg-[#ff6a2c] text-white text-[8px] flex items-center justify-center">{notifications.length}</span>
+            </Button>
+          )}
+          <Button className="rounded-full bg-[#ff6a2c] text-white hover:bg-[#ff6a2c]/90 h-9 text-xs px-4 saptta-btn-fill">
+            <Plus className="size-3.5 mr-1.5" />New Job
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <motion.div className="grid grid-cols-2 md:grid-cols-4 gap-3" variants={stagger} initial="hidden" animate="show">
+        {[
+          { label: "Open Positions", value: openJobs, icon: Briefcase, color: "#ff6a2c", bg: "#ff6a2c15" },
+          { label: "Total Applicants", value: totalApplicants, icon: Users, color: "#c8e056", bg: "#c8e05620" },
+          { label: "Avg Time to Hire", value: `${avgTimeToHire}d`, icon: Clock, color: "#5a3a2a", bg: "#5a3a2a15" },
+          { label: "Offer Rate", value: `${offerRate}%`, icon: Target, color: "#22c55e", bg: "#22c55e15" },
+        ].map((stat) => (
+          <motion.div key={stat.label} variants={fadeUp}>
+            <Card className="border-[var(--saptta-line)] rounded-[20px] saptta-module-card">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="size-10 rounded-[14px] flex items-center justify-center" style={{ backgroundColor: stat.bg }}>
+                  <stat.icon className="size-5" style={{ color: stat.color }} />
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-[var(--saptta-ink)]">{stat.value}</p>
+                  <p className="text-[10px] text-[var(--saptta-mute)]">{stat.label}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* Tabs */}
+      <Tabs defaultValue="pipeline" className="space-y-4">
+        <TabsList className="bg-[var(--saptta-bg-2)] rounded-full p-1 h-auto gap-0.5">
+          <TabsTrigger value="pipeline" className="rounded-full text-xs px-4 py-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm">Pipeline</TabsTrigger>
+          <TabsTrigger value="jobs" className="rounded-full text-xs px-4 py-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm">Jobs</TabsTrigger>
+          <TabsTrigger value="candidates" className="rounded-full text-xs px-4 py-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm">Candidates</TabsTrigger>
+          <TabsTrigger value="resume-analyzer" className="rounded-full text-xs px-4 py-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Brain className="size-3 mr-1.5" />Resume Analyzer
+          </TabsTrigger>
+          <TabsTrigger value="batch-analysis" className="rounded-full text-xs px-4 py-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Files className="size-3 mr-1.5" />Batch Analysis
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="pipeline"><PipelineTab candidates={candidates} onMoveStage={handleMoveStage} /></TabsContent>
+        <TabsContent value="jobs"><JobsTab candidates={candidates} onPublish={handlePublish} /></TabsContent>
+        <TabsContent value="candidates"><CandidatesTab candidates={candidates} onMoveStage={handleMoveStage} /></TabsContent>
+        <TabsContent value="resume-analyzer"><ResumeAnalyzerTab /></TabsContent>
+        <TabsContent value="batch-analysis"><BatchAnalysisTab onHighScore={handleHighScore} /></TabsContent>
+      </Tabs>
+
+      {/* JD Publish Dialog */}
+      <JDPublishDialog job={publishJob} open={publishOpen} onOpenChange={setPublishOpen} />
+
+      {/* Email Dialog (from notification) */}
+      <EmailCandidateDialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen} candidateName={emailTarget.name} candidateEmail={emailTarget.email} jobTitle={emailTarget.jobTitle} />
+    </div>
+  );
+}

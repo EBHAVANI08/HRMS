@@ -24,6 +24,14 @@ import {
   Building2,
   Menu,
   X,
+  Mail,
+  CheckCircle2,
+  AlertCircle,
+  UserCheck,
+  Calendar,
+  ArrowRight,
+  Star,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -52,6 +60,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useAppStore } from "@/lib/store";
 import { SearchDialog } from "@/components/search-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -72,13 +90,28 @@ const tenants = [
   "Stellar Labs",
 ];
 
+function getScoreColor(score: number): string {
+  if (score >= 85) return "#22c55e";
+  if (score >= 70) return "#c8e056";
+  if (score >= 50) return "#f59e0b";
+  return "#ef4444";
+}
+
+function getNotifIcon(type: string) {
+  switch (type) {
+    case "high_score_candidate": return <Star className="size-3.5 text-[#ff6a2c]" />;
+    case "interview_reminder": return <Calendar className="size-3.5 text-[#8b5cf6]" />;
+    case "offer_update": return <CheckCircle2 className="size-3.5 text-[#22c55e]" />;
+    case "candidate_applied": return <UserPlus className="size-3.5 text-[#3b82f6]" />;
+    case "leave_request": return <Clock className="size-3.5 text-[#f59e0b]" />;
+    default: return <AlertCircle className="size-3.5 text-[var(--saptta-mute)]" />;
+  }
+}
+
 function SapttaLogo({ collapsed }: { collapsed: boolean }) {
   return (
     <div className="flex items-center gap-3 px-4 py-1">
       <div className="relative flex size-9 shrink-0 items-center justify-center rounded-[16px] bg-[var(--saptta-accent)] text-white font-bold text-lg shadow-md">
-        <span className="relative z-10" style={{ fontFamily: "var(--font-inter)" }}>
-          s
-        </span>
         <div className="absolute inset-0 rounded-[16px] bg-gradient-to-br from-[var(--saptta-accent)] to-[#e04a0c] opacity-100" />
         <span className="relative z-10 text-white font-bold text-lg">s</span>
       </div>
@@ -175,14 +208,12 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Logo */}
       <div className="flex items-center justify-between px-3 py-5">
         <SapttaLogo collapsed={collapsed} />
       </div>
 
       <Separator className="mx-4 w-auto" />
 
-      {/* Navigation */}
       <ScrollArea className="flex-1 px-3 py-4">
         <nav className="flex flex-col gap-1">
           {navItems.map((item) => (
@@ -199,7 +230,6 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
 
       <Separator className="mx-4 w-auto" />
 
-      {/* Bottom section */}
       <div className="p-3">
         {!collapsed && (
           <div className="rounded-xl bg-[var(--saptta-accent)]/5 border border-[var(--saptta-accent)]/10 p-3">
@@ -226,9 +256,226 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
   );
 }
 
+/* ──── Notification Panel ──── */
+
+function NotificationPanel({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { notificationList, markNotificationRead, markAllNotificationsRead, setCurrentView } = useAppStore();
+  const [emailDialogOpen, setEmailDialogOpen] = React.useState(false);
+  const [selectedNotif, setSelectedNotif] = React.useState<typeof notificationList[0] | null>(null);
+
+  const unread = notificationList.filter(n => !n.read);
+
+  return (
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-lg rounded-[24px] p-0">
+          <DialogHeader className="p-5 pb-3">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-lg font-bold text-[var(--saptta-ink)]">Notifications</DialogTitle>
+              {unread.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-[var(--saptta-accent)] h-7"
+                  onClick={markAllNotificationsRead}
+                >
+                  Mark all read
+                </Button>
+              )}
+            </div>
+            <DialogDescription className="text-xs text-[var(--saptta-mute)]">
+              {unread.length} unread notification{unread.length !== 1 ? 's' : ''}
+            </DialogDescription>
+          </DialogHeader>
+
+          <ScrollArea className="max-h-[500px]">
+            <div className="px-5 pb-5 space-y-2">
+              {notificationList.length === 0 ? (
+                <div className="text-center py-8">
+                  <Bell className="size-8 text-[var(--saptta-mute)] mx-auto mb-2" />
+                  <p className="text-sm text-[var(--saptta-mute)]">No notifications</p>
+                </div>
+              ) : (
+                notificationList.map((notif) => (
+                  <motion.div
+                    key={notif.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`
+                      rounded-xl p-3.5 transition-colors cursor-pointer
+                      ${!notif.read ? 'bg-[var(--saptta-accent)]/5 border border-[var(--saptta-accent)]/10' : 'bg-[var(--saptta-bg-2)] border border-transparent'}
+                    `}
+                    onClick={() => markNotificationRead(notif.id)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 shrink-0">
+                        {getNotifIcon(notif.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className={`text-sm leading-tight ${!notif.read ? 'font-semibold text-[var(--saptta-ink)]' : 'text-[var(--saptta-ink-2)]'}`}>
+                            {notif.title}
+                          </p>
+                          {!notif.read && (
+                            <div className="size-2 rounded-full bg-[var(--saptta-accent)] shrink-0 mt-1.5" />
+                          )}
+                        </div>
+                        <p className="text-xs text-[var(--saptta-mute)] mt-1 leading-relaxed">
+                          {notif.message}
+                        </p>
+
+                        {/* Score badge for high-score candidates */}
+                        {notif.score && (
+                          <div className="mt-2 flex items-center gap-2">
+                            <Badge
+                              className="rounded-full text-[10px] font-bold border-0 px-2.5"
+                              style={{
+                                backgroundColor: `${getScoreColor(notif.score)}15`,
+                                color: getScoreColor(notif.score),
+                              }}
+                            >
+                              {notif.score}% Match
+                            </Badge>
+                            {notif.jobTitle && (
+                              <span className="text-[10px] text-[var(--saptta-mute)]">
+                                {notif.jobTitle}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Action buttons for high-score candidates */}
+                        {notif.type === "high_score_candidate" && notif.candidateName && (
+                          <div className="mt-2.5 flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              className="h-7 rounded-full text-[10px] bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 px-3"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCurrentView("recruitment");
+                                onOpenChange(false);
+                              }}
+                            >
+                              <Eye className="size-3 mr-1" />
+                              View Profile
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 rounded-full text-[10px] border-[var(--saptta-line)] px-3"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedNotif(notif);
+                                setEmailDialogOpen(true);
+                              }}
+                            >
+                              <Mail className="size-3 mr-1" />
+                              Email Candidate
+                            </Button>
+                          </div>
+                        )}
+
+                        {/* Timestamp */}
+                        <p className="text-[10px] text-[var(--saptta-mute)] mt-2">{notif.timestamp}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Email Candidate Dialog */}
+      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+        <DialogContent className="sm:max-w-lg rounded-[24px]">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-[var(--saptta-ink)]">
+              Email Candidate
+            </DialogTitle>
+            <DialogDescription className="text-sm text-[var(--saptta-mute)]">
+              Send a shortlist notification to {selectedNotif?.candidateName}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-xs font-medium text-[var(--saptta-ink-2)] mb-1 block">To</label>
+              <Input
+                className="rounded-xl border-[var(--saptta-line)] text-sm"
+                value={selectedNotif?.candidateName ? `${selectedNotif.candidateName.toLowerCase().replace(/\s/g, '.')}@gmail.com` : ''}
+                readOnly
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-[var(--saptta-ink-2)] mb-1 block">Subject</label>
+              <Input
+                className="rounded-xl border-[var(--saptta-line)] text-sm"
+                value={selectedNotif?.jobTitle ? `Congratulations! You've been shortlisted for ${selectedNotif.jobTitle}` : ''}
+                readOnly
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-[var(--saptta-ink-2)] mb-1 block">Message</label>
+              <Textarea
+                className="rounded-xl border-[var(--saptta-line)] text-sm min-h-[160px]"
+                value={selectedNotif ? `Dear ${selectedNotif.candidateName},
+
+We are pleased to inform you that your profile has been shortlisted for the position of ${selectedNotif.jobTitle || 'the open role'} at saptta Inc.
+
+Your application stood out with a strong match score, and we would like to invite you for the next round of our selection process.
+
+Next Steps:
+- Technical Discussion Round (Date to be confirmed)
+- The interview will be conducted via Google Meet / In-person
+- Duration: ~60 minutes
+
+Please confirm your availability by replying to this email.
+
+We look forward to speaking with you soon.
+
+Best regards,
+saptta Inc. HR Team` : ''}
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              className="rounded-full border-[var(--saptta-line)]"
+              onClick={() => setEmailDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90"
+              onClick={() => {
+                // In production, this would call the API to send the email
+                setEmailDialogOpen(false);
+              }}
+            >
+              <Mail className="size-4 mr-1.5" />
+              Send Email
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+/* ──── Main App Shell ──── */
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const {
     currentView,
+    setCurrentView,
     sidebarCollapsed,
     toggleSidebar,
     searchOpen,
@@ -239,7 +486,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     tenant,
     setTenant,
     notifications,
+    notificationList,
   } = useAppStore();
+
+  const [notifPanelOpen, setNotifPanelOpen] = React.useState(false);
 
   const currentNavLabel =
     navItems.find((n) => n.id === currentView)?.label ?? "Dashboard";
@@ -369,13 +619,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Notifications */}
+            {/* Notifications with Panel */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
                   className="relative h-9 w-9 rounded-xl hover:bg-[var(--saptta-bg-2)]"
+                  onClick={() => setNotifPanelOpen(true)}
                 >
                   <Bell className="size-4 text-[var(--saptta-mute)]" />
                   {notifications > 0 && (
@@ -477,6 +728,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* ── Search Dialog ── */}
       <SearchDialog />
+
+      {/* ── Notification Panel ── */}
+      <NotificationPanel open={notifPanelOpen} onOpenChange={setNotifPanelOpen} />
     </div>
   );
 }
