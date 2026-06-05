@@ -1,5 +1,5 @@
 /**
- * saptta Resume Analysis Engine
+ * Kam Resume Analysis Engine
  *
  * Provides JD-to-Resume matching with:
  *  - Keyword extraction (TF-IDF inspired)

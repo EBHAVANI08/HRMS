@@ -98,21 +98,21 @@ export const allNavItems: NavItemConfig[] = [
 ];
 
 const tenants = [
-  "saptta Inc.",
+  "Kam Global",
   "Acme Corp",
   "Stellar Labs",
 ];
 
 function getScoreColor(score: number): string {
   if (score >= 85) return "#22c55e";
-  if (score >= 70) return "#c8e056";
+  if (score >= 70) return "#0066CC";
   if (score >= 50) return "#f59e0b";
   return "#ef4444";
 }
 
 function getNotifIcon(type: string) {
   switch (type) {
-    case "high_score_candidate": return <Star className="size-3.5 text-[#ff6a2c]" />;
+    case "high_score_candidate": return <Star className="size-3.5 text-[#FF9900]" />;
     case "interview_reminder": return <Calendar className="size-3.5 text-[#8b5cf6]" />;
     case "interview_scheduled": return <Calendar className="size-3.5 text-[#8b5cf6]" />;
     case "offer_update": return <CheckCircle2 className="size-3.5 text-[#22c55e]" />;
@@ -123,12 +123,12 @@ function getNotifIcon(type: string) {
   }
 }
 
-function SapttaLogo({ collapsed }: { collapsed: boolean }) {
+function KamLogo({ collapsed }: { collapsed: boolean }) {
   return (
     <div className="flex items-center gap-3 px-4 py-1">
       <div className="relative flex size-9 shrink-0 items-center justify-center rounded-[16px] bg-[var(--saptta-accent)] text-white font-bold text-lg shadow-md">
-        <div className="absolute inset-0 rounded-[16px] bg-gradient-to-br from-[var(--saptta-accent)] to-[#e04a0c] opacity-100" />
-        <span className="relative z-10 text-white font-bold text-lg">s</span>
+        <div className="absolute inset-0 rounded-[16px] bg-gradient-to-br from-[#FF9900] to-[#0066CC] opacity-100" />
+        <span className="relative z-10 text-white font-bold text-lg">K</span>
       </div>
       <AnimatePresence mode="wait">
         {!collapsed && (
@@ -140,7 +140,7 @@ function SapttaLogo({ collapsed }: { collapsed: boolean }) {
             className="overflow-hidden whitespace-nowrap"
           >
             <span className="text-xl font-bold tracking-tight text-[var(--saptta-ink)]">
-              saptta
+              <span style={{ color: "#FF9900" }}>K</span><span style={{ color: "#0066CC" }}>am</span>
             </span>
           </motion.div>
         )}
@@ -231,12 +231,12 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
 
   // Adjust sidebar AI assistant text based on role
   const aiText = userRole === "applicant" ? "AI Career Coach" : "AI Assistant";
-  const aiDesc = userRole === "applicant" ? "Get interview tips, resume feedback, and career guidance from AI." : "Ask saptta AI anything about your HR data, policies, or analytics.";
+  const aiDesc = userRole === "applicant" ? "Get interview tips, resume feedback, and career guidance from AI." : "Ask Kam AI anything about your HR data, policies, or analytics.";
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between px-3 py-5">
-        <SapttaLogo collapsed={collapsed} />
+        <KamLogo collapsed={collapsed} />
       </div>
 
       <Separator className="mx-4 w-auto" />
@@ -487,7 +487,7 @@ function NotificationPanel({
                 className="rounded-xl border-[var(--saptta-line)] text-sm min-h-[160px]"
                 value={selectedNotif ? `Dear ${selectedNotif.candidateName},
 
-We are pleased to inform you that your profile has been shortlisted for the position of ${selectedNotif.jobTitle || 'the open role'} at saptta Inc.
+We are pleased to inform you that your profile has been shortlisted for the position of ${selectedNotif.jobTitle || 'the open role'} at Kam Global.
 
 Your application stood out with a strong match score, and we would like to invite you for the next round of our selection process.
 
@@ -501,7 +501,7 @@ Please confirm your availability by replying to this email.
 We look forward to speaking with you soon.
 
 Best regards,
-saptta Inc. HR Team` : ''}
+Kam Global HR Team` : ''}
               />
             </div>
           </div>
@@ -621,7 +621,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-[var(--saptta-mute)]">saptta</span>
+            <span className="text-[var(--saptta-mute)]">Kam</span>
             <span className="text-[var(--saptta-mute)]">/</span>
             <span className="font-medium text-[var(--saptta-ink)]">
               {currentNavLabel}

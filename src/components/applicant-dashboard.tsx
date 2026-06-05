@@ -106,7 +106,7 @@ function CircularProgress({
   value,
   size = 80,
   strokeWidth = 6,
-  strokeColor = "#ff6a2c",
+  strokeColor = "#FF9900",
 }: {
   value: number;
   size?: number;
@@ -180,8 +180,8 @@ function KpiCard({
           <div
             className="flex size-10 items-center justify-center rounded-[16px] module-icon"
             style={{
-              backgroundColor: `${accentColor || "#ff6a2c"}10`,
-              color: accentColor || "#ff6a2c",
+              backgroundColor: `${accentColor || "#FF9900"}10`,
+              color: accentColor || "#FF9900",
             }}
           >
             <Icon className="size-5" />
@@ -302,7 +302,7 @@ const upcomingInterviews = [
   {
     id: "i2",
     jobTitle: "Senior Frontend Developer",
-    company: "saptta Inc.",
+    company: "Kam Global",
     date: "Jun 9, 2025",
     time: "2:30 PM",
     interviewer: "Priya Sharma",
@@ -496,7 +496,7 @@ export function ApplicantDashboard() {
           displayValue={String(activeApplications)}
           trend="up"
           trendLabel="+1 this week"
-          accentColor="#ff6a2c"
+          accentColor="#FF9900"
         />
         <KpiCard
           icon={Video}
@@ -522,7 +522,7 @@ export function ApplicantDashboard() {
               <div className="flex items-start justify-between">
                 <div
                   className="flex size-10 items-center justify-center rounded-[16px] module-icon"
-                  style={{ backgroundColor: "#c8e05610", color: "#c8e056" }}
+                  style={{ backgroundColor: "#0066CC10", color: "#0066CC" }}
                 >
                   <Target className="size-5" />
                 </div>
@@ -546,7 +546,7 @@ export function ApplicantDashboard() {
                     value={avgMatchScore}
                     size={52}
                     strokeWidth={5}
-                    strokeColor="#c8e056"
+                    strokeColor="#0066CC"
                   />
                 </div>
               </div>
@@ -922,7 +922,7 @@ export function ApplicantDashboard() {
                   value={profileCompleteness}
                   size={72}
                   strokeWidth={7}
-                  strokeColor="#ff6a2c"
+                  strokeColor="#FF9900"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-sm font-bold text-[var(--saptta-ink)]">
@@ -1055,7 +1055,7 @@ export function ApplicantDashboard() {
                               ? "#22c55e"
                               : job.matchScore >= 70
                                 ? "#f59e0b"
-                                : "#ff6a2c",
+                                : "#FF9900",
                         }}
                       />
                     </div>
@@ -1067,7 +1067,7 @@ export function ApplicantDashboard() {
                             ? "#22c55e"
                             : job.matchScore >= 70
                               ? "#f59e0b"
-                              : "#ff6a2c",
+                              : "#FF9900",
                       }}
                     >
                       {job.matchScore}%

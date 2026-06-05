@@ -105,7 +105,7 @@ const STATUSES: EmployeeStatus[] = ["Active", "On Leave", "Probation", "Notice"]
 
 const employees: Employee[] = [
   {
-    id: "EMP001", name: "Aarav Patel", email: "aarav.patel@saptta.com", phone: "+91 98765 43210",
+    id: "EMP001", name: "Aarav Patel", email: "aarav.patel@kamglobal.com", phone: "+91 98765 43210",
     employeeId: "SAP-001", department: "Engineering", designation: "Senior Software Engineer", location: "Bangalore",
     status: "Active", joinDate: "2021-03-15", dob: "1992-07-22", manager: "Vikram Singh",
     emergencyContact: "Meera Patel", emergencyPhone: "+91 98765 43211", bankName: "HDFC Bank",
@@ -123,7 +123,7 @@ const employees: Employee[] = [
     ],
   },
   {
-    id: "EMP002", name: "Priya Sharma", email: "priya.sharma@saptta.com", phone: "+91 98123 45670",
+    id: "EMP002", name: "Priya Sharma", email: "priya.sharma@kamglobal.com", phone: "+91 98123 45670",
     employeeId: "SAP-002", department: "Design", designation: "Lead Designer", location: "Mumbai",
     status: "Active", joinDate: "2020-08-01", dob: "1990-11-05", manager: "Rahul Verma",
     emergencyContact: "Rakesh Sharma", emergencyPhone: "+91 98123 45671", bankName: "ICICI Bank",
@@ -143,7 +143,7 @@ const employees: Employee[] = [
     ],
   },
   {
-    id: "EMP003", name: "Arjun Mehta", email: "arjun.mehta@saptta.com", phone: "+91 97654 32100",
+    id: "EMP003", name: "Arjun Mehta", email: "arjun.mehta@kamglobal.com", phone: "+91 97654 32100",
     employeeId: "SAP-003", department: "Marketing", designation: "Marketing Manager", location: "Delhi",
     status: "On Leave", joinDate: "2019-11-10", dob: "1988-03-14", manager: "Sneha Patil",
     emergencyContact: "Kavita Mehta", emergencyPhone: "+91 97654 32101", bankName: "SBI",
@@ -160,7 +160,7 @@ const employees: Employee[] = [
     ],
   },
   {
-    id: "EMP004", name: "Kavitha Reddy", email: "kavitha.reddy@saptta.com", phone: "+91 98321 67890",
+    id: "EMP004", name: "Kavitha Reddy", email: "kavitha.reddy@kamglobal.com", phone: "+91 98321 67890",
     employeeId: "SAP-004", department: "Design", designation: "Lead Designer", location: "Hyderabad",
     status: "Active", joinDate: "2020-01-20", dob: "1991-09-18", manager: "Rahul Verma",
     emergencyContact: "Suresh Reddy", emergencyPhone: "+91 98321 67891", bankName: "Axis Bank",
@@ -177,7 +177,7 @@ const employees: Employee[] = [
     ],
   },
   {
-    id: "EMP005", name: "Rahul Verma", email: "rahul.verma@saptta.com", phone: "+91 98456 71230",
+    id: "EMP005", name: "Rahul Verma", email: "rahul.verma@kamglobal.com", phone: "+91 98456 71230",
     employeeId: "SAP-005", department: "Product", designation: "VP of Product", location: "Bangalore",
     status: "Active", joinDate: "2018-05-01", dob: "1985-12-30", manager: "CEO",
     emergencyContact: "Anita Verma", emergencyPhone: "+91 98456 71231", bankName: "HDFC Bank",
@@ -197,7 +197,7 @@ const employees: Employee[] = [
     ],
   },
   {
-    id: "EMP006", name: "Deepak Nair", email: "deepak.nair@saptta.com", phone: "+91 97890 12345",
+    id: "EMP006", name: "Deepak Nair", email: "deepak.nair@kamglobal.com", phone: "+91 97890 12345",
     employeeId: "SAP-006", department: "Sales", designation: "Sales Lead", location: "Chennai",
     status: "Notice", joinDate: "2021-09-01", dob: "1993-06-10", manager: "Amit Joshi",
     emergencyContact: "Lakshmi Nair", emergencyPhone: "+91 97890 12346", bankName: "Kotak Bank",
@@ -210,7 +210,7 @@ const employees: Employee[] = [
     ],
   },
   {
-    id: "EMP007", name: "Sneha Patil", email: "sneha.patil@saptta.com", phone: "+91 98567 89012",
+    id: "EMP007", name: "Sneha Patil", email: "sneha.patil@kamglobal.com", phone: "+91 98567 89012",
     employeeId: "SAP-007", department: "Finance", designation: "Finance Manager", location: "Pune",
     status: "Active", joinDate: "2019-04-15", dob: "1989-01-25", manager: "Rahul Verma",
     emergencyContact: "Rajesh Patil", emergencyPhone: "+91 98567 89013", bankName: "SBI",
@@ -223,7 +223,7 @@ const employees: Employee[] = [
     ],
   },
   {
-    id: "EMP008", name: "Vikram Singh", email: "vikram.singh@saptta.com", phone: "+91 98234 56789",
+    id: "EMP008", name: "Vikram Singh", email: "vikram.singh@kamglobal.com", phone: "+91 98234 56789",
     employeeId: "SAP-008", department: "Engineering", designation: "Engineering Manager", location: "Bangalore",
     status: "Active", joinDate: "2018-11-01", dob: "1987-08-15", manager: "CTO",
     emergencyContact: "Priti Singh", emergencyPhone: "+91 98234 56790", bankName: "ICICI Bank",
@@ -241,7 +241,7 @@ const employees: Employee[] = [
     ],
   },
   {
-    id: "EMP009", name: "Neha Gupta", email: "neha.gupta@saptta.com", phone: "+91 98345 67890",
+    id: "EMP009", name: "Neha Gupta", email: "neha.gupta@kamglobal.com", phone: "+91 98345 67890",
     employeeId: "SAP-009", department: "HR", designation: "HR Business Partner", location: "Delhi",
     status: "Probation", joinDate: "2025-02-01", dob: "1995-04-08", manager: "Sneha Patil",
     emergencyContact: "Sunil Gupta", emergencyPhone: "+91 98345 67891", bankName: "HDFC Bank",
@@ -253,7 +253,7 @@ const employees: Employee[] = [
     ],
   },
   {
-    id: "EMP010", name: "Amit Joshi", email: "amit.joshi@saptta.com", phone: "+91 98456 78901",
+    id: "EMP010", name: "Amit Joshi", email: "amit.joshi@kamglobal.com", phone: "+91 98456 78901",
     employeeId: "SAP-010", department: "Sales", designation: "Regional Sales Head", location: "Mumbai",
     status: "Active", joinDate: "2017-07-10", dob: "1984-10-20", manager: "COO",
     emergencyContact: "Ritu Joshi", emergencyPhone: "+91 98456 78902", bankName: "Axis Bank",
@@ -266,7 +266,7 @@ const employees: Employee[] = [
     ],
   },
   {
-    id: "EMP011", name: "Suresh Kumar", email: "suresh.kumar@saptta.com", phone: "+91 98567 89012",
+    id: "EMP011", name: "Suresh Kumar", email: "suresh.kumar@kamglobal.com", phone: "+91 98567 89012",
     employeeId: "SAP-011", department: "Operations", designation: "Operations Lead", location: "Hyderabad",
     status: "Active", joinDate: "2022-06-15", dob: "1994-02-28", manager: "Vikram Singh",
     emergencyContact: "Padma Kumar", emergencyPhone: "+91 98567 89013", bankName: "SBI",
@@ -276,7 +276,7 @@ const employees: Employee[] = [
     timeline: [{ event: "Joined as Operations Lead", date: "2022-06-15", type: "hire" }],
   },
   {
-    id: "EMP012", name: "Riya Kapoor", email: "riya.kapoor@saptta.com", phone: "+91 98678 90123",
+    id: "EMP012", name: "Riya Kapoor", email: "riya.kapoor@kamglobal.com", phone: "+91 98678 90123",
     employeeId: "SAP-012", department: "Marketing", designation: "Content Strategist", location: "Bangalore",
     status: "Active", joinDate: "2023-01-09", dob: "1996-05-12", manager: "Arjun Mehta",
     emergencyContact: "Anil Kapoor", emergencyPhone: "+91 98678 90124", bankName: "Kotak Bank",
@@ -548,7 +548,7 @@ function EmployeeDetailView({ employee, onBack }: { employee: Employee; onBack: 
               </h4>
               <div className="relative">
                 {employee.timeline.map((event, i) => {
-                  const dotColor = event.type === "hire" ? "#c8e056" : event.type === "promotion" ? "#ff6a2c" : event.type === "notice" ? "#ef4444" : "#f4a261";
+                  const dotColor = event.type === "hire" ? "#0066CC" : event.type === "promotion" ? "#FF9900" : event.type === "notice" ? "#ef4444" : "#4d94db";
                   return (
                     <div key={i} className="flex gap-4 pb-6 last:pb-0">
                       <div className="flex flex-col items-center">

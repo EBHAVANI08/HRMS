@@ -103,38 +103,38 @@ interface DemoRole {
 const demoRoles: DemoRole[] = [
   {
     label: "HR Admin",
-    email: "priya@saptta.io",
+    email: "priya@kamglobal.io",
     password: "admin123",
     icon: Shield,
-    accent: "#ff6a2c",
-    accentLight: "rgba(255, 106, 44, 0.08)",
+    accent: "#FF9900",
+    accentLight: "rgba(255, 153, 0, 0.08)",
     description: "Full HR management & compliance",
   },
   {
     label: "Manager",
-    email: "rajesh@saptta.io",
+    email: "rajesh@kamglobal.io",
     password: "manager123",
     icon: Users,
-    accent: "#c8e056",
-    accentLight: "rgba(200, 224, 86, 0.08)",
+    accent: "#0066CC",
+    accentLight: "rgba(0, 102, 204, 0.08)",
     description: "Team oversight & approvals",
   },
   {
     label: "Employee",
-    email: "anita@saptta.io",
+    email: "anita@kamglobal.io",
     password: "employee123",
     icon: UserCheck,
-    accent: "#5a3a2a",
-    accentLight: "rgba(90, 58, 42, 0.08)",
+    accent: "#FF9900",
+    accentLight: "rgba(255, 153, 0, 0.08)",
     description: "Self-service HR portal",
   },
   {
     label: "Recruiter",
-    email: "kavitha@saptta.io",
+    email: "kavitha@kamglobal.io",
     password: "recruiter123",
     icon: UserPlus,
-    accent: "#f4a261",
-    accentLight: "rgba(244, 162, 97, 0.08)",
+    accent: "#0066CC",
+    accentLight: "rgba(0, 102, 204, 0.08)",
     description: "Candidate pipeline & screening",
   },
   {
@@ -142,15 +142,15 @@ const demoRoles: DemoRole[] = [
     email: "arun@gmail.com",
     password: "applicant123",
     icon: Briefcase,
-    accent: "#8b5cf6",
+    accent: "#003d7a",
     accentLight: "rgba(139, 92, 246, 0.08)",
     description: "Application tracking & status",
   },
 ];
 
-/* ─── Saptta Logo Component ─── */
+/* ─── Kam Logo Component ─── */
 
-function SapttaLoginLogo({ size = "default" }: { size?: "default" | "small" }) {
+function KamLoginLogo({ size = "default" }: { size?: "default" | "small" }) {
   const isSmall = size === "small";
   return (
     <div className="flex items-center gap-3">
@@ -158,14 +158,14 @@ function SapttaLoginLogo({ size = "default" }: { size?: "default" | "small" }) {
         className={`relative flex shrink-0 items-center justify-center rounded-[16px] text-white font-bold shadow-lg ${
           isSmall ? "size-9 text-base" : "size-12 text-xl"
         }`}
-        style={{ background: "linear-gradient(135deg, #ff6a2c 0%, #e04a0c 100%)" }}
+        style={{ background: "linear-gradient(135deg, #FF9900 0%, #0066CC 100%)" }}
       >
-        <span className="relative z-10">s</span>
+        <span className="relative z-10">K</span>
       </div>
       <span
         className={`font-bold tracking-tight text-white ${isSmall ? "text-xl" : "text-3xl"}`}
       >
-        saptta
+        <span style={{ color: "#FF9900" }}>K</span><span style={{ color: "#0066CC" }}>am</span>
       </span>
     </div>
   );
@@ -192,11 +192,11 @@ function FeatureHighlight({
       <div
         className="flex size-10 shrink-0 items-center justify-center rounded-[16px] transition-transform duration-300 group-hover:scale-110"
         style={{
-          background: "rgba(255, 106, 44, 0.1)",
-          border: "1px solid rgba(255, 106, 44, 0.15)",
+          background: "rgba(255, 153, 0, 0.1)",
+          border: "1px solid rgba(255, 153, 0, 0.15)",
         }}
       >
-        <Icon className="size-5" style={{ color: "#ff6a2c" }} />
+        <Icon className="size-5" style={{ color: "#FF9900" }} />
       </div>
       <div>
         <h4 className="text-sm font-semibold text-white mb-1">{title}</h4>
@@ -343,7 +343,7 @@ export function LoginPage({ onSwitchToRegister }: { onSwitchToRegister?: () => v
         {/* Decorative glow */}
         <div
           className="absolute top-1/4 -left-20 size-80 rounded-full blur-[120px] pointer-events-none"
-          style={{ background: "rgba(255, 106, 44, 0.08)" }}
+          style={{ background: "rgba(255, 153, 0, 0.08)" }}
         />
         <div
           className="absolute bottom-1/4 -right-20 size-60 rounded-full blur-[100px] pointer-events-none"
@@ -354,7 +354,7 @@ export function LoginPage({ onSwitchToRegister }: { onSwitchToRegister?: () => v
         <div className="relative z-10 flex flex-col justify-between h-full p-10 xl:p-12">
           {/* Logo & Tagline */}
           <div>
-            <SapttaLoginLogo />
+            <KamLoginLogo />
             <motion.p
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -420,7 +420,7 @@ export function LoginPage({ onSwitchToRegister }: { onSwitchToRegister?: () => v
             background: "linear-gradient(180deg, #0a0a0b 0%, #141416 100%)",
           }}
         >
-          <SapttaLoginLogo size="small" />
+          <KamLoginLogo size="small" />
           <span
             className="ml-1 text-xs"
             style={{ color: "rgba(255, 255, 255, 0.45)" }}
@@ -449,7 +449,7 @@ export function LoginPage({ onSwitchToRegister }: { onSwitchToRegister?: () => v
                 className="mt-2 text-sm"
                 style={{ color: "var(--saptta-mute)" }}
               >
-                Sign in to your saptta account to continue
+                Sign in to your Kam account to continue
               </p>
             </motion.div>
 
@@ -584,8 +584,8 @@ export function LoginPage({ onSwitchToRegister }: { onSwitchToRegister?: () => v
                 disabled={isLoading}
                 className="relative h-11 w-full rounded-[999px] text-sm font-semibold text-white shadow-lg transition-all duration-300 overflow-hidden group"
                 style={{
-                  background: "linear-gradient(135deg, #ff6a2c 0%, #e04a0c 100%)",
-                  boxShadow: "0 4px 20px rgba(255, 106, 44, 0.3)",
+                  background: "linear-gradient(135deg, #FF9900 0%, #0066CC 100%)",
+                  boxShadow: "0 4px 20px rgba(255, 153, 0, 0.3)",
                 }}
               >
                 {/* Shimmer effect on hover */}

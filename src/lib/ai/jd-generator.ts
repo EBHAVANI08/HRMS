@@ -1,5 +1,5 @@
 /**
- * saptta Template-Based JD Generator
+ * Kam Template-Based JD Generator
  *
  * 100% offline, zero API keys needed.
  * Generates complete, professional Job Descriptions using smart templates

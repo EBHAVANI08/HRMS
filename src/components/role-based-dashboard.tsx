@@ -153,7 +153,7 @@ function CircularProgress({ value, size = 80, strokeWidth = 6 }: { value: number
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="#ff6a2c"
+        stroke="#FF9900"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeDasharray={circumference}
@@ -194,7 +194,7 @@ function KpiCard({
         <div className="flex items-start justify-between">
           <div
             className="flex size-10 items-center justify-center rounded-[16px] module-icon"
-            style={{ backgroundColor: `${accentColor || "#ff6a2c"}10`, color: accentColor || "#ff6a2c" }}
+            style={{ backgroundColor: `${accentColor || "#FF9900"}10`, color: accentColor || "#FF9900" }}
           >
             <Icon className="size-5" />
           </div>
@@ -233,11 +233,11 @@ function KpiCard({
 /* ──────────────── Role Switcher ──────────────── */
 
 const roleConfig: Record<UserRole, { label: string; icon: React.ElementType; color: string }> = {
-  hr_admin: { label: "HR Admin", icon: Shield, color: "#ff6a2c" },
-  manager: { label: "Manager", icon: Users, color: "#c8e056" },
-  employee: { label: "Employee", icon: UserCheck, color: "#5a3a2a" },
-  recruiter: { label: "Recruiter", icon: UserPlus, color: "#f4a261" },
-  applicant: { label: "Applicant", icon: Briefcase, color: "#8b5cf6" },
+  hr_admin: { label: "HR Admin", icon: Shield, color: "#FF9900" },
+  manager: { label: "Manager", icon: Users, color: "#0066CC" },
+  employee: { label: "Employee", icon: UserCheck, color: "#FF9900" },
+  recruiter: { label: "Recruiter", icon: UserPlus, color: "#0066CC" },
+  applicant: { label: "Applicant", icon: Briefcase, color: "#003d7a" },
 };
 
 function RoleSwitcher() {
@@ -351,10 +351,10 @@ const headcountData = [
 ];
 
 const deptData = [
-  { name: "Engineering", value: 420, color: "#ff6a2c" },
-  { name: "Sales", value: 210, color: "#c8e056" },
-  { name: "Marketing", value: 135, color: "#f4a261" },
-  { name: "HR", value: 82, color: "#5a3a2a" },
+  { name: "Engineering", value: 420, color: "#FF9900" },
+  { name: "Sales", value: 210, color: "#0066CC" },
+  { name: "Marketing", value: 135, color: "#4d94db" },
+  { name: "HR", value: 82, color: "#003d7a" },
   { name: "Finance", value: 95, color: "#8a8680" },
   { name: "Operations", value: 180, color: "#d4a574" },
   { name: "Design", value: 125, color: "#e76f51" },
@@ -376,10 +376,10 @@ const attritionData = [
 ];
 
 const hiringFunnelData = [
-  { stage: "Applied", count: 1240, fill: "#ff6a2c" },
-  { stage: "Screened", count: 680, fill: "#f4a261" },
-  { stage: "Interviewed", count: 320, fill: "#c8e056" },
-  { stage: "Offered", count: 85, fill: "#5a3a2a" },
+  { stage: "Applied", count: 1240, fill: "#FF9900" },
+  { stage: "Screened", count: 680, fill: "#4d94db" },
+  { stage: "Interviewed", count: 320, fill: "#0066CC" },
+  { stage: "Offered", count: 85, fill: "#003d7a" },
   { stage: "Hired", count: 42, fill: "#8a8680" },
 ];
 
@@ -402,9 +402,9 @@ const upcomingEventsHR = [
 ];
 
 const typeColors: Record<string, string> = {
-  hire: "#c8e056",
-  leave: "#ff6a2c",
-  promotion: "#f4a261",
+  hire: "#0066CC",
+  leave: "#FF9900",
+  promotion: "#4d94db",
   notice: "#ef4444",
 };
 
@@ -415,8 +415,8 @@ function HRAdminDashboard() {
 
       {/* KPI Cards */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={Users} label="Total Employees" value={1247} displayValue="1,247" trend="up" trendLabel="+12 this month" accentColor="#ff6a2c" />
-        <KpiCard icon={Briefcase} label="Open Positions" value={34} displayValue="34" trend="up" trendLabel="8 urgent" accentColor="#c8e056" />
+        <KpiCard icon={Users} label="Total Employees" value={1247} displayValue="1,247" trend="up" trendLabel="+12 this month" accentColor="#FF9900" />
+        <KpiCard icon={Briefcase} label="Open Positions" value={34} displayValue="34" trend="up" trendLabel="8 urgent" accentColor="#0066CC" />
         <motion.div variants={fadeUp}>
           <Card className="saptta-module-card border-[var(--saptta-line)] bg-white hover:shadow-lg transition-shadow duration-300 rounded-[20px]">
             <CardContent className="p-5">
@@ -440,7 +440,7 @@ function HRAdminDashboard() {
             </CardContent>
           </Card>
         </motion.div>
-        <KpiCard icon={IndianRupee} label="Monthly Payroll" value={120} displayValue="₹1.2Cr" trend="up" trendLabel="+3.5% vs last" accentColor="#c8e056" />
+        <KpiCard icon={IndianRupee} label="Monthly Payroll" value={120} displayValue="₹1.2Cr" trend="up" trendLabel="+3.5% vs last" accentColor="#0066CC" />
       </motion.div>
 
       {/* Charts 2x2 */}
@@ -457,7 +457,7 @@ function HRAdminDashboard() {
                 <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#8a8680" }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 12, fill: "#8a8680" }} axisLine={false} tickLine={false} domain={[1100, 1280]} />
                 <Tooltip content={<ChartTooltip />} />
-                <Line type="monotone" dataKey="count" name="Headcount" stroke="#ff6a2c" strokeWidth={3} dot={{ r: 4, fill: "#ff6a2c", strokeWidth: 0 }} activeDot={{ r: 6, fill: "#ff6a2c", stroke: "#fff", strokeWidth: 2 }} />
+                <Line type="monotone" dataKey="count" name="Headcount" stroke="#FF9900" strokeWidth={3} dot={{ r: 4, fill: "#FF9900", strokeWidth: 0 }} activeDot={{ r: 6, fill: "#FF9900", stroke: "#fff", strokeWidth: 2 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -508,11 +508,11 @@ function HRAdminDashboard() {
                 <Tooltip content={<ChartTooltip />} />
                 <defs>
                   <linearGradient id="attritionGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ff6a2c" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#ff6a2c" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#FF9900" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#FF9900" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <Area type="monotone" dataKey="rate" name="Attrition %" stroke="#ff6a2c" strokeWidth={2} fill="url(#attritionGrad)" />
+                <Area type="monotone" dataKey="rate" name="Attrition %" stroke="#FF9900" strokeWidth={2} fill="url(#attritionGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -656,10 +656,10 @@ const teamPerformanceData = [
 ];
 
 const pipelineStages = [
-  { stage: "Open", count: 8, color: "#ff6a2c" },
-  { stage: "Screening", count: 12, color: "#f4a261" },
-  { stage: "Interview", count: 6, color: "#c8e056" },
-  { stage: "Assessment", count: 4, color: "#5a3a2a" },
+  { stage: "Open", count: 8, color: "#FF9900" },
+  { stage: "Screening", count: 12, color: "#4d94db" },
+  { stage: "Interview", count: 6, color: "#0066CC" },
+  { stage: "Assessment", count: 4, color: "#003d7a" },
   { stage: "Offer", count: 2, color: "#8a8680" },
 ];
 
@@ -689,8 +689,8 @@ function ManagerDashboard() {
 
       {/* KPI Cards */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={Users} label="Team Size" value={42} displayValue="42" trend="up" trendLabel="+2 this month" accentColor="#ff6a2c" />
-        <KpiCard icon={Briefcase} label="Open Requisitions" value={5} displayValue="5" trend="up" trendLabel="3 urgent" accentColor="#c8e056" />
+        <KpiCard icon={Users} label="Team Size" value={42} displayValue="42" trend="up" trendLabel="+2 this month" accentColor="#FF9900" />
+        <KpiCard icon={Briefcase} label="Open Requisitions" value={5} displayValue="5" trend="up" trendLabel="3 urgent" accentColor="#0066CC" />
         <motion.div variants={fadeUp}>
           <Card className="saptta-module-card border-[var(--saptta-line)] bg-white hover:shadow-lg transition-shadow duration-300 rounded-[20px]">
             <CardContent className="p-5">
@@ -714,7 +714,7 @@ function ManagerDashboard() {
             </CardContent>
           </Card>
         </motion.div>
-        <KpiCard icon={ClipboardList} label="Pending Reviews" value={8} displayValue="8" trend="neutral" trendLabel="Due this week" accentColor="#5a3a2a" />
+        <KpiCard icon={ClipboardList} label="Pending Reviews" value={8} displayValue="8" trend="neutral" trendLabel="Due this week" accentColor="#003d7a" />
       </motion.div>
 
       {/* Hiring Pipeline + Team Performance */}
@@ -758,7 +758,7 @@ function ManagerDashboard() {
                 <Tooltip content={<ChartTooltip />} />
                 <Bar dataKey="rating" name="Q Rating" radius={[8, 8, 0, 0]} barSize={32}>
                   {teamPerformanceData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#ff6a2c" : "#c8e056"} />
+                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#FF9900" : "#0066CC"} />
                   ))}
                 </Bar>
               </BarChart>
@@ -959,7 +959,7 @@ function EmployeeDashboard() {
 
       {/* KPI Cards */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={Palmtree} label="Leave Balance" value={18} displayValue="18 days" trend="neutral" trendLabel="CL: 10, SL: 5, PL: 3" accentColor="#ff6a2c" />
+        <KpiCard icon={Palmtree} label="Leave Balance" value={18} displayValue="18 days" trend="neutral" trendLabel="CL: 10, SL: 5, PL: 3" accentColor="#FF9900" />
         <motion.div variants={fadeUp}>
           <Card className="saptta-module-card border-[var(--saptta-line)] bg-white hover:shadow-lg transition-shadow duration-300 rounded-[20px]">
             <CardContent className="p-5">
@@ -983,12 +983,12 @@ function EmployeeDashboard() {
             </CardContent>
           </Card>
         </motion.div>
-        <KpiCard icon={IndianRupee} label="Pay Slip (Net)" value={180} displayValue="₹1.8L" trend="up" trendLabel="+2.1% vs last" accentColor="#c8e056" />
+        <KpiCard icon={IndianRupee} label="Pay Slip (Net)" value={180} displayValue="₹1.8L" trend="up" trendLabel="+2.1% vs last" accentColor="#0066CC" />
         <motion.div variants={fadeUp}>
           <Card className="saptta-module-card border-[var(--saptta-line)] bg-white hover:shadow-lg transition-shadow duration-300 rounded-[20px]">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
-                <div className="flex size-10 items-center justify-center rounded-[16px] module-icon" style={{ backgroundColor: "#5a3a2a10", color: "#5a3a2a" }}>
+                <div className="flex size-10 items-center justify-center rounded-[16px] module-icon" style={{ backgroundColor: "#003d7a10", color: "#003d7a" }}>
                   <Goal className="size-5" />
                 </div>
                 <Badge variant="secondary" className="text-[10px] font-semibold rounded-full bg-amber-50 text-amber-600">
@@ -1149,7 +1149,7 @@ function EmployeeDashboard() {
                     animate={{ width: `${goal.progress}%` }}
                     transition={{ duration: 1, ease: [0.22, 0.8, 0.22, 1] }}
                     className="h-full rounded-full"
-                    style={{ backgroundColor: goal.progress >= 70 ? "#c8e056" : goal.progress >= 40 ? "#f4a261" : "#ff6a2c" }}
+                    style={{ backgroundColor: goal.progress >= 70 ? "#0066CC" : goal.progress >= 40 ? "#4d94db" : "#FF9900" }}
                   />
                 </div>
               </div>
@@ -1197,10 +1197,10 @@ function EmployeeDashboard() {
    ══════════════════════════════════════════════════════════════ */
 
 const recruiterFunnelData = [
-  { stage: "Sourced", count: 68, fill: "#ff6a2c" },
-  { stage: "Screened", count: 42, fill: "#f4a261" },
-  { stage: "Interview", count: 18, fill: "#c8e056" },
-  { stage: "Assessment", count: 12, fill: "#5a3a2a" },
+  { stage: "Sourced", count: 68, fill: "#FF9900" },
+  { stage: "Screened", count: 42, fill: "#4d94db" },
+  { stage: "Interview", count: 18, fill: "#0066CC" },
+  { stage: "Assessment", count: 12, fill: "#003d7a" },
   { stage: "Offer", count: 6, fill: "#8a8680" },
   { stage: "Hired", count: 3, fill: "#22c55e" },
 ];
@@ -1219,10 +1219,10 @@ const recruiterInterviews = [
 ];
 
 const sourceAnalytics = [
-  { source: "LinkedIn", count: 45, fill: "#ff6a2c" },
-  { source: "Naukri", count: 38, fill: "#c8e056" },
-  { source: "Referral", count: 28, fill: "#f4a261" },
-  { source: "Website", count: 25, fill: "#5a3a2a" },
+  { source: "LinkedIn", count: 45, fill: "#FF9900" },
+  { source: "Naukri", count: 38, fill: "#0066CC" },
+  { source: "Referral", count: 28, fill: "#4d94db" },
+  { source: "Website", count: 25, fill: "#003d7a" },
   { source: "Campus", count: 12, fill: "#8a8680" },
   { source: "Agency", count: 8, fill: "#d4a574" },
 ];
@@ -1243,10 +1243,10 @@ function RecruiterDashboard() {
 
       {/* KPI Cards */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={Briefcase} label="Active Jobs" value={12} displayValue="12" trend="up" trendLabel="3 urgent" accentColor="#ff6a2c" />
-        <KpiCard icon={Users} label="Total Candidates" value={156} displayValue="156" trend="up" trendLabel="+24 this week" accentColor="#c8e056" />
-        <KpiCard icon={Video} label="Interviews Today" value={4} displayValue="4" trend="neutral" trendLabel="2 completed" accentColor="#f4a261" />
-        <KpiCard icon={BadgeCheck} label="Offers Pending" value={6} displayValue="6" trend="up" trendLabel="+2 this week" accentColor="#5a3a2a" />
+        <KpiCard icon={Briefcase} label="Active Jobs" value={12} displayValue="12" trend="up" trendLabel="3 urgent" accentColor="#FF9900" />
+        <KpiCard icon={Users} label="Total Candidates" value={156} displayValue="156" trend="up" trendLabel="+24 this week" accentColor="#0066CC" />
+        <KpiCard icon={Video} label="Interviews Today" value={4} displayValue="4" trend="neutral" trendLabel="2 completed" accentColor="#4d94db" />
+        <KpiCard icon={BadgeCheck} label="Offers Pending" value={6} displayValue="6" trend="up" trendLabel="+2 this week" accentColor="#003d7a" />
       </motion.div>
 
       {/* Recruiting Pipeline Funnel */}
@@ -1410,10 +1410,10 @@ function RecruiterDashboard() {
                 <XAxis dataKey="job" tick={{ fontSize: 10, fill: "#8a8680" }} axisLine={false} tickLine={false} angle={-15} textAnchor="end" height={50} />
                 <YAxis tick={{ fontSize: 12, fill: "#8a8680" }} axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltip />} />
-                <Bar dataKey="sourced" name="Sourced" stackId="a" fill="#ff6a2c" radius={[0, 0, 0, 0]} barSize={28} />
-                <Bar dataKey="screened" name="Screened" stackId="a" fill="#f4a261" radius={[0, 0, 0, 0]} barSize={28} />
-                <Bar dataKey="interview" name="Interview" stackId="a" fill="#c8e056" radius={[0, 0, 0, 0]} barSize={28} />
-                <Bar dataKey="offer" name="Offer" stackId="a" fill="#5a3a2a" radius={[8, 8, 0, 0]} barSize={28} />
+                <Bar dataKey="sourced" name="Sourced" stackId="a" fill="#FF9900" radius={[0, 0, 0, 0]} barSize={28} />
+                <Bar dataKey="screened" name="Screened" stackId="a" fill="#4d94db" radius={[0, 0, 0, 0]} barSize={28} />
+                <Bar dataKey="interview" name="Interview" stackId="a" fill="#0066CC" radius={[0, 0, 0, 0]} barSize={28} />
+                <Bar dataKey="offer" name="Offer" stackId="a" fill="#003d7a" radius={[8, 8, 0, 0]} barSize={28} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
               </BarChart>
             </ResponsiveContainer>

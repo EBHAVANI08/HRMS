@@ -30,12 +30,12 @@ const fadeUp = {
 // ─── OVERVIEW DATA ───
 const kpiTiles = [
   { label: "Employee Growth", value: "+9.8%", description: "YoY headcount increase", trend: "up", icon: TrendingUp, color: "#22c55e" },
-  { label: "Attrition Rate", value: "7.4%", description: "Down from 8.1% last quarter", trend: "down", icon: UserX, color: "#ff6a2c" },
+  { label: "Attrition Rate", value: "7.4%", description: "Down from 8.1% last quarter", trend: "down", icon: UserX, color: "#FF9900" },
   { label: "Time to Hire", value: "23 days", description: "Down from 28 days", trend: "down", icon: Clock, color: "#8b5cf6" },
   { label: "Offer Acceptance", value: "87%", description: "Improved by 4% this month", trend: "up", icon: UserCheck, color: "#3b82f6" },
   { label: "Revenue / Employee", value: "₹28.5L", description: "Annualized metric", trend: "up", icon: DollarSign, color: "#f59e0b" },
   { label: "Avg Tenure", value: "3.8 yrs", description: "Stable over last year", trend: "neutral", icon: CalendarDays, color: "#ec4899" },
-  { label: "Diversity Ratio", value: "38:62", description: "Female:Male (target 40:60)", trend: "up", icon: Users, color: "#c8e056" },
+  { label: "Diversity Ratio", value: "38:62", description: "Female:Male (target 40:60)", trend: "up", icon: Users, color: "#0066CC" },
   { label: "Training Hours", value: "24.5 hrs", description: "Per employee per quarter", trend: "up", icon: GraduationCap, color: "#06b6d4" },
 ];
 
@@ -55,8 +55,8 @@ const workforceTrendData = [
 ];
 
 const deptHeadcountData = [
-  { department: "Engineering", count: 248, color: "#ff6a2c" },
-  { department: "Sales", count: 156, color: "#c8e056" },
+  { department: "Engineering", count: 248, color: "#FF9900" },
+  { department: "Sales", count: 156, color: "#0066CC" },
   { department: "Marketing", count: 89, color: "#8b5cf6" },
   { department: "Analytics", count: 112, color: "#3b82f6" },
   { department: "Operations", count: 134, color: "#f59e0b" },
@@ -103,7 +103,7 @@ interface Report {
 const reportCategories = [
   {
     name: "HR Reports",
-    color: "#ff6a2c",
+    color: "#FF9900",
     reports: [
       { name: "Employee Master", description: "Complete employee database with all personal and professional details", icon: Users, frequency: "On-demand" },
       { name: "New Joiners Report", description: "List of employees who joined in a selected period with onboarding status", icon: UserCheck, frequency: "Monthly" },
@@ -181,7 +181,7 @@ const reportCategories = [
 
 // ─── CUSTOM DASHBOARDS DATA ───
 const dashboardTemplates = [
-  { name: "CEO Dashboard", description: "High-level KPIs, workforce metrics, and financial indicators", icon: Briefcase, widgets: 8, color: "#ff6a2c" },
+  { name: "CEO Dashboard", description: "High-level KPIs, workforce metrics, and financial indicators", icon: Briefcase, widgets: 8, color: "#FF9900" },
   { name: "HR Operations", description: "Attendance, leave, hiring, and onboarding metrics", icon: Users, widgets: 6, color: "#8b5cf6" },
   { name: "Recruitment Hub", description: "Pipeline, source analytics, and hiring funnel", icon: Target, widgets: 5, color: "#3b82f6" },
   { name: "Finance Overview", description: "Payroll, cost analysis, and budget tracking", icon: DollarSign, widgets: 7, color: "#22c55e" },
@@ -198,7 +198,7 @@ const customDashboardWidgets = [
   { id: "w6", title: "Engagement Score", type: "kpi", span: "col-span-1" },
 ];
 
-const pieColors = ["#ff6a2c", "#c8e056", "#8b5cf6", "#3b82f6", "#f59e0b", "#ec4899", "#06b6d4", "#22c55e"];
+const pieColors = ["#FF9900", "#0066CC", "#8b5cf6", "#3b82f6", "#f59e0b", "#ec4899", "#06b6d4", "#22c55e"];
 
 export function AnalyticsView() {
   const [reportSearch, setReportSearch] = useState("");
@@ -293,15 +293,15 @@ export function AnalyticsView() {
                       <AreaChart data={workforceTrendData}>
                         <defs>
                           <linearGradient id="colorHeadcount" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#ff6a2c" stopOpacity={0.15} />
-                            <stop offset="95%" stopColor="#ff6a2c" stopOpacity={0} />
+                            <stop offset="5%" stopColor="#FF9900" stopOpacity={0.15} />
+                            <stop offset="95%" stopColor="#FF9900" stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--saptta-line)" />
                         <XAxis dataKey="month" tick={{ fontSize: 10, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                         <YAxis domain={[780, 930]} tick={{ fontSize: 10, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--saptta-line)", fontSize: 12 }} />
-                        <Area type="monotone" dataKey="headcount" stroke="#ff6a2c" strokeWidth={2} fill="url(#colorHeadcount)" />
+                        <Area type="monotone" dataKey="headcount" stroke="#FF9900" strokeWidth={2} fill="url(#colorHeadcount)" />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
@@ -381,7 +381,7 @@ export function AnalyticsView() {
                         <XAxis dataKey="range" tick={{ fontSize: 10, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fontSize: 10, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--saptta-line)", fontSize: 12 }} formatter={(value: number) => [`${value} employees`]} />
-                        <Bar dataKey="count" fill="#c8e056" radius={[6, 6, 0, 0]} />
+                        <Bar dataKey="count" fill="#0066CC" radius={[6, 6, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -546,15 +546,15 @@ export function AnalyticsView() {
                           <AreaChart data={workforceTrendData.slice(-6)}>
                             <defs>
                               <linearGradient id="dashGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#ff6a2c" stopOpacity={0.15} />
-                                <stop offset="95%" stopColor="#ff6a2c" stopOpacity={0} />
+                                <stop offset="5%" stopColor="#FF9900" stopOpacity={0.15} />
+                                <stop offset="95%" stopColor="#FF9900" stopOpacity={0} />
                               </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="var(--saptta-line)" />
                             <XAxis dataKey="month" tick={{ fontSize: 9, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                             <YAxis tick={{ fontSize: 9, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                             <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--saptta-line)", fontSize: 11 }} />
-                            <Area type="monotone" dataKey="headcount" stroke="#ff6a2c" strokeWidth={2} fill="url(#dashGrad)" />
+                            <Area type="monotone" dataKey="headcount" stroke="#FF9900" strokeWidth={2} fill="url(#dashGrad)" />
                           </AreaChart>
                         </ResponsiveContainer>
                       </div>
@@ -595,8 +595,8 @@ export function AnalyticsView() {
                             <XAxis dataKey="month" tick={{ fontSize: 9, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                             <YAxis tick={{ fontSize: 9, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                             <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--saptta-line)", fontSize: 11 }} />
-                            <Bar dataKey="hires" fill="#ff6a2c" radius={[4, 4, 0, 0]} name="Hires" />
-                            <Bar dataKey="exits" fill="#c8e056" radius={[4, 4, 0, 0]} name="Exits" />
+                            <Bar dataKey="hires" fill="#FF9900" radius={[4, 4, 0, 0]} name="Hires" />
+                            <Bar dataKey="exits" fill="#0066CC" radius={[4, 4, 0, 0]} name="Exits" />
                           </BarChart>
                         </ResponsiveContainer>
                       </div>

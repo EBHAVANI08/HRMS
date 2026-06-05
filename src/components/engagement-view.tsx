@@ -82,9 +82,9 @@ const leaderboard = [
 ];
 
 const awardTypes = [
-  { type: "Kudos", icon: "🌟", color: "#ff6a2c", description: "Quick peer-to-peer appreciation" },
+  { type: "Kudos", icon: "🌟", color: "#FF9900", description: "Quick peer-to-peer appreciation" },
   { type: "Star Performer", icon: "⭐", color: "#f59e0b", description: "Outstanding individual achievement" },
-  { type: "Team Award", icon: "🏆", color: "#c8e056", description: "Exceptional team collaboration" },
+  { type: "Team Award", icon: "🏆", color: "#0066CC", description: "Exceptional team collaboration" },
   { type: "Values Champion", icon: "💎", color: "#8b5cf6", description: "Living company values" },
 ];
 
@@ -132,16 +132,16 @@ const activityData = [
 ];
 
 const wellnessChallenges = [
-  { name: "10K Steps Daily", participants: 234, duration: "30 days", progress: 65, leader: "Arjun Reddy", icon: Footprints, color: "#ff6a2c" },
+  { name: "10K Steps Daily", participants: 234, duration: "30 days", progress: 65, leader: "Arjun Reddy", icon: Footprints, color: "#FF9900" },
   { name: "Mindful Minutes", participants: 156, duration: "21 days", progress: 42, leader: "Kavya Nair", icon: Brain, color: "#8b5cf6" },
   { name: "Hydration Hero", participants: 312, duration: "14 days", progress: 78, leader: "Priya Verma", icon: Apple, color: "#22c55e" },
   { name: "Fitness First", participants: 189, duration: "28 days", progress: 55, leader: "Rahul Mehta", icon: Dumbbell, color: "#f59e0b" },
 ];
 
 const eapResources = [
-  { title: "Confidential Counseling", description: "24/7 access to licensed counselors for personal or work-related concerns", icon: Phone, contact: "1-800-SAPTTA" },
+  { title: "Confidential Counseling", description: "24/7 access to licensed counselors for personal or work-related concerns", icon: Phone, contact: "1-800-KAM" },
   { title: "Stress Management Workshop", description: "Monthly virtual sessions on coping strategies and resilience building", icon: Brain, contact: "Register on portal" },
-  { title: "Financial Wellness Program", description: "Free financial planning consultations and budgeting workshops", icon: Target, contact: "finance-wellness@saptta.io" },
+  { title: "Financial Wellness Program", description: "Free financial planning consultations and budgeting workshops", icon: Target, contact: "finance-wellness@kamglobal.io" },
   { title: "Work-Life Balance Guide", description: "Resources and tips for maintaining healthy boundaries", icon: BookOpen, contact: "Available on intranet" },
 ];
 
@@ -157,7 +157,7 @@ export function EngagementView() {
     : announcements.filter(a => a.category === announcementFilter);
 
   const participationData = [
-    { name: "Responded", value: activeSurvey.responded, color: "#ff6a2c" },
+    { name: "Responded", value: activeSurvey.responded, color: "#FF9900" },
     { name: "Pending", value: activeSurvey.totalEmployees - activeSurvey.responded, color: "#e8e8e8" },
   ];
 
@@ -306,8 +306,8 @@ export function EngagementView() {
                         contentStyle={{ borderRadius: 12, border: "1px solid var(--saptta-line)", fontSize: 12 }}
                         formatter={(value: number, name: string) => [name === "score" ? `${value}/10` : `${value}%`, name === "score" ? "Engagement Score" : "Participation"]}
                       />
-                      <Line type="monotone" dataKey="score" stroke="#ff6a2c" strokeWidth={2.5} dot={{ fill: "#ff6a2c", strokeWidth: 0, r: 4 }} activeDot={{ r: 6 }} />
-                      <Line type="monotone" dataKey="participation" stroke="#c8e056" strokeWidth={2} strokeDasharray="5 5" dot={{ fill: "#c8e056", strokeWidth: 0, r: 3 }} />
+                      <Line type="monotone" dataKey="score" stroke="#FF9900" strokeWidth={2.5} dot={{ fill: "#FF9900", strokeWidth: 0, r: 4 }} activeDot={{ r: 6 }} />
+                      <Line type="monotone" dataKey="participation" stroke="#0066CC" strokeWidth={2} strokeDasharray="5 5" dot={{ fill: "#0066CC", strokeWidth: 0, r: 3 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -558,12 +558,12 @@ export function EngagementView() {
                       <PieChart>
                         <Pie
                           data={[
-                            { name: "Score", value: wellnessScore.overall, color: "#ff6a2c" },
+                            { name: "Score", value: wellnessScore.overall, color: "#FF9900" },
                             { name: "Gap", value: 100 - wellnessScore.overall, color: "#e8e8e8" },
                           ]}
                           dataKey="value" cx="50%" cy="50%" innerRadius={35} outerRadius={48} strokeWidth={0}
                         >
-                          <Cell fill="#ff6a2c" />
+                          <Cell fill="#FF9900" />
                           <Cell fill="#e8e8e8" />
                         </Pie>
                       </PieChart>
@@ -579,7 +579,7 @@ export function EngagementView() {
                     {[
                       { label: "Physical", value: wellnessScore.physical, color: "#22c55e" },
                       { label: "Mental", value: wellnessScore.mental, color: "#8b5cf6" },
-                      { label: "Social", value: wellnessScore.social, color: "#ff6a2c" },
+                      { label: "Social", value: wellnessScore.social, color: "#FF9900" },
                       { label: "Financial", value: wellnessScore.financial, color: "#f59e0b" },
                     ].map((item) => (
                       <div key={item.label} className="rounded-lg bg-[var(--saptta-bg-2)] px-2.5 py-2">
@@ -609,13 +609,13 @@ export function EngagementView() {
                         <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fontSize: 11, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--saptta-line)", fontSize: 12 }} />
-                        <Bar dataKey="steps" fill="#ff6a2c" radius={[6, 6, 0, 0]} name="Steps" />
+                        <Bar dataKey="steps" fill="#FF9900" radius={[6, 6, 0, 0]} name="Steps" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
                   <div className="grid grid-cols-4 gap-3 mt-4">
                     {[
-                      { label: "Avg Steps", value: "7,343", icon: Footprints, color: "#ff6a2c" },
+                      { label: "Avg Steps", value: "7,343", icon: Footprints, color: "#FF9900" },
                       { label: "Meditation", value: "19 min/day", icon: Brain, color: "#8b5cf6" },
                       { label: "Water Intake", value: "6.4 glasses", icon: Apple, color: "#22c55e" },
                       { label: "Sleep", value: "7.7 hrs", icon: Moon, color: "#3b82f6" },

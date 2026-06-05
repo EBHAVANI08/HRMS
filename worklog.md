@@ -111,3 +111,31 @@ Stage Summary:
 - ✅ Social Sharing: Already URL generators (no OAuth needed)
 - ✅ Build passes successfully with zero API keys
 - New files: `/src/lib/ai/local-chat-engine.ts`, `/src/lib/ai/jd-generator.ts`, `/src/components/auth/register-page.tsx`
+---
+Task ID: rebrand-kam
+Agent: Main Agent
+Task: Rebrand HRMS from "saptta" to "Kam Global" using the uploaded logo's colors
+
+Work Log:
+- Analyzed uploaded logo using VLM: identified "Kam Global for Digital AI Media Solutions Pvt. Ltd."
+- Extracted brand colors: Primary Orange #FF9900, Primary Blue #0066CC, Dark Blue #003d7a
+- Updated globals.css: replaced all saptta color tokens with Kam color palette (#FF9900, #0066CC, #003d7a, #4d94db)
+- Added backward-compatible CSS variable aliases (--saptta-* → new Kam colors)
+- Updated app-shell.tsx: renamed SapttaLogo→KamLogo, gradient orange→blue, "K" in orange + "am" in blue
+- Updated login-page.tsx: Kam gradient logo, role accent colors using Kam palette, email domain @kamglobal.io
+- Updated register-page.tsx: Kam gradient logo
+- Updated store.ts: all emails @kamglobal.io, company name "Kam Global", tenant "Kam Global"
+- Updated layout.tsx: page title "Kam — AI-Powered HRMS..."
+- Updated all 18+ view components: text references "Kam", "Kam Global", @kamglobal.io
+- Bulk replaced all hardcoded colors (#ff6a2c→#FF9900, #c8e056→#0066CC, #5a3a2a→#003d7a, #f4a261→#4d94db)
+- Updated role-based-dashboard.tsx: role accent colors aligned with Kam palette
+- Preserved CSS variable names (--saptta-*) and class names (saptta-*) as backward-compatible aliases
+- Final build passes clean
+
+Stage Summary:
+- Full rebrand from "saptta" to "Kam" complete
+- Color scheme updated to Kam Global orange (#FF9900) + blue (#0066CC) from the uploaded logo
+- Logo component shows "K" with orange-to-blue gradient, "K" in orange + "am" in blue text
+- All user-facing text updated to "Kam" / "Kam Global"
+- Email domains changed to @kamglobal.io
+- Build compiles successfully

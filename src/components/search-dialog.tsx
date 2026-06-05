@@ -128,7 +128,7 @@ export function SearchDialog() {
     <CommandDialog
       open={searchOpen}
       onOpenChange={setSearchOpen}
-      title="saptta Command Palette"
+      title="Kam Command Palette"
       description="Search modules, actions, and recent items"
     >
       <CommandInput placeholder="Type a command or search..." />

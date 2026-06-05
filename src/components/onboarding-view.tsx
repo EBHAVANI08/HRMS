@@ -137,11 +137,11 @@ const newHires = [
 ];
 
 const welcomeEmail = {
-  to: "meera.joshi@saptta.io",
-  subject: "Welcome to saptta! 🎉 Your Onboarding Journey Begins",
+  to: "meera.joshi@kamglobal.io",
+  subject: "Welcome to Kam! 🎉 Your Onboarding Journey Begins",
   body: `Hi Meera,
 
-We're thrilled to have you join saptta as a Frontend Developer!
+We're thrilled to have you join Kam as a Frontend Developer!
 
 Your first day is March 18, 2026. Here's what to expect:
 
@@ -155,13 +155,13 @@ Your first day is March 18, 2026. Here's what to expect:
 • Email and Slack credentials will be shared on Day 1
 • GitHub access will be provisioned by your manager
 
-👤 Your Buddy: Arjun M. (arjun.m@saptta.io)
-🧑‍🏫 Your Mentor: Sanjay K. (sanjay.k@saptta.io)
+👤 Your Buddy: Arjun M. (arjun.m@kamglobal.io)
+🧑‍🏫 Your Mentor: Sanjay K. (sanjay.k@kamglobal.io)
 
 We can't wait to see you shine!
 
 Best regards,
-The saptta HR Team`,
+The Kam HR Team`,
 };
 
 // ─── OFFBOARDING DATA ───

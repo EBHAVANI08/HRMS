@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "saptta — AI-Powered HRMS & Recruitment Platform",
+  title: "Kam — AI-Powered HRMS & Recruitment Platform",
   description:
     "Modern HRMS & ATS platform powered by AI. Streamline recruitment, manage attendance, automate payroll, and boost employee engagement.",
   keywords: [
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     "Payroll",
     "Attendance",
     "AI",
-    "saptta",
+    "Kam",
   ],
   icons: {
     icon: "/logo.svg",

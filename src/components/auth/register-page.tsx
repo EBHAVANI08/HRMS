@@ -67,18 +67,20 @@ const errorVariants = {
   },
 };
 
-/* ─── Saptta Logo ─── */
+/* ─── Kam Logo ─── */
 
-function SapttaRegisterLogo() {
+function KamRegisterLogo() {
   return (
     <div className="flex items-center gap-3">
       <div
         className="relative flex size-12 shrink-0 items-center justify-center rounded-[16px] text-white font-bold shadow-lg text-xl"
-        style={{ background: "linear-gradient(135deg, #ff6a2c 0%, #e04a0c 100%)" }}
+        style={{ background: "linear-gradient(135deg, #FF9900 0%, #0066CC 100%)" }}
       >
-        <span className="relative z-10">s</span>
+        <span className="relative z-10">K</span>
       </div>
-      <span className="font-bold tracking-tight text-white text-3xl">saptta</span>
+      <span className="font-bold tracking-tight text-white text-3xl">
+        <span style={{ color: "#FF9900" }}>K</span><span style={{ color: "#0066CC" }}>am</span>
+      </span>
     </div>
   );
 }
@@ -190,7 +192,7 @@ export function RegistrationPage({ onSwitchToLogin }: { onSwitchToLogin: () => v
 
         <div className="relative z-10 flex flex-col justify-between h-full p-10 xl:p-12">
           <div>
-            <SapttaRegisterLogo />
+            <KamRegisterLogo />
             <motion.p
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -242,7 +244,7 @@ export function RegistrationPage({ onSwitchToLogin }: { onSwitchToLogin: () => v
           className="lg:hidden flex items-center gap-3 px-6 py-5"
           style={{ background: "linear-gradient(180deg, #0a0a0b 0%, #141416 100%)" }}
         >
-          <SapttaRegisterLogo />
+          <KamRegisterLogo />
         </div>
 
         {/* Form Area */}

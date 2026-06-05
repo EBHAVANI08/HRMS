@@ -1,5 +1,5 @@
 /**
- * saptta Glass Box AI Scoring Engine
+ * Kam Glass Box AI Scoring Engine
  *
  * A fully transparent, auditable, and compliant resume analysis engine
  * that provides explainable AI scoring with complete evidence mapping,
@@ -2140,8 +2140,8 @@ function generateComplianceReport(
   return {
     euAiAct: {
       highRiskSystem: true,
-      technicalDocumentation: `saptta-glassbox-v1.0.0-docs-${jobId}`,
-      qualityManagementSystem: `saptta-qms-v1.0.0-${now.getFullYear()}`,
+      technicalDocumentation: `kam-glassbox-v1.0.0-docs-${jobId}`,
+      qualityManagementSystem: `kam-qms-v1.0.0-${now.getFullYear()}`,
       versionControl: '1.0.0',
       realTimeLogging: true,
     },

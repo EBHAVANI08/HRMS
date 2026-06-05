@@ -104,10 +104,10 @@ export interface AppState {
 }
 
 const roleConfig: Record<UserRole, Partial<User>> = {
-  hr_admin: { name: "Priya Sharma", role: "HR Director", email: "priya@saptta.io", department: "Human Resources", designation: "HR Director" },
-  manager: { name: "Rajesh Kumar", role: "Engineering Manager", email: "rajesh@saptta.io", department: "Engineering", designation: "Engineering Manager" },
-  employee: { name: "Anita Deshmukh", role: "Software Engineer", email: "anita@saptta.io", department: "Engineering", designation: "Software Engineer" },
-  recruiter: { name: "Kavitha Reddy", role: "Senior Recruiter", email: "kavitha@saptta.io", department: "Human Resources", designation: "Senior Recruiter" },
+  hr_admin: { name: "Priya Sharma", role: "HR Director", email: "priya@kamglobal.io", department: "Human Resources", designation: "HR Director" },
+  manager: { name: "Rajesh Kumar", role: "Engineering Manager", email: "rajesh@kamglobal.io", department: "Engineering", designation: "Engineering Manager" },
+  employee: { name: "Anita Deshmukh", role: "Software Engineer", email: "anita@kamglobal.io", department: "Engineering", designation: "Software Engineer" },
+  recruiter: { name: "Kavitha Reddy", role: "Senior Recruiter", email: "kavitha@kamglobal.io", department: "Human Resources", designation: "Senior Recruiter" },
   applicant: { name: "Arun Venkatesh", role: "Job Applicant", email: "arun@gmail.com", designation: "Frontend Developer" },
 };
 
@@ -116,7 +116,7 @@ const applicantNotifications: Notification[] = [
     id: "an1",
     type: "application_status",
     title: "Application Under Review",
-    message: "Your application for Senior Frontend Developer at saptta Inc. is being reviewed by the hiring team.",
+    message: "Your application for Senior Frontend Developer at Kam Global is being reviewed by the hiring team.",
     timestamp: "2 hrs ago",
     read: false,
     jobId: "j1",
@@ -148,7 +148,7 @@ const sampleApplications: JobApplication[] = [
   {
     id: "app1",
     jobTitle: "Senior Frontend Developer",
-    company: "saptta Inc.",
+    company: "Kam Global",
     status: "screening",
     matchScore: 88,
     appliedAt: "2025-05-28",
@@ -208,10 +208,10 @@ const sampleApplications: JobApplication[] = [
 
 // Demo users for login (in production, this would hit the API)
 const demoUsers: Record<string, { password: string; role: UserRole; user: Partial<User> }> = {
-  "priya@saptta.io": { password: "admin123", role: "hr_admin", user: roleConfig.hr_admin },
-  "rajesh@saptta.io": { password: "manager123", role: "manager", user: roleConfig.manager },
-  "anita@saptta.io": { password: "employee123", role: "employee", user: roleConfig.employee },
-  "kavitha@saptta.io": { password: "recruiter123", role: "recruiter", user: roleConfig.recruiter },
+  "priya@kamglobal.io": { password: "admin123", role: "hr_admin", user: roleConfig.hr_admin },
+  "rajesh@kamglobal.io": { password: "manager123", role: "manager", user: roleConfig.manager },
+  "anita@kamglobal.io": { password: "employee123", role: "employee", user: roleConfig.employee },
+  "kavitha@kamglobal.io": { password: "recruiter123", role: "recruiter", user: roleConfig.recruiter },
   "arun@gmail.com": { password: "applicant123", role: "applicant", user: roleConfig.applicant },
 };
 
@@ -225,12 +225,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   sidebarCollapsed: false,
   searchOpen: false,
   mobileMenuOpen: false,
-  tenant: "saptta Inc.",
+  tenant: "Kam Global",
   user: {
     name: "Priya Sharma",
     role: "HR Director",
     avatar: "",
-    email: "priya@saptta.io",
+    email: "priya@kamglobal.io",
     department: "Human Resources",
     designation: "HR Director",
   },

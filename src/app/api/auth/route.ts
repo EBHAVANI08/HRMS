@@ -42,28 +42,28 @@ interface SessionResponse {
 const roleConfig: Record<UserRole, Omit<AuthUser, "id">> = {
   hr_admin: {
     name: "Priya Sharma",
-    email: "priya@saptta.io",
+    email: "priya@kamglobal.io",
     role: "hr_admin",
     department: "Human Resources",
     designation: "HR Director",
   },
   manager: {
     name: "Rajesh Kumar",
-    email: "rajesh@saptta.io",
+    email: "rajesh@kamglobal.io",
     role: "manager",
     department: "Engineering",
     designation: "Engineering Manager",
   },
   employee: {
     name: "Anita Deshmukh",
-    email: "anita@saptta.io",
+    email: "anita@kamglobal.io",
     role: "employee",
     department: "Engineering",
     designation: "Software Engineer",
   },
   recruiter: {
     name: "Kavitha Reddy",
-    email: "kavitha@saptta.io",
+    email: "kavitha@kamglobal.io",
     role: "recruiter",
     department: "Human Resources",
     designation: "Senior Recruiter",
@@ -80,10 +80,10 @@ const demoUsers: Record<
   string,
   { password: string; role: UserRole }
 > = {
-  "priya@saptta.io": { password: "admin123", role: "hr_admin" },
-  "rajesh@saptta.io": { password: "manager123", role: "manager" },
-  "anita@saptta.io": { password: "employee123", role: "employee" },
-  "kavitha@saptta.io": { password: "recruiter123", role: "recruiter" },
+  "priya@kamglobal.io": { password: "admin123", role: "hr_admin" },
+  "rajesh@kamglobal.io": { password: "manager123", role: "manager" },
+  "anita@kamglobal.io": { password: "employee123", role: "employee" },
+  "kavitha@kamglobal.io": { password: "recruiter123", role: "recruiter" },
   "arun@gmail.com": { password: "applicant123", role: "applicant" },
 };
 

@@ -89,10 +89,10 @@ const headcountData = [
 ];
 
 const deptData = [
-  { name: "Engineering", value: 420, color: "#ff6a2c" },
-  { name: "Sales", value: 210, color: "#c8e056" },
-  { name: "Marketing", value: 135, color: "#f4a261" },
-  { name: "HR", value: 82, color: "#5a3a2a" },
+  { name: "Engineering", value: 420, color: "#FF9900" },
+  { name: "Sales", value: 210, color: "#0066CC" },
+  { name: "Marketing", value: 135, color: "#4d94db" },
+  { name: "HR", value: 82, color: "#003d7a" },
   { name: "Finance", value: 95, color: "#8a8680" },
   { name: "Operations", value: 180, color: "#d4a574" },
   { name: "Design", value: 125, color: "#e76f51" },
@@ -114,10 +114,10 @@ const attritionData = [
 ];
 
 const hiringFunnelData = [
-  { stage: "Applied", count: 1240, fill: "#ff6a2c" },
-  { stage: "Screened", count: 680, fill: "#f4a261" },
-  { stage: "Interviewed", count: 320, fill: "#c8e056" },
-  { stage: "Offered", count: 85, fill: "#5a3a2a" },
+  { stage: "Applied", count: 1240, fill: "#FF9900" },
+  { stage: "Screened", count: 680, fill: "#4d94db" },
+  { stage: "Interviewed", count: 320, fill: "#0066CC" },
+  { stage: "Offered", count: 85, fill: "#003d7a" },
   { stage: "Hired", count: 42, fill: "#8a8680" },
 ];
 
@@ -140,9 +140,9 @@ const upcomingEvents = [
 ];
 
 const typeColors: Record<string, string> = {
-  hire: "#c8e056",
-  leave: "#ff6a2c",
-  promotion: "#f4a261",
+  hire: "#0066CC",
+  leave: "#FF9900",
+  promotion: "#4d94db",
   notice: "#ef4444",
 };
 
@@ -167,7 +167,7 @@ function CircularProgress({ value, size = 80, strokeWidth = 6 }: { value: number
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="#ff6a2c"
+        stroke="#FF9900"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeDasharray={circumference}
@@ -222,7 +222,7 @@ function KpiCard({
         <div className="flex items-start justify-between">
           <div
             className="flex size-10 items-center justify-center rounded-[16px] module-icon"
-            style={{ backgroundColor: `${accentColor || "#ff6a2c"}10`, color: accentColor || "#ff6a2c" }}
+            style={{ backgroundColor: `${accentColor || "#FF9900"}10`, color: accentColor || "#FF9900" }}
           >
             <Icon className="size-5" />
           </div>
@@ -286,7 +286,7 @@ export function DashboardView() {
           displayValue="1,247"
           trend="up"
           trendLabel="+12 this month"
-          accentColor="#ff6a2c"
+          accentColor="#FF9900"
         />
         <KpiCard
           icon={Briefcase}
@@ -295,7 +295,7 @@ export function DashboardView() {
           displayValue="34"
           trend="up"
           trendLabel="8 urgent"
-          accentColor="#c8e056"
+          accentColor="#0066CC"
         />
         {/* Attendance KPI with ring */}
         <motion.div variants={fadeUp}>
@@ -331,7 +331,7 @@ export function DashboardView() {
           displayValue="₹1.2Cr"
           trend="up"
           trendLabel="+3.5% vs last"
-          accentColor="#c8e056"
+          accentColor="#0066CC"
         />
       </motion.div>
 
@@ -349,7 +349,7 @@ export function DashboardView() {
                 <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#8a8680" }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 12, fill: "#8a8680" }} axisLine={false} tickLine={false} domain={[1100, 1280]} />
                 <Tooltip content={<ChartTooltip />} />
-                <Line type="monotone" dataKey="count" name="Headcount" stroke="#ff6a2c" strokeWidth={3} dot={{ r: 4, fill: "#ff6a2c", strokeWidth: 0 }} activeDot={{ r: 6, fill: "#ff6a2c", stroke: "#fff", strokeWidth: 2 }} />
+                <Line type="monotone" dataKey="count" name="Headcount" stroke="#FF9900" strokeWidth={3} dot={{ r: 4, fill: "#FF9900", strokeWidth: 0 }} activeDot={{ r: 6, fill: "#FF9900", stroke: "#fff", strokeWidth: 2 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -400,11 +400,11 @@ export function DashboardView() {
                 <Tooltip content={<ChartTooltip />} />
                 <defs>
                   <linearGradient id="attritionGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ff6a2c" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#ff6a2c" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#FF9900" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#FF9900" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <Area type="monotone" dataKey="rate" name="Attrition %" stroke="#ff6a2c" strokeWidth={2} fill="url(#attritionGrad)" />
+                <Area type="monotone" dataKey="rate" name="Attrition %" stroke="#FF9900" strokeWidth={2} fill="url(#attritionGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
