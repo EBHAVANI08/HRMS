@@ -961,7 +961,7 @@ function EmailCandidateDialog({ open, onOpenChange, candidateName, candidateEmai
 
 /* ──────────────── Resume Analyzer Tab ──────────────── */
 
-function ResumeAnalyzerTab() {
+function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
   const [resumeText, setResumeText] = useState("");
   const [selectedJD, setSelectedJD] = useState<string>("");
   const [analyzing, setAnalyzing] = useState(false);
@@ -977,7 +977,7 @@ function ResumeAnalyzerTab() {
 
   const handleAnalyze = () => {
     if (!resumeText.trim() || !selectedJD) return;
-    const job = MOCK_JOBS.find((j) => j.id === selectedJD);
+    const job = jobs.find((j) => j.id === selectedJD);
     if (!job) return;
     setAnalyzing(true);
     setTimeout(() => {
@@ -1187,11 +1187,11 @@ function ResumeAnalyzerTab() {
                   <SelectTrigger className="rounded-xl h-9 text-xs"><SelectValue placeholder="Choose a job role to match against" /></SelectTrigger>
                   <SelectContent>
                     {(() => {
-                      const departments = [...new Set(MOCK_JOBS.map(j => j.department))];
+                      const departments = [...new Set(jobs.map(j => j.department))];
                       return departments.map(dept => (
                         <React.Fragment key={dept}>
                           <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">{dept}</div>
-                          {MOCK_JOBS.filter(j => j.department === dept).map(j => (
+                          {jobs.filter(j => j.department === dept).map(j => (
                             <SelectItem key={j.id} value={j.id} className="text-xs">
                               {j.title} {j.urgent ? "🔴" : ""} — {j.location}
                             </SelectItem>
@@ -1205,7 +1205,7 @@ function ResumeAnalyzerTab() {
 
               {selectedJD && (
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="bg-[var(--saptta-bg-2)] rounded-xl p-3 space-y-2">
-                  {(() => { const job = MOCK_JOBS.find((j) => j.id === selectedJD); if (!job) return null; return (
+                  {(() => { const job = jobs.find((j) => j.id === selectedJD); if (!job) return null; return (
                     <>
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-semibold text-[var(--saptta-ink)]">{job.title}</p>
@@ -1230,7 +1230,7 @@ function ResumeAnalyzerTab() {
               {/* Stats Preview */}
               <div className="grid grid-cols-3 gap-2 pt-2">
                 <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3 text-center">
-                  <p className="text-lg font-bold text-[#FF9900]">{MOCK_JOBS.filter((j) => j.status === "open").length}</p>
+                  <p className="text-lg font-bold text-[#FF9900]">{jobs.filter((j) => j.status === "open").length}</p>
                   <p className="text-[9px] text-[var(--saptta-mute)]">Open Jobs</p>
                 </div>
                 <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3 text-center">
@@ -1461,14 +1461,14 @@ function ResumeAnalyzerTab() {
       </AnimatePresence>
 
       {/* Email Dialog */}
-      <EmailCandidateDialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen} candidateName={candidateName || "Candidate"} candidateEmail={candidateEmail || "candidate@email.com"} jobTitle={selectedJD ? MOCK_JOBS.find((j) => j.id === selectedJD)?.title || "" : ""} />
+      <EmailCandidateDialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen} candidateName={candidateName || "Candidate"} candidateEmail={candidateEmail || "candidate@email.com"} jobTitle={selectedJD ? jobs.find((j) => j.id === selectedJD)?.title || "" : ""} />
     </div>
   );
 }
 
 /* ──────────────── Batch Resume Analysis Tab ──────────────── */
 
-function BatchAnalysisTab({ onHighScore }: { onHighScore: (n: HighScoreNotification) => void }) {
+function BatchAnalysisTab({ onHighScore, jobs }: { onHighScore: (n: HighScoreNotification) => void; jobs: JobPosting[] }) {
   const [selectedJD, setSelectedJD] = useState<string>("");
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<{ id: string; name: string; email: string; result: MatchResult }[]>([]);
@@ -1479,7 +1479,7 @@ function BatchAnalysisTab({ onHighScore }: { onHighScore: (n: HighScoreNotificat
 
   const runBatchAnalysis = () => {
     if (!selectedJD) return;
-    const job = MOCK_JOBS.find((j) => j.id === selectedJD);
+    const job = jobs.find((j) => j.id === selectedJD);
     if (!job) return;
     setRunning(true);
     setTimeout(() => {
@@ -1521,7 +1521,7 @@ function BatchAnalysisTab({ onHighScore }: { onHighScore: (n: HighScoreNotificat
   const shortlistedCount = results.filter((r) => r.result.shortlisted).length;
 
   const handleEmailCandidate = (name: string, email: string) => {
-    const job = MOCK_JOBS.find((j) => j.id === selectedJD);
+    const job = jobs.find((j) => j.id === selectedJD);
     setEmailTarget({ name, email, jobTitle: job?.title || "" });
     setEmailDialogOpen(true);
   };
@@ -1537,7 +1537,7 @@ function BatchAnalysisTab({ onHighScore }: { onHighScore: (n: HighScoreNotificat
       <div className="flex flex-wrap items-center gap-3">
         <Select value={selectedJD} onValueChange={setSelectedJD}>
           <SelectTrigger className="h-9 text-xs rounded-full w-[240px]"><SelectValue placeholder="Select Job Description" /></SelectTrigger>
-          <SelectContent>{MOCK_JOBS.filter((j) => j.status === "open").map((j) => (<SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>))}</SelectContent>
+          <SelectContent>{jobs.filter((j) => j.status === "open").map((j) => (<SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>))}</SelectContent>
         </Select>
         <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-9 text-xs px-4" onClick={runBatchAnalysis} disabled={!selectedJD || running}>
           {running ? <><Loader2 className="size-3.5 mr-1.5 animate-spin" />Analyzing...</> : <><Files className="size-3.5 mr-1.5" />Analyze All Resumes</>}
@@ -1645,7 +1645,7 @@ function BatchAnalysisTab({ onHighScore }: { onHighScore: (n: HighScoreNotificat
 
 /* ──────────────── Pipeline Tab (Kanban) ──────────────── */
 
-function PipelineTab({ candidates, onMoveStage }: { candidates: Candidate[]; onMoveStage: (id: string, stage: PipelineStage) => void }) {
+function PipelineTab({ candidates, onMoveStage, jobs }: { candidates: Candidate[]; onMoveStage: (id: string, stage: PipelineStage) => void; jobs: JobPosting[] }) {
   const [jobFilter, setJobFilter] = useState<string>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
@@ -1673,7 +1673,7 @@ function PipelineTab({ candidates, onMoveStage }: { candidates: Candidate[]; onM
         <div className="flex items-center gap-2"><Filter className="size-4 text-[var(--saptta-mute)]" /><span className="text-xs text-[var(--saptta-mute)] font-medium">Filters:</span></div>
         <Select value={jobFilter} onValueChange={setJobFilter}>
           <SelectTrigger className="h-8 text-xs rounded-full w-[200px]"><SelectValue placeholder="All Jobs" /></SelectTrigger>
-          <SelectContent><SelectItem value="all">All Jobs</SelectItem>{MOCK_JOBS.map((j) => (<SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>))}</SelectContent>
+          <SelectContent><SelectItem value="all">All Jobs</SelectItem>{jobs.map((j) => (<SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>))}</SelectContent>
         </Select>
         <Select value={sourceFilter} onValueChange={setSourceFilter}>
           <SelectTrigger className="h-8 text-xs rounded-full w-[160px]"><SelectValue placeholder="All Sources" /></SelectTrigger>
@@ -2715,8 +2715,9 @@ function HighScoreBanner({ notification, onDismiss, onViewProfile, onEmail }: {
 /* ──────────────── Main Component ──────────────── */
 
 export function EnhancedRecruitmentView() {
-  const [candidates, setCandidates] = useState<Candidate[]>(MOCK_CANDIDATES);
-  const [jobs, setJobs] = useState<JobPosting[]>(MOCK_JOBS);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [jobs, setJobs] = useState<JobPosting[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
   const [publishJob, setPublishJob] = useState<JobPosting | null>(null);
   const [publishOpen, setPublishOpen] = useState(false);
   const [notifications, setNotifications] = useState<HighScoreNotification[]>([]);
@@ -2733,39 +2734,87 @@ export function EnhancedRecruitmentView() {
   const [aiAnalysisResult, setAiAnalysisResult] = useState<AIAnalysisData | null>(null);
   const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
 
-  // Load data from API on mount
+  // Seed skill ontology on first load
   useEffect(() => {
-    loadJobsFromDB();
-    loadCandidatesFromDB();
+    fetch("/api/recruitment/skill-ontology/seed", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }).catch(() => {});
   }, []);
 
-  const loadJobsFromDB = async () => {
-    try {
-      const res = await fetch("/api/recruitment/jobs");
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.data?.length > 0) {
-          setJobs(data.data);
-        }
-      }
-    } catch { /* use mock data as fallback */ }
-  };
+  // Load data from API on mount
+  useEffect(() => {
+    loadData();
+  }, []);
 
-  const loadCandidatesFromDB = async () => {
+  const loadData = async () => {
+    setDataLoading(true);
     try {
-      const res = await fetch("/api/recruitment/candidates");
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.data?.length > 0) {
-          const mapped = data.data.map((c: any) => ({
-            ...c,
-            scoreBreakdown: typeof c.scoreBreakdown === "string" ? JSON.parse(c.scoreBreakdown) : c.scoreBreakdown,
-            timeline: typeof c.timeline === "string" ? JSON.parse(c.timeline) : c.timeline,
-          }));
-          setCandidates(mapped);
+      // 1. Load jobs from API
+      let jobsFromApi: JobPosting[] = [];
+      try {
+        const jobsRes = await fetch("/api/recruitment/jobs");
+        if (jobsRes.ok) {
+          const jobsData = await jobsRes.json();
+          if (jobsData.success && jobsData.data?.length > 0) {
+            jobsFromApi = jobsData.data.map((j: any) => {
+              const { _count, createdAt, updatedAt, ...rest } = j;
+              return rest as JobPosting;
+            });
+          }
         }
+      } catch { /* continue */ }
+
+      // 2. If DB is empty, seed MOCK_JOBS into the database
+      if (jobsFromApi.length === 0) {
+        for (const mockJob of MOCK_JOBS) {
+          try {
+            await fetch("/api/recruitment/jobs", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(mockJob),
+            });
+          } catch { /* skip failed seed */ }
+        }
+        // Reload jobs after seeding
+        try {
+          const jobsRes2 = await fetch("/api/recruitment/jobs");
+          if (jobsRes2.ok) {
+            const jobsData2 = await jobsRes2.json();
+            if (jobsData2.success && jobsData2.data?.length > 0) {
+              jobsFromApi = jobsData2.data.map((j: any) => {
+                const { _count, createdAt, updatedAt, ...rest } = j;
+                return rest as JobPosting;
+              });
+            }
+          }
+        } catch { /* continue */ }
       }
-    } catch { /* use mock data as fallback */ }
+
+      // 3. Fall back to MOCK_JOBS if still empty
+      setJobs(jobsFromApi.length > 0 ? jobsFromApi : MOCK_JOBS);
+
+      // 4. Load candidates from API
+      let candidatesFromApi: Candidate[] = [];
+      try {
+        const candRes = await fetch("/api/recruitment/candidates");
+        if (candRes.ok) {
+          const candData = await candRes.json();
+          if (candData.success && candData.data?.length > 0) {
+            candidatesFromApi = candData.data.map((c: any) => {
+              const { job, createdAt, updatedAt, ...rest } = c;
+              return {
+                ...rest,
+                scoreBreakdown: typeof rest.scoreBreakdown === "string" ? JSON.parse(rest.scoreBreakdown) : rest.scoreBreakdown,
+                timeline: typeof rest.timeline === "string" ? JSON.parse(rest.timeline) : rest.timeline,
+              } as Candidate;
+            });
+          }
+        }
+      } catch { /* continue */ }
+
+      // 5. Fall back to MOCK_CANDIDATES if API returns empty
+      setCandidates(candidatesFromApi.length > 0 ? candidatesFromApi : MOCK_CANDIDATES);
+    } finally {
+      setDataLoading(false);
+    }
   };
 
   const handleRunAIAnalysis = useCallback(async (candidate: Candidate) => {
@@ -2958,11 +3007,11 @@ export function EnhancedRecruitmentView() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="pipeline"><PipelineTab candidates={candidates} onMoveStage={handleMoveStage} /></TabsContent>
+        <TabsContent value="pipeline"><PipelineTab candidates={candidates} onMoveStage={handleMoveStage} jobs={jobs} /></TabsContent>
         <TabsContent value="jobs"><JobsTab candidates={candidates} onPublish={handlePublish} jobs={jobs} onCreateJob={handleCreateJob} onEditJob={handleEditJob} onDeleteJob={handleDeleteJob} /></TabsContent>
         <TabsContent value="candidates"><CandidatesTab candidates={candidates} onMoveStage={handleMoveStage} onRunAIAnalysis={handleRunAIAnalysis} /></TabsContent>
-        <TabsContent value="resume-analyzer"><ResumeAnalyzerTab /></TabsContent>
-        <TabsContent value="batch-analysis"><BatchAnalysisTab onHighScore={handleHighScore} /></TabsContent>
+        <TabsContent value="resume-analyzer"><ResumeAnalyzerTab jobs={jobs} /></TabsContent>
+        <TabsContent value="batch-analysis"><BatchAnalysisTab onHighScore={handleHighScore} jobs={jobs} /></TabsContent>
       </Tabs>
 
       {/* Create/Edit Job Dialog — key forces remount on editJob change */}

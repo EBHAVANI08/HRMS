@@ -742,12 +742,33 @@ Return JSON:
     });
   }
 
-  /* ──── Agent 4: Skill Expansion ──── */
+  /* ──── Agent 4: Skill Expansion (Database-backed + Ollama) ──── */
   async expandSkills(skills: string[]): Promise<ExpandedSkills> {
-    // First use local dictionary
+    // Use database-backed Skill Ontology Engine first (DB + Ollama fallback)
+    try {
+      const { getSkillOntologyEngine } = await import("@/lib/ai/skill-ontology-engine");
+      const ontologyEngine = getSkillOntologyEngine();
+      const ontologyResult = await ontologyEngine.expandSkills(skills);
+
+      // Convert ontology result to ExpandedSkills format
+      const expanded: ExpandedSkills["expanded"] = ontologyResult.expansions.map(e => ({
+        abbreviation: e.original,
+        fullForms: [...e.fullForms, ...e.parentSkills],
+        relatedSkills: [...e.relatedSkills, ...e.childSkills],
+      }));
+
+      return {
+        original: skills,
+        expanded,
+        allSkills: ontologyResult.allExpandedSkills,
+      };
+    } catch (error: any) {
+      console.warn("[HireMind] Skill Ontology Engine unavailable, falling back to local dictionary:", error.message);
+    }
+
+    // Fallback: use local dictionary + LLM
     const localResult = this.skillExpander.expandAll(skills);
 
-    // Then use LLM to find any additional expansions the dictionary missed
     const systemPrompt = `You are a skill abbreviation expander for the tech industry. Expand abbreviations and find related skills. Return ONLY valid JSON.`;
 
     const prompt = `Expand these skill abbreviations and find related skills:
@@ -812,9 +833,24 @@ ${jdText}`;
     return parsed;
   }
 
-  /* ──── Agent 6: JD Match Engine ──── */
+  /* ──── Agent 6: JD Match Engine (with Ontology-expanded JD skills) ──── */
   async matchJob(parsedResume: ParsedResume, parsedJD: ParsedJD): Promise<MatchResult> {
-    const systemPrompt = `You are an expert candidate-job matching engine. Compare a candidate's profile against a job description and provide a detailed match analysis. Return ONLY valid JSON.`;
+    // Try to expand JD skills using Skill Ontology for better matching
+    // When JD says "Machine Learning", engine checks: TensorFlow, PyTorch, Scikit-Learn, etc.
+    let expandedJDSkills = [...parsedJD.requiredSkills];
+    try {
+      const { getSkillOntologyEngine } = await import("@/lib/ai/skill-ontology-engine");
+      const ontologyEngine = getSkillOntologyEngine();
+      const jdExpansion = await ontologyEngine.expandJDSkills(parsedJD.requiredSkills);
+      expandedJDSkills = jdExpansion.expandedSkills;
+      console.log(`[HireMind] JD skills expanded from ${parsedJD.requiredSkills.length} to ${expandedJDSkills.length} using Skill Ontology`);
+    } catch (error: any) {
+      console.warn("[HireMind] JD skill expansion via ontology failed, using original skills:", error.message);
+    }
+
+    const systemPrompt = `You are an expert candidate-job matching engine. Compare a candidate's profile against a job description and provide a detailed match analysis. Return ONLY valid JSON.
+
+IMPORTANT: The JD skills have been expanded using a skill ontology. This means if the JD requires "Machine Learning", the expanded skills also include TensorFlow, PyTorch, Scikit-Learn etc. Give the candidate credit if they have any of these expanded skills.`;
 
     const prompt = `Compare this candidate against the job requirements:
 
@@ -827,6 +863,7 @@ CANDIDATE:
 JOB REQUIREMENTS:
 - Title: ${parsedJD.title}
 - Required Skills: ${parsedJD.requiredSkills.join(", ")}
+- Expanded JD Skills (includes sub-skills via ontology): ${expandedJDSkills.join(", ")}
 - Preferred Skills: ${parsedJD.preferredSkills.join(", ")}
 - Experience: ${parsedJD.experienceYears.min}-${parsedJD.experienceYears.max} years
 - Education: ${parsedJD.education.join(", ")}
@@ -843,7 +880,7 @@ Return JSON:
   "skillGapDetails": [{"skill": "skill name", "importance": "critical|important|nice-to-have", "candidateHas": false}]
 }
 
-Scores are 0-100. Be objective and fair.`;
+Scores are 0-100. Be objective and fair. Give credit for expanded JD skills the candidate has.`;
 
     const result = await this.callLLM(prompt, systemPrompt);
     return safeParseJSON<MatchResult>(result, {

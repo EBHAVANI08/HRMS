@@ -412,3 +412,93 @@ model RAGDocument {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+// ─── Universal Skill Ontology Models ───
+// Architecture: Skill → Sub Domain → Domain → Industry → Job Roles
+// Provides database-backed skill expansion, role detection, and career path mapping
+
+model Skill {
+  id          String   @id @default(cuid())
+  name        String   @unique                    // e.g., "TensorFlow", "Machine Learning"
+  normalizedName String @unique                    // lowercase, trimmed for matching
+  skillType   String   @default("concrete")        // "concrete" (TensorFlow), "domain" (Machine Learning), "industry" (Technology)
+  subDomain   String?                              // e.g., "Deep Learning"
+  domain      String?                              // e.g., "Artificial Intelligence"
+  industry    String?                              // e.g., "Technology"
+  description String?                              // Brief description
+  seniorityIndicator String?                       // "fresher" | "junior" | "mid" | "senior" | "lead" — if skill implies seniority
+  source      String   @default("seed")            // "seed" | "ollama" | "manual" — how was this skill added
+  metadata    String   @default("{}")              // JSON: extra info (aliases, alternative names, etc.)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  parentRelations  SkillRelation[] @relation("ChildSkill")
+  childRelations   SkillRelation[] @relation("ParentSkill")
+  roleSkills       RoleSkill[]
+}
+
+model SkillRelation {
+  id             String   @id @default(cuid())
+  parentSkillId  String                              // The broader/parent skill
+  childSkillId   String                              // The more specific/child skill
+  relationType   String   @default("is_subskill_of") // "is_subskill_of" | "is_related_to" | "is_alias_of" | "is_prerequisite_of"
+  strength       Float    @default(1.0)               // 0-1: how strong the relationship (1.0 = direct parent/child)
+  createdAt      DateTime @default(now())
+
+  parentSkill    Skill    @relation("ParentSkill", fields: [parentSkillId], references: [id])
+  childSkill     Skill    @relation("ChildSkill", fields: [childSkillId], references: [id])
+
+  @@unique([parentSkillId, childSkillId, relationType])
+}
+
+model JobRole {
+  id          String   @id @default(cuid())
+  name        String   @unique                    // e.g., "ML Engineer", "Frontend Developer"
+  normalizedName String @unique                    // lowercase, trimmed for matching
+  department  String?                              // e.g., "Engineering", "AI & Machine Learning"
+  domain      String?                              // e.g., "Software Engineering", "Artificial Intelligence"
+  industry    String?                              // e.g., "Technology", "Finance"
+  seniority   String   @default("mid")             // "fresher" | "junior" | "mid" | "senior" | "lead" | "principal" | "director"
+  salaryRange String?                              // e.g., "₹15-25 LPA"
+  description String?                              // Brief role description
+  source      String   @default("seed")            // "seed" | "ollama" | "manual"
+  metadata    String   @default("{}")              // JSON: career path info, typical progression, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  roleSkills       RoleSkill[]
+  careerPathFrom   CareerPath[] @relation("CareerFrom")
+  careerPathTo     CareerPath[] @relation("CareerTo")
+}
+
+model RoleSkill {
+  id          String   @id @default(cuid())
+  roleId      String
+  skillId     String
+  importance  String   @default("important")        // "critical" | "important" | "nice-to-have"
+  frequency   Float    @default(0.5)                // 0-1: how often this skill appears in JD for this role
+  source      String   @default("seed")             // "seed" | "ollama" | "jd_analysis"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  role        JobRole  @relation(fields: [roleId], references: [id])
+  skill       Skill    @relation(fields: [skillId], references: [id])
+
+  @@unique([roleId, skillId])
+}
+
+model CareerPath {
+  id              String   @id @default(cuid())
+  fromRoleId      String                               // Current/lower role
+  toRoleId        String                               // Next/higher role
+  typicalYears    String?                              // e.g., "3-5 years" typical time to progress
+  description     String?                              // What's needed to make this transition
+  createdAt       DateTime @default(now())
+
+  fromRole        JobRole @relation("CareerFrom", fields: [fromRoleId], references: [id])
+  toRole          JobRole @relation("CareerTo", fields: [toRoleId], references: [id])
+
+  @@unique([fromRoleId, toRoleId])
+}
