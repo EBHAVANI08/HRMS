@@ -126,8 +126,7 @@ function getNotifIcon(type: string) {
 function KamLogo({ collapsed }: { collapsed: boolean }) {
   return (
     <div className="flex items-center gap-3 px-4 py-1">
-      <div className="relative flex size-9 shrink-0 items-center justify-center rounded-[16px] bg-[var(--saptta-accent)] text-white font-bold text-lg shadow-md">
-        <div className="absolute inset-0 rounded-[16px] bg-gradient-to-br from-[#FF9900] to-[#0066CC] opacity-100" />
+      <div className="relative flex size-9 shrink-0 items-center justify-center rounded-[16px] bg-[#FF9900] text-white font-bold text-lg shadow-md">
         <span className="relative z-10 text-white font-bold text-lg">K</span>
       </div>
       <AnimatePresence mode="wait">

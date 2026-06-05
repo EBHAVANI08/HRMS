@@ -74,7 +74,7 @@ function KamRegisterLogo() {
     <div className="flex items-center gap-3">
       <div
         className="relative flex size-12 shrink-0 items-center justify-center rounded-[16px] text-white font-bold shadow-lg text-xl"
-        style={{ background: "linear-gradient(135deg, #FF9900 0%, #0066CC 100%)" }}
+        style={{ background: "#FF9900" }}
       >
         <span className="relative z-10">K</span>
       </div>
@@ -428,8 +428,8 @@ export function RegistrationPage({ onSwitchToLogin }: { onSwitchToLogin: () => v
                     disabled={isLoading}
                     className="relative h-11 w-full rounded-[999px] text-sm font-semibold text-white shadow-lg overflow-hidden group"
                     style={{
-                      background: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
-                      boxShadow: "0 4px 20px rgba(139, 92, 246, 0.3)",
+                      background: "#FF9900",
+                      boxShadow: "0 4px 20px rgba(255, 153, 0, 0.3)",
                     }}
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">

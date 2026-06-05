@@ -158,7 +158,7 @@ function KamLoginLogo({ size = "default" }: { size?: "default" | "small" }) {
         className={`relative flex shrink-0 items-center justify-center rounded-[16px] text-white font-bold shadow-lg ${
           isSmall ? "size-9 text-base" : "size-12 text-xl"
         }`}
-        style={{ background: "linear-gradient(135deg, #FF9900 0%, #0066CC 100%)" }}
+        style={{ background: "#FF9900" }}
       >
         <span className="relative z-10">K</span>
       </div>
@@ -584,7 +584,7 @@ export function LoginPage({ onSwitchToRegister }: { onSwitchToRegister?: () => v
                 disabled={isLoading}
                 className="relative h-11 w-full rounded-[999px] text-sm font-semibold text-white shadow-lg transition-all duration-300 overflow-hidden group"
                 style={{
-                  background: "linear-gradient(135deg, #FF9900 0%, #0066CC 100%)",
+                  background: "#FF9900",
                   boxShadow: "0 4px 20px rgba(255, 153, 0, 0.3)",
                 }}
               >
