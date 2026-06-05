@@ -85,6 +85,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useAppStore, type UserRole } from "@/lib/store";
+import { ApplicantDashboard } from "@/components/applicant-dashboard";
 
 /* ──────────────── Animation Config ──────────────── */
 
@@ -236,6 +237,7 @@ const roleConfig: Record<UserRole, { label: string; icon: React.ElementType; col
   manager: { label: "Manager", icon: Users, color: "#c8e056" },
   employee: { label: "Employee", icon: UserCheck, color: "#5a3a2a" },
   recruiter: { label: "Recruiter", icon: UserPlus, color: "#f4a261" },
+  applicant: { label: "Applicant", icon: Briefcase, color: "#8b5cf6" },
 };
 
 function RoleSwitcher() {
@@ -1446,6 +1448,8 @@ export function RoleBasedDashboardView() {
       return <EmployeeDashboard />;
     case "recruiter":
       return <RecruiterDashboard />;
+    case "applicant":
+      return <ApplicantDashboard />;
     default:
       return <HRAdminDashboard />;
   }

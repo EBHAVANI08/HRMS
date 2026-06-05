@@ -33,6 +33,7 @@ import {
   Star,
   Eye,
   Shield,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -72,18 +73,20 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 
-const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "core-hr", label: "Core HR", icon: Users },
-  { id: "recruitment", label: "Recruitment", icon: Briefcase },
-  { id: "attendance", label: "Attendance & Leave", icon: Clock },
-  { id: "payroll", label: "Payroll", icon: Banknote },
-  { id: "performance", label: "Performance", icon: TrendingUp },
-  { id: "onboarding", label: "Onboarding", icon: UserPlus },
-  { id: "engagement", label: "Engagement", icon: Heart },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "compliance", label: "Compliance", icon: Shield },
-  { id: "ai-assistant", label: "AI Assistant", icon: Sparkles },
+import type { UserRole } from "@/lib/store";
+
+const allNavItems = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["hr_admin", "manager", "employee", "recruiter", "applicant"] },
+  { id: "core-hr", label: "Core HR", icon: Users, roles: ["hr_admin", "manager"] },
+  { id: "recruitment", label: "Recruitment", icon: Briefcase, roles: ["hr_admin", "recruiter", "manager", "applicant"] },
+  { id: "attendance", label: "Attendance & Leave", icon: Clock, roles: ["hr_admin", "manager", "employee"] },
+  { id: "payroll", label: "Payroll", icon: Banknote, roles: ["hr_admin", "employee"] },
+  { id: "performance", label: "Performance", icon: TrendingUp, roles: ["hr_admin", "manager", "employee"] },
+  { id: "onboarding", label: "Onboarding", icon: UserPlus, roles: ["hr_admin", "manager"] },
+  { id: "engagement", label: "Engagement", icon: Heart, roles: ["hr_admin", "manager"] },
+  { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["hr_admin", "manager", "recruiter"] },
+  { id: "compliance", label: "Compliance", icon: Shield, roles: ["hr_admin", "recruiter", "applicant"] },
+  { id: "ai-assistant", label: "AI Assistant", icon: Sparkles, roles: ["hr_admin", "manager", "employee", "recruiter", "applicant"] },
 ];
 
 const tenants = [
@@ -103,8 +106,10 @@ function getNotifIcon(type: string) {
   switch (type) {
     case "high_score_candidate": return <Star className="size-3.5 text-[#ff6a2c]" />;
     case "interview_reminder": return <Calendar className="size-3.5 text-[#8b5cf6]" />;
+    case "interview_scheduled": return <Calendar className="size-3.5 text-[#8b5cf6]" />;
     case "offer_update": return <CheckCircle2 className="size-3.5 text-[#22c55e]" />;
     case "candidate_applied": return <UserPlus className="size-3.5 text-[#3b82f6]" />;
+    case "application_status": return <FileText className="size-3.5 text-[#3b82f6]" />;
     case "leave_request": return <Clock className="size-3.5 text-[#f59e0b]" />;
     default: return <AlertCircle className="size-3.5 text-[var(--saptta-mute)]" />;
   }
@@ -206,7 +211,14 @@ function NavItem({
 }
 
 function SidebarContent({ collapsed }: { collapsed: boolean }) {
-  const { currentView, setCurrentView } = useAppStore();
+  const { currentView, setCurrentView, userRole } = useAppStore();
+
+  // Filter nav items based on user role
+  const navItems = allNavItems.filter((item) => item.roles.includes(userRole));
+
+  // Adjust sidebar AI assistant text based on role
+  const aiText = userRole === "applicant" ? "AI Career Coach" : "AI Assistant";
+  const aiDesc = userRole === "applicant" ? "Get interview tips, resume feedback, and career guidance from AI." : "Ask saptta AI anything about your HR data, policies, or analytics.";
 
   return (
     <div className="flex h-full flex-col">
@@ -238,11 +250,11 @@ function SidebarContent({ collapsed }: { collapsed: boolean }) {
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="size-4 text-[var(--saptta-accent)]" />
               <span className="text-xs font-semibold text-[var(--saptta-accent)]">
-                AI Assistant
+                {aiText}
               </span>
             </div>
             <p className="text-[11px] text-[var(--saptta-mute)] leading-relaxed">
-              Ask saptta AI anything about your HR data, policies, or analytics.
+              {aiDesc}
             </p>
             <Button
               size="sm"
@@ -383,6 +395,39 @@ function NotificationPanel({
                           </div>
                         )}
 
+                        {/* Action buttons for applicant notifications */}
+                        {(notif.type === "application_status" || notif.type === "interview_scheduled") && notif.jobTitle && (
+                          <div className="mt-2.5 flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              className="h-7 rounded-full text-[10px] bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 px-3"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCurrentView("recruitment");
+                                onOpenChange(false);
+                              }}
+                            >
+                              <Eye className="size-3 mr-1" />
+                              View Application
+                            </Button>
+                            {notif.type === "interview_scheduled" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 rounded-full text-[10px] border-[var(--saptta-line)] px-3"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCurrentView("recruitment");
+                                  onOpenChange(false);
+                                }}
+                              >
+                                <Calendar className="size-3 mr-1" />
+                                Prepare
+                              </Button>
+                            )}
+                          </div>
+                        )}
+
                         {/* Timestamp */}
                         <p className="text-[10px] text-[var(--saptta-mute)] mt-2">{notif.timestamp}</p>
                       </div>
@@ -485,16 +530,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     mobileMenuOpen,
     setMobileMenuOpen,
     user,
+    userRole,
     tenant,
     setTenant,
     notifications,
     notificationList,
+    logout,
   } = useAppStore();
 
   const [notifPanelOpen, setNotifPanelOpen] = React.useState(false);
 
+  // Filter nav items based on role
+  const navItems = allNavItems.filter((item) => item.roles.includes(userRole));
+
   const currentNavLabel =
     navItems.find((n) => n.id === currentView)?.label ?? "Dashboard";
+
+  // Hide tenant switcher for applicants
+  const showTenantSwitcher = userRole !== "applicant";
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
@@ -587,39 +640,41 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Search className="size-4 text-[var(--saptta-mute)]" />
             </Button>
 
-            {/* Tenant Switcher */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="hidden lg:flex h-9 items-center gap-1.5 rounded-xl border-[var(--saptta-line)] bg-[var(--saptta-bg-2)] text-[var(--saptta-ink-2)] hover:bg-[var(--saptta-bg-2)]/80 px-3"
-                >
-                  <Building2 className="size-3.5 text-[var(--saptta-mute)]" />
-                  <span className="max-w-[120px] truncate text-xs font-medium">
-                    {tenant}
-                  </span>
-                  <ChevronDown className="size-3 text-[var(--saptta-mute)]" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px]">
-                <DropdownMenuLabel>Organizations</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {tenants.map((t) => (
-                  <DropdownMenuItem
-                    key={t}
-                    onClick={() => setTenant(t)}
-                    className={t === tenant ? "bg-[var(--saptta-accent)]/5" : ""}
+            {/* Tenant Switcher - hidden for applicants */}
+            {showTenantSwitcher && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="hidden lg:flex h-9 items-center gap-1.5 rounded-xl border-[var(--saptta-line)] bg-[var(--saptta-bg-2)] text-[var(--saptta-ink-2)] hover:bg-[var(--saptta-bg-2)]/80 px-3"
                   >
-                    <Building2 className="size-4 mr-2 text-[var(--saptta-mute)]" />
-                    <span className="text-sm">{t}</span>
-                    {t === tenant && (
-                      <span className="ml-auto size-2 rounded-full bg-[var(--saptta-accent)]" />
-                    )}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    <Building2 className="size-3.5 text-[var(--saptta-mute)]" />
+                    <span className="max-w-[120px] truncate text-xs font-medium">
+                      {tenant}
+                    </span>
+                    <ChevronDown className="size-3 text-[var(--saptta-mute)]" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[200px]">
+                  <DropdownMenuLabel>Organizations</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {tenants.map((t) => (
+                    <DropdownMenuItem
+                      key={t}
+                      onClick={() => setTenant(t)}
+                      className={t === tenant ? "bg-[var(--saptta-accent)]/5" : ""}
+                    >
+                      <Building2 className="size-4 mr-2 text-[var(--saptta-mute)]" />
+                      <span className="text-sm">{t}</span>
+                      {t === tenant && (
+                        <span className="ml-auto size-2 rounded-full bg-[var(--saptta-accent)]" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
 
             {/* Notifications with Panel */}
             <Tooltip>
@@ -705,7 +760,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive">
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => logout()}
+                  className="cursor-pointer"
+                >
                   <LogOut className="size-4 mr-2" />
                   Logout
                 </DropdownMenuItem>

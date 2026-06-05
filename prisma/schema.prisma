@@ -7,6 +7,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── User & Auth Models ───
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  name          String
+  role          String   // "hr_admin" | "manager" | "employee" | "recruiter" | "applicant"
+  avatar        String?
+  department    String?
+  designation   String?
+  phone         String?
+  isActive      Boolean  @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  jobApplications JobApplication[]
+}
+
+model JobApplication {
+  id            String   @id @default(cuid())
+  userId        String
+  jobId         String
+  jobTitle      String
+  company       String
+  status        String   @default("applied") // "applied" | "screening" | "interview" | "offered" | "rejected" | "withdrawn"
+  matchScore    Float?
+  appliedAt     DateTime @default(now())
+  lastUpdatedAt DateTime @updatedAt
+  notes         String?
+
+  user          User @relation(fields: [userId], references: [id])
+}
+
 model Employee {
   id           String   @id @default(cuid())
   empId        String   @unique
