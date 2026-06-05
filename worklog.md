@@ -1,207 +1,190 @@
----
-Task ID: 1
-Agent: Main Agent
-Task: Build JD-based candidate shortlisting, role-based dashboards, JD publish flow, and auto-notification system
+# Kam HRMS/ATS — HireMind AI Integration Worklog
 
-Work Log:
-- Analyzed existing project structure (10 module views, single-page app architecture, saptta design system)
-- Built Resume Analysis Engine (/src/lib/recruitment/resume-engine.ts) with keyword extraction, TF-IDF scoring, cosine similarity, multi-dimensional scoring, and anti-hallucination verification
-- Updated Zustand store (/src/lib/store.ts) with UserRole type (hr_admin/manager/employee/recruiter), notification system, and recruitment state
-- Built Enhanced Recruitment View (/src/components/recruitment/enhanced-recruitment.tsx) with resume analyzer, JD publish dialog, high-score notifications, and batch analysis
-- Built Role-Based Dashboard (/src/components/role-based-dashboard.tsx) with 4 distinct dashboards for HR Admin, Manager, Employee, and Recruiter
-- Updated App Shell (/src/components/app-shell.tsx) with notification panel, high-score candidate alerts, and email candidate dialog
-- Built 3 API routes: /api/recruitment/analyze-resume, /api/recruitment/publish-jd, /api/recruitment/notify-hr
-- Updated page.tsx to use new enhanced components
-- Build verification: ✅ Next.js build passes successfully
-
-Stage Summary:
-- Resume Analysis Engine: 1,094 lines of pure logic - keyword extraction (TF-IDF), cosine similarity with vector math, synonym expansion, multi-dimensional scoring (Skills 35%, Experience 30%, Education 15%, Culture 20%), anti-hallucination verification with confidence scoring
-- Enhanced Recruitment View: 1,659 lines - Resume analyzer tab, JD publish dialog (career page, LinkedIn, Twitter, Facebook, email, QR code, embed widget), high-score candidate notifications with email dialog, batch resume analysis with bulk email
-- Role-Based Dashboard: 1,452 lines - 4 complete dashboards (HR Admin with full org metrics, Manager with team hiring pipeline, Employee with self-service, Recruiter with recruitment funnel)
-- Notification System: Integrated in app-shell with high-score candidate alerts, email candidate dialog, mark read/unread, notification count badge
-- API Routes: Resume analysis (single + batch), JD publish (multi-channel), HR notifications (notify-hr, email-candidate, bulk-email)
+**Date:** 2026-03-05
+**Engineer:** Z.ai Code
+**Project:** Kam Global HRMS/ATS
 
 ---
-Task ID: 2
-Agent: Main Agent
-Task: Build Glass Box AI Engine, PII Redaction, Blind Screening, Bias Audit, Compliance Dashboard, and Audit Logging
 
-Work Log:
-- Built Glass Box AI Engine (/src/lib/recruitment/glassbox-engine.ts, 2,630 lines) with:
-  - Structured JSON schema enforcement for all scoring outputs
-  - Evidence mapping: every score maps to exact resume text with section, line numbers, match type
-  - 0-5 scoring scale with proficiency indicator detection
-  - Uncertainty flags when confidence < 0.6 or match type is 'inferred'
-  - PII Redaction Layer: strips names, emails, phones, LinkedIn URLs, addresses using regex + NER
-  - Demographic Scrubbing: removes graduation years, pronouns, gendered titles, age indicators
-  - Semantic Adjacency Mapping: 35+ contextual mappings (cloud infrastructure ↔ scalable backends, etc.)
-  - Blind Screening: scores with and without PII, flags bias if delta > 0.5
-  - Proposed Actions: proposed_interview/hold/rejection (NOT automatic)
-  - Human Override with mandatory reason, audit trail, tamper-proof hashes
-  - Compliance Report: EU AI Act, NYC LL144, GDPR data retention
-- Built Compliance Dashboard (/src/components/compliance/compliance-dashboard.tsx, 1,753 lines) with 5 tabs:
-  - Glass Box Scores: evidence mapping, human override with mandatory reason, blind vs non-blind comparison
-  - PII & Blind Screening: split view redaction preview, bar chart comparing scores
-  - Bias Audit: 4/5ths rule test table, historical impact ratios, ground-truth calibration scatter plot
-  - Audit Trail: score change log with tamper-proof hash, system action log, data integrity verification
-  - Data Retention: EU AI Act card, NYC LL144 card, retention policies, compliance health score
-- Updated Prisma schema with 7 new models: AuditLog, ScoreOverride, CandidateScore, BiasMetric, DataRetentionPolicy, ComplianceAssessment
-- Built Audit Log API (/api/recruitment/audit-log): score overrides, resume analysis logs, human confirmations, blind screening logs, audit trail retrieval, integrity verification
-- Built Bias Audit API (/api/recruitment/bias-audit): 4/5ths rule test, ground-truth calibration (Pearson correlation), data retention cleanup, compliance assessment scheduling
-- Updated app-shell with Compliance nav item (Shield icon)
-- All builds pass successfully
+## Summary
 
-Stage Summary:
-- Total new code: ~5,245 lines across 5 files
-- Complete Glass Box AI pipeline: redact → scrub → blind screen → analyze → evidence map → propose action → human review
-- Full compliance with EU AI Act (high-risk system documentation), NYC LL144 (4/5ths rule, impact ratios), GDPR (retention lifecycles)
-- Revision-proof audit trail with SHA-256 hash chain
-- No automated workflows - all actions require human confirmation
+Integrated a comprehensive **HireMind AI Engine** — a 12-agent resume analysis system — into the existing Kam Global HRMS/ATS platform. The engine uses an LLM provider abstraction layer that supports both Ollama (when available) and z-ai-web-dev-sdk (default working backend).
 
 ---
-Task ID: role-based-auth-dashboards
-Agent: Main Agent
-Task: Implement role-based logins and dashboards for 5 user types (HR Admin, Manager, Employee, Recruiter, Job Applicant)
 
-Work Log:
-- Updated Prisma schema with User and JobApplication models for authentication
-- Updated Zustand store (store.ts) with: applicant role, isAuthenticated/isLoading state, login/logout actions, jobApplications state, applicant-specific notifications, demo credential authentication
-- Built professional login page component (/src/components/auth/login-page.tsx) with: split-screen layout (brand panel + login form), 5 demo role cards with auto-fill, email/password form with show/hide toggle, animated error messages, loading state
-- Built auth API routes (/src/app/api/auth/route.ts) with POST login, GET session, DELETE logout
-- Built registration API route (/src/app/api/auth/register/route.ts) for applicant self-registration
-- Built full Job Applicant dashboard (/src/components/applicant-dashboard.tsx) with: greeting header, KPI cards (active apps, interviews, offers, match score), application tracker with filter tabs, application pipeline visualization, upcoming interviews, profile completeness, job recommendations, quick actions
-- Updated role-based-dashboard.tsx to include applicant role with #8b5cf6 color
-- Updated page.tsx to gate on isAuthenticated - shows LoginPage when not logged in, routes to appropriate dashboard based on role
-- Updated app-shell.tsx with: role-based navigation (different sidebar items per role), working logout functionality, tenant switcher hidden for applicants, applicant-specific notification handling, AI assistant text changes for applicant role
-- Verified 5 compliance rules already implemented in glassbox-engine.ts (2,630 lines) and compliance-dashboard.tsx (1,753 lines)
-- Build passes successfully
+## Task 1: Prisma Schema — New Models ✅
 
-Stage Summary:
-- 5 role-based logins implemented: HR Admin, Manager, Employee, Recruiter, Job Applicant
-- Demo credentials: priya@saptta.io/admin123, rajesh@saptta.io/manager123, anita@saptta.io/employee123, kavitha@saptta.io/recruiter123, arun@gmail.com/applicant123
-- Role-based sidebar navigation filters items per role
-- Applicant gets dedicated dashboard with application tracking, interviews, job recommendations
-- Logout functionality works (returns to login page)
-- All 5 compliance rules (Glass Box, Blind Screening, Compliance, Human Accountability, Bias Auditing) already implemented from previous session
+Added 4 new models to `prisma/schema.prisma` (without removing any existing models):
+
+- **Job** — Full job posting with title, department, location, type, status, skills (JSON), requirements (JSON), responsibilities (JSON), benefits (JSON), experienceLevel, etc.
+- **Candidate** — Candidate profile linked to a Job, with stage tracking, scoreBreakdown (JSON), timeline (JSON), resumeText, resumeFileName, etc.
+- **AIAnalysis** — Stores all 12 agent results as JSON fields, plus overallScore, shortlistDecision, confidence, provider, model.
+- **RAGDocument** — For future RAG document storage (resume, JD, skill taxonomy, knowledge base) with content and embedding vectors.
+
+**Migration:** `npx prisma db push` — Successfully pushed to SQLite.
+
 ---
-Task ID: no-api-key-build
-Agent: Main Agent
-Task: Remove all API key dependencies - build everything locally without any external API keys
 
-Work Log:
-- Analyzed entire codebase to identify all API-key-dependent features
-- Discovered that the project ALREADY works without API keys (all API routes are self-contained)
-- Built smart Local AI Chat Engine (`/src/lib/ai/local-chat-engine.ts`) with rule-based NLP, intent classification, and 20+ response templates covering employee data, attendance, leave, payroll, recruitment, policies, performance, and onboarding
-- Built Template-Based JD Generator (`/src/lib/ai/jd-generator.ts`) with dynamic field substitution, department defaults, level-specific descriptions, Indian market benefits, and smart parameter inference from job titles
-- Updated AI Assistant View to use local chat engine instead of generic mock responses
-- Updated Content Generation to dynamically generate JDs, offer letters, performance reviews, policy documents, and email templates using form inputs
-- Added Registration Page for new applicants with full form validation
-- Updated LoginPage to include link to registration page
-- Updated main page.tsx to handle login/register page switching
-- Updated .env with clear documentation that NO API KEYS are needed
-- Added "Generated Locally — No API Key" badge in content generation output
-- Added role-specific chat suggestions based on user role
+## Task 2: HireMind AI Engine ✅
 
-Stage Summary:
-- ✅ AI Resume Analysis: Already 100% local (TF-IDF + cosine similarity)
-- ✅ AI Chat Assistant: Now uses smart local chat engine with 20+ intents
-- ✅ JD Generation: Now uses template-based generator with dynamic fields
-- ✅ Auth: Already local demo auth (no NEXTAUTH_SECRET needed)
-- ✅ Email Notifications: Already in-app simulation (no SMTP needed)
-- ✅ Social Sharing: Already URL generators (no OAuth needed)
-- ✅ Build passes successfully with zero API keys
-- New files: `/src/lib/ai/local-chat-engine.ts`, `/src/lib/ai/jd-generator.ts`, `/src/components/auth/register-page.tsx`
+Created `/home/z/my-project/src/lib/ai/hiremind-engine.ts` (~650 lines):
+
+### Architecture:
+1. **LLM Provider Abstraction** — `LLMProvider` interface with `OllamaProvider` and `ZAISDKProvider`
+2. **12 Focused Agent Methods** — Each agent uses targeted prompts (NOT massive JSON system prompts):
+   - Agent 1: `parseResume()` — Resume parser
+   - Agent 2: `detectDomain()` — Domain classifier
+   - Agent 3: `detectSeniority()` — Seniority level detector
+   - Agent 4: `expandSkills()` — Skill abbreviation expander
+   - Agent 5: `parseJD()` — Job description parser
+   - Agent 6: `matchJob()` — JD-candidate matching engine
+   - Agent 7: `analyzeAchievements()` — Achievement quality analyzer
+   - Agent 8: `calculateATS()` — ATS compatibility scorer
+   - Agent 9: `analyzeGaps()` — Skill gap analyzer
+   - Agent 10: `suggestImprovements()` — Resume improvement advisor
+   - Agent 11: `predictInterviews()` — Interview prediction
+   - Agent 12: `generateRecruiterInsights()` — Recruiter insight generator
+3. **RAG Pipeline** — TF-IDF based document retrieval (no external vector DB)
+4. **Skill Abbreviation Expansion** — 150+ abbreviations mapped to full forms (ML→Machine Learning, NLP→Natural Language Processing, etc.)
+5. **Master Orchestrator** — `fullAnalysis()` runs all 12 agents sequentially, calculates weighted overall score
+
+### Key Features:
+- `OllamaProvider`: Calls `http://127.0.0.1:11434/api/chat` with configurable model
+- `ZAISDKProvider`: Uses `z-ai-web-dev-sdk` chat.completions.create() (server-side only)
+- Auto-fallback: If Ollama is unavailable, falls back to z-ai-web-dev-sdk
+- `safeParseJSON()`: Robust JSON extraction from LLM responses (handles markdown code blocks, partial JSON)
+- Singleton pattern via `getHireMindEngine()`
+
 ---
-Task ID: rebrand-kam
-Agent: Main Agent
-Task: Rebrand HRMS from "saptta" to "Kam Global" using the uploaded logo's colors
 
-Work Log:
-- Analyzed uploaded logo using VLM: identified "Kam Global for Digital AI Media Solutions Pvt. Ltd."
-- Extracted brand colors: Primary Orange #FF9900, Primary Blue #0066CC, Dark Blue #003d7a
-- Updated globals.css: replaced all saptta color tokens with Kam color palette (#FF9900, #0066CC, #003d7a, #4d94db)
-- Added backward-compatible CSS variable aliases (--saptta-* → new Kam colors)
-- Updated app-shell.tsx: renamed SapttaLogo→KamLogo, gradient orange→blue, "K" in orange + "am" in blue
-- Updated login-page.tsx: Kam gradient logo, role accent colors using Kam palette, email domain @kamglobal.io
-- Updated register-page.tsx: Kam gradient logo
-- Updated store.ts: all emails @kamglobal.io, company name "Kam Global", tenant "Kam Global"
-- Updated layout.tsx: page title "Kam — AI-Powered HRMS..."
-- Updated all 18+ view components: text references "Kam", "Kam Global", @kamglobal.io
-- Bulk replaced all hardcoded colors (#ff6a2c→#FF9900, #c8e056→#0066CC, #5a3a2a→#003d7a, #f4a261→#4d94db)
-- Updated role-based-dashboard.tsx: role accent colors aligned with Kam palette
-- Preserved CSS variable names (--saptta-*) and class names (saptta-*) as backward-compatible aliases
-- Final build passes clean
+## Task 3: API Routes ✅
 
-Stage Summary:
-- Full rebrand from "saptta" to "Kam" complete
-- Color scheme updated to Kam Global orange (#FF9900) + blue (#0066CC) from the uploaded logo
-- Logo component shows "K" with orange-to-blue gradient, "K" in orange + "am" in blue text
-- All user-facing text updated to "Kam" / "Kam Global"
-- Email domains changed to @kamglobal.io
-- Build compiles successfully
+Created 6 new API routes:
+
+1. **`/api/recruitment/jobs/route.ts`** — GET (list with filters), POST (create)
+2. **`/api/recruitment/jobs/[id]/route.ts`** — GET, PUT, DELETE single job
+3. **`/api/recruitment/candidates/route.ts`** — GET (list with filters), POST (create with job verification)
+4. **`/api/recruitment/candidates/[id]/route.ts`** — GET, PUT, DELETE single candidate
+5. **`/api/recruitment/hiremind-analyze/route.ts`** — POST: Run full 12-agent analysis, save to AIAnalysis table
+6. **`/api/recruitment/hiremind-analyze/[id]/route.ts`** — GET: Retrieve saved analysis results
+
+All routes:
+- Use `import { db } from '@/lib/db'` for Prisma client
+- Handle JSON serialization/deserialization for JSON string fields
+- Include proper error handling and validation
+- The hiremind-analyze route builds JD text from job record, finds/creates candidates, and updates match scores
+
 ---
-Task ID: 1
-Agent: Main Agent
-Task: Add Job Description/Job Role CRUD functionality and fix .docx resume parsing
 
-Work Log:
-- Read and analyzed the enhanced-recruitment.tsx component (~1760 lines)
-- Identified that "New Job" and "Create Job" buttons had NO onClick handlers
-- Added ExperienceLevel type and extended JobPosting interface with experienceLevel, skills, benefits fields
-- Added 3 AI Developer job templates to MOCK_JOBS (Fresher, 2+ Years, 5-10 Years)
-- Created AI_JOB_TEMPLATES array with 6 pre-built AI role templates (AI Developer Fresher, AI Developer 2+, Senior AI Developer 5-10, ML Engineer, Data Scientist, Prompt Engineer)
-- Created EXPERIENCE_LEVEL_CONFIG for consistent experience level display
-- Built full CreateEditJobDialog component with template selection step and form step
-- Updated JobsTab to accept jobs as state prop and CRUD callbacks (onCreateJob, onEditJob, onDeleteJob)
-- Added department and experience level filters to JobsTab
-- Added edit/delete buttons to job cards (visible on hover)
-- Added delete confirmation dialog
-- Updated JobDetailDialog with onEdit callback and experience level badge
-- Converted MOCK_JOBS to React state in EnhancedRecruitmentView for full CRUD
-- Connected "New Job" button to handleCreateJob handler
-- Connected "Create Job" button in JobsTab to onCreateJob handler
-- Improved parseFileViaAPI in ResumeAnalyzerTab with better error handling for .docx files
-- Updated parse-resume API route with .doc vs .docx distinction, fallback extraction, and better error messages
-- Removed leftover old JobsTab code
+## Task 4: Fix .docx Resume Parsing ✅
 
-Stage Summary:
-- "New Job" and "Create Job" buttons now work and open the CreateEditJobDialog
-- CreateEditJobDialog has two steps: template selection → form editing
-- 6 AI role templates available for quick job creation
-- Full CRUD: Create, Read, Edit, Delete job roles
-- Job cards show experience level badges and skills tags
-- Delete requires confirmation
-- Resume .docx parsing improved with better error messages and fallback handling
-- Build compiles successfully
+Enhanced `/home/z/my-project/src/app/api/recruitment/parse-resume/route.ts`:
+
+### Changes:
+1. **Multi-strategy DOCX parsing** via `parseDocx()` function:
+   - Strategy 1: `mammoth.extractRawText()` — most reliable
+   - Strategy 2: `mammoth.convertToHtml()` + HTML stripping — sometimes gets content that extractRawText misses
+   - Strategy 3: JSZip XML fallback — parses `word/document.xml`, `header1.xml`, `header2.xml`, `footer1.xml`, `footnotes.xml`, `endnotes.xml`, `comments.xml`
+   - Strategy 4: Binary text extraction — last resort
+2. **Proper mammoth import handling** — handles both `module.default` and direct export
+3. **Added `parseMethod` to response metadata** — helps debug which strategy succeeded
+4. **Better error logging** — warns instead of errors for each failed strategy
+
 ---
-Task ID: skill-abbreviation-expansion
-Agent: Main Agent
-Task: Add skill abbreviation expansion (ML, NLP, DL, CV, etc.) for better resume shortlisting and fix DOCX parsing
 
-Work Log:
-- Fixed DOCX resume parsing: replaced broken zlib-based fallback with JSZip XML extraction that properly parses word/document.xml from DOCX ZIP archives, extracting text from <w:t> tags with paragraph preservation
-- Massively expanded SKILL_SYNONYMS map from ~40 entries to 150+ entries covering: Programming Languages, Frontend Frameworks, Backend Frameworks, Databases, Cloud & DevOps, AI/ML, AI/ML Frameworks, Data & Analytics, Design, Mobile, Soft Skills, Version Control, Security, Testing
-- Added comprehensive AI/ML abbreviation mappings: ML→Machine Learning, NLP→Natural Language Processing, DL→Deep Learning, CV→Computer Vision, AI→Artificial Intelligence, LLM→Large Language Models, RAG→Retrieval Augmented Generation, GAN→Generative Adversarial Networks, CNN→Convolutional Neural Networks, RNN→Recurrent Neural Networks, etc.
-- Built REVERSE_SYNONYM_MAP for bidirectional lookup (any abbreviation→canonical form)
-- Added expandSkillAbbreviation() and getAllSkillForms() utility functions
-- Updated computeKeywordMatch() with 5-level matching: exact→abbreviation-expanded→reverse-abbreviation→synonym→partial
-- Updated extractSkillsFromResume() with 28 abbreviation pattern detectors (ML, NLP, DL, CV, AI, LLM, RAG, GAN, CNN, RNN, LSTM, MLOps, GenAI, RL, EDA, SRE, K8s, GCP, AWS, IaC, CI/CD, SaaS, B2B, ERP, CRM, A11y, etc.)
-- Updated extractSkillsFromText() (JD keyword extraction) with abbreviation expansion
-- Updated isVerifiedInText() to use getAllSkillForms() for anti-hallucination verification
-- Enhanced generateRecommendations() with abbreviation-expanded skill detection and interview verification guidance
-- Added 'ai & machine learning' department to TECH_SKILLS_MASTER with 60+ AI/ML skills including abbreviations
-- Added 3 new mock resumes with abbreviated skills: mr6 (Arjun Mehta - 3yr AI Engineer with ML/NLP/DL/CV), mr7 (Priya Nair - Fresher with ML/NLP/DL/CV/GenAI), mr8 (Dr. Kavitha Rajan - 8yr Senior AI with full abbreviation set)
-- Added 5 more job templates for other departments: Frontend Developer, Backend Developer, Product Designer, DevOps Engineer, Data Analyst
-- Organized template selection dialog by department grouping instead of flat list
-- Added DialogTitle and DialogDescription to CreateEditJobDialog for Radix UI accessibility compliance
-- Fixed pdf-parse TypeScript import issue
-- Build verified: compiles successfully
+## Task 5: Fix New Job Button + Enhance Form ✅
 
-Stage Summary:
-- Resume matching now recognizes abbreviated skills bidirectionally (ML↔Machine Learning, NLP↔Natural Language Processing, etc.)
-- DOCX parsing fixed with proper JSZip-based XML extraction (no more raw binary PK! content)
-- 150+ skill synonym mappings + 28 abbreviation pattern detectors
-- 5-level matching algorithm: exact→abbreviation-expanded→reverse-abbreviation→synonym→partial
-- New mock resumes demonstrate abbreviation-based matching working correctly
-- Job template library expanded from 6 to 11 templates across all departments
-- Recommendations now flag abbreviation-expanded skills for interview verification
+### Fix:
+- Added `key={editingJob?.id ?? "new"}` to `CreateEditJobDialog` to force remount when editingJob changes, ensuring proper state reset
+- Removed the problematic `useEffect` that called setState within an effect (React 19 lint violation)
+- Initial state is now computed from props during render
+
+### Enhancements:
+1. **Skill auto-suggestions** — New input with dropdown showing AI/ML domain skills (50+ suggestions including Python, ML, NLP, Docker, etc.)
+2. **Skill tags** — Selected skills shown as removable Badge tags instead of list of inputs
+3. **Enter key support** — Press Enter to add a skill
+4. **Click-to-remove** — Click a skill tag to remove it
+5. **Skills default changed** — From `[""]` to `[]` (empty array) for cleaner UX
+
+---
+
+## Task 6: Update Enhanced Recruitment Component ✅
+
+### Changes to `enhanced-recruitment.tsx`:
+
+1. **New `AIAnalysisData` interface** — Comprehensive type for AI analysis results including skillExpansion, atsScore, gapAnalysis, recruiterInsights, interviewPrediction
+2. **Updated `Candidate` interface** — Added optional `aiAnalysis?: AIAnalysisData | null`
+3. **AI/ML Skill Suggestions constant** — 50+ suggestions for the job creation form
+4. **Data loading from API** — `loadJobsFromDB()` and `loadCandidatesFromDB()` called on mount, with mock data fallback
+5. **Job save persists to API** — `handleSaveJob` now POST/PUTs to API routes
+6. **AI Analysis state** — New `aiAnalysisOpen`, `aiAnalysisCandidate`, `aiAnalysisResult`, `aiAnalysisLoading` states
+7. **`handleRunAIAnalysis()`** — Calls `/api/recruitment/hiremind-analyze` API, updates candidate scores
+8. **Brain icon button on candidate table** — Each candidate row has an AI analysis trigger button
+9. **Candidate Detail Dialog enhanced** — Shows:
+   - "Run HireMind AI Analysis" button if no analysis
+   - Shortlist decision badge
+   - Recruiter insights (green flags, red flags, one-line summary)
+   - Skill expansion (ML → Machine Learning)
+   - ATS score breakdown
+   - Gap analysis (critical gaps)
+   - Interview prediction (likelihood, expected rounds)
+10. **HireMind AI Analysis Dialog** — Full-featured dialog with:
+    - Loading state showing all 12 agents with spinners
+    - Overall score with skills/experience breakdown
+    - Skill expansion cards with related skills
+    - Matched/missing skills grid
+    - Recruiter insights with green/red flags
+    - Gap analysis with bridging steps
+    - Interview prediction with expected rounds
+    - ATS compatibility score with recommendations
+    - Provider and confidence info
+
+---
+
+## Task 7: Ollama Startup Script ✅
+
+Created `/home/z/my-project/scripts/start-ollama.sh`:
+
+- Checks for Ollama installation
+- Sets `LD_LIBRARY_PATH` for bundled libraries
+- Starts Ollama server on `0.0.0.0:11434`
+- Waits for server with retry logic (10 retries)
+- Pulls `qwen2.5:0.5b` model automatically
+- Provides clear error messages if Ollama is unavailable
+- Notifies user that HireMind falls back to z-ai-web-dev-sdk
+
+---
+
+## Files Created/Modified
+
+### New Files:
+- `src/lib/ai/hiremind-engine.ts` — HireMind AI engine (650+ lines)
+- `src/app/api/recruitment/jobs/route.ts` — Jobs CRUD API
+- `src/app/api/recruitment/jobs/[id]/route.ts` — Single job API
+- `src/app/api/recruitment/candidates/route.ts` — Candidates CRUD API
+- `src/app/api/recruitment/candidates/[id]/route.ts` — Single candidate API
+- `src/app/api/recruitment/hiremind-analyze/route.ts` — HireMind analysis API
+- `src/app/api/recruitment/hiremind-analyze/[id]/route.ts` — Analysis retrieval API
+- `scripts/start-ollama.sh` — Ollama startup script
+
+### Modified Files:
+- `prisma/schema.prisma` — Added Job, Candidate, AIAnalysis, RAGDocument models
+- `src/app/api/recruitment/parse-resume/route.ts` — Enhanced DOCX parsing
+- `src/components/recruitment/enhanced-recruitment.tsx` — AI analysis integration, DB-backed data, skill suggestions
+
+---
+
+## Brand Compliance
+- Primary Orange: #FF9900 — Used for primary actions, AI buttons, analysis highlights
+- Secondary Blue: #0066CC — Used for skill expansion badges, ATS scores, secondary actions
+- No gradients mixing orange and blue
+- Solid colors only
+
+---
+
+## Technical Notes
+- z-ai-web-dev-sdk is used ONLY on the server side (API routes/lib), never in client components
+- The HireMind engine auto-detects available LLM providers and falls back gracefully
+- All JSON fields in SQLite are stored as strings and parsed/serialized in API routes
+- Mock data is preserved as fallback when API is unavailable
+- The existing `resume-engine.ts` and `glassbox-engine.ts` are NOT modified — HireMind runs parallel

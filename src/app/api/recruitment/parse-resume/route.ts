@@ -35,60 +35,37 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     let extractedText = "";
+    let parseMethod = "";
 
     if (fileName.endsWith(".txt")) {
       // Plain text — read directly
       extractedText = buffer.toString("utf-8");
+      parseMethod = "text-direct";
 
     } else if (fileName.endsWith(".docx")) {
-      // DOCX — use mammoth (supports .docx only, not legacy .doc)
-      try {
-        const mammoth = await import("mammoth");
-        const result = await mammoth.extractRawText({ buffer });
-        extractedText = result.value;
-      } catch (mammothError: any) {
-        console.error("Mammoth parsing error:", mammothError);
-
-        // If mammoth fails, try JSZip-based XML text extraction from the DOCX ZIP
-        try {
-          extractedText = await extractTextFromDocxFallback(buffer);
-        } catch (fallbackError: any) {
-          console.error("DOCX fallback extraction error:", fallbackError);
-          return NextResponse.json(
-            {
-              success: false,
-              error: `Failed to parse DOCX file. The file may be corrupted or image-based. Please try uploading a .txt file or paste the resume text directly.`,
-            },
-            { status: 422 }
-          );
-        }
-      }
+      // DOCX — try mammoth first (multiple strategies), then JSZip fallback
+      extractedText = await parseDocx(buffer);
+      parseMethod = "docx-mammoth-jszip";
 
     } else if (fileName.endsWith(".doc")) {
       // Legacy .doc format — mammoth does NOT support .doc
       // Try to extract text as best we can, but warn the user
       try {
-        // Attempt to read as .docx in case the file is actually .docx with wrong extension
-        const mammoth = await import("mammoth");
-        const result = await mammoth.extractRawText({ buffer });
-        extractedText = result.value;
+        extractedText = await parseDocx(buffer);
+        parseMethod = "doc-as-docx";
       } catch {
-        // If that fails, try JSZip fallback (in case it's actually .docx)
+        // Last resort: basic binary text extraction
         try {
-          extractedText = await extractTextFromDocxFallback(buffer);
+          extractedText = extractTextFromBinary(buffer);
+          parseMethod = "doc-binary";
         } catch {
-          // Last resort: basic binary text extraction
-          try {
-            extractedText = extractTextFromBinary(buffer);
-          } catch {
-            return NextResponse.json(
-              {
-                success: false,
-                error: "Legacy .doc format is not fully supported. Please convert your file to .docx, .pdf, or .txt format and upload again.",
-              },
-              { status: 422 }
-            );
-          }
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Legacy .doc format is not fully supported. Please convert your file to .docx, .pdf, or .txt format and upload again.",
+            },
+            { status: 422 }
+          );
         }
       }
 
@@ -99,6 +76,7 @@ export async function POST(request: NextRequest) {
         const pdfParse = pdfParseModule.default || pdfParseModule;
         const result = await pdfParse(buffer);
         extractedText = result.text;
+        parseMethod = "pdf-parse";
       } catch (pdfError: any) {
         console.error("PDF parsing error:", pdfError);
         return NextResponse.json(
@@ -146,6 +124,7 @@ export async function POST(request: NextRequest) {
         fileSize: file.size,
         charCount: extractedText.length,
         wordCount: extractedText.split(/\s+/).filter(Boolean).length,
+        parseMethod,
       },
     });
   } catch (error: any) {
@@ -158,36 +137,121 @@ export async function POST(request: NextRequest) {
 }
 
 /**
+ * Parse DOCX file using a multi-strategy approach:
+ * 1. mammoth.extractRawText() — always works for valid .docx
+ * 2. mammoth.convertToHtml() — extracts richer content if extractRawText is empty
+ * 3. JSZip XML fallback — parses word/document.xml directly
+ */
+async function parseDocx(buffer: Buffer): Promise<string> {
+  let extractedText = "";
+
+  // Strategy 1: mammoth.extractRawText() — the most reliable method
+  try {
+    const mammothModule = await import("mammoth");
+    const mammoth = mammothModule.default || mammothModule;
+
+    if (typeof mammoth.extractRawText === "function") {
+      const result = await mammoth.extractRawText({ buffer });
+      extractedText = result.value || "";
+    } else if (typeof mammoth === "function") {
+      // Some bundlers export the function directly
+      const result = await mammoth.extractRawText({ buffer });
+      extractedText = result.value || "";
+    }
+
+    if (extractedText.trim().length >= 20) {
+      return extractedText;
+    }
+  } catch (err: any) {
+    console.warn("[parse-resume] mammoth.extractRawText failed:", err.message);
+  }
+
+  // Strategy 2: mammoth.convertToHtml() then strip HTML — sometimes gets content that extractRawText misses
+  try {
+    const mammothModule = await import("mammoth");
+    const mammoth = mammothModule.default || mammothModule;
+
+    if (typeof mammoth.convertToHtml === "function") {
+      const result = await mammoth.convertToHtml({ buffer });
+      const html = result.value || "";
+      if (html.trim().length > 0) {
+        // Strip HTML tags to get plain text
+        extractedText = html
+          .replace(/<br\s*\/?>/gi, "\n")
+          .replace(/<\/p>/gi, "\n\n")
+          .replace(/<\/li>/gi, "\n")
+          .replace(/<[^>]+>/g, "")
+          .replace(/&amp;/g, "&")
+          .replace(/&lt;/g, "<")
+          .replace(/&gt;/g, ">")
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/&nbsp;/g, " ");
+
+        if (extractedText.trim().length >= 20) {
+          return extractedText;
+        }
+      }
+    }
+  } catch (err: any) {
+    console.warn("[parse-resume] mammoth.convertToHtml failed:", err.message);
+  }
+
+  // Strategy 3: JSZip-based XML text extraction from the DOCX ZIP
+  try {
+    extractedText = await extractTextFromDocxFallback(buffer);
+    if (extractedText.trim().length >= 20) {
+      return extractedText;
+    }
+  } catch (err: any) {
+    console.warn("[parse-resume] JSZip fallback failed:", err.message);
+  }
+
+  // Strategy 4: Basic binary text extraction (last resort)
+  try {
+    extractedText = extractTextFromBinary(buffer);
+    if (extractedText.trim().length >= 20) {
+      return extractedText;
+    }
+  } catch (err: any) {
+    console.warn("[parse-resume] Binary extraction failed:", err.message);
+  }
+
+  throw new Error("Failed to extract text from DOCX file using all available methods. The file may be corrupted or image-based.");
+}
+
+/**
  * Fallback: Extract text from a DOCX file by parsing the XML inside the ZIP.
  * DOCX is a ZIP archive containing XML files. The main text is in word/document.xml.
  * Uses JSZip to properly parse the ZIP structure, then extracts text from <w:t> tags.
  * This is a reliable fallback when mammoth fails.
  */
 async function extractTextFromDocxFallback(buffer: Buffer): Promise<string> {
-  try {
-    const JSZip = (await import("jszip")).default;
-    const zip = await JSZip.loadAsync(buffer);
+  const JSZip = (await import("jszip")).default;
+  const zip = await JSZip.loadAsync(buffer);
 
-    // The main document content is in word/document.xml
-    const documentXml = zip.file("word/document.xml");
-    if (!documentXml) {
-      throw new Error("word/document.xml not found in DOCX archive");
-    }
+  // Collect text from all XML files in the DOCX archive
+  const xmlFiles = [
+    "word/document.xml",
+    "word/header1.xml",
+    "word/header2.xml",
+    "word/footer1.xml",
+    "word/footer2.xml",
+  ];
 
-    const xmlContent = await documentXml.async("string");
+  const paragraphs: string[] = [];
 
-    // Extract text from <w:t> tags in the XML
-    // In OOXML, each piece of text is wrapped in <w:t> elements inside <w:r> (run) elements
-    // Paragraphs are delimited by </w:p> tags
-    const textParts: string[] = [];
-    const wptRegex = /<w:p[ >]/g;
-    let lastIdx = 0;
-    const paragraphs: string[] = [];
+  for (const xmlPath of xmlFiles) {
+    const xmlFile = zip.file(xmlPath);
+    if (!xmlFile) continue;
 
-    // Split by paragraphs first
+    const xmlContent = await xmlFile.async("string");
+
+    // Split by paragraphs (</w:p> tags)
     const paragraphSplit = xmlContent.split(/<\/w:p>/);
 
     for (const para of paragraphSplit) {
+      // Extract text from <w:t> tags, handling both self-closing and content variants
       const textMatches = para.match(/<w:t[^>]*>([^<]*)<\/w:t>/g);
       if (textMatches && textMatches.length > 0) {
         const paraText = textMatches
@@ -201,18 +265,49 @@ async function extractTextFromDocxFallback(buffer: Buffer): Promise<string> {
         }
       }
     }
-
-    const result = paragraphs.join("\n");
-
-    if (result.length < 20) {
-      throw new Error("Extracted text too short from DOCX XML");
-    }
-
-    return result;
-  } catch (jszipError: any) {
-    console.error("JSZip DOCX fallback error:", jszipError);
-    throw jszipError;
   }
+
+  // Also check for text in other XML files (footnotes, endnotes, comments)
+  const additionalXmlPaths = [
+    "word/footnotes.xml",
+    "word/endnotes.xml",
+    "word/comments.xml",
+  ];
+
+  for (const xmlPath of additionalXmlPaths) {
+    const xmlFile = zip.file(xmlPath);
+    if (!xmlFile) continue;
+
+    try {
+      const xmlContent = await xmlFile.async("string");
+      const paragraphSplit = xmlContent.split(/<\/w:p>/);
+
+      for (const para of paragraphSplit) {
+        const textMatches = para.match(/<w:t[^>]*>([^<]*)<\/w:t>/g);
+        if (textMatches && textMatches.length > 0) {
+          const paraText = textMatches
+            .map((m) => {
+              const content = m.match(/<w:t[^>]*>([^<]*)<\/w:t>/);
+              return content ? content[1] : "";
+            })
+            .join("");
+          if (paraText.trim()) {
+            paragraphs.push(paraText);
+          }
+        }
+      }
+    } catch {
+      // Skip additional XML files that fail to parse
+    }
+  }
+
+  const result = paragraphs.join("\n");
+
+  if (result.length < 20) {
+    throw new Error("Extracted text too short from DOCX XML");
+  }
+
+  return result;
 }
 
 /**

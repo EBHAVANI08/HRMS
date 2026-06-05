@@ -310,3 +310,105 @@ model ComplianceAssessment {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+// ─── HireMind Recruitment Models ───
+
+model Job {
+  id              String   @id @default(cuid())
+  title           String
+  department      String
+  location        String
+  type            String   @default("Full-time")
+  status          String   @default("draft")  // draft, open, on-hold, closed, fulfilled
+  openings        Int      @default(1)
+  applicants      Int      @default(0)
+  daysOpen        Int      @default(0)
+  salary          String   @default("Competitive")
+  postedDate      String   @default("")
+  urgent          Boolean  @default(false)
+  hiringManager   String   @default("")
+  description     String   @default("")
+  requirements    String   @default("[]")   // JSON array
+  responsibilities String  @default("[]")   // JSON array
+  experienceLevel String   @default("mid")  // fresher, 0-1, 1-3, 2-5, 3-5, 5-10, 10+
+  skills          String   @default("[]")   // JSON array
+  benefits        String   @default("[]")   // JSON array
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  candidates      Candidate[]
+  aiAnalyses      AIAnalysis[]
+}
+
+model Candidate {
+  id              String   @id @default(cuid())
+  name            String
+  email           String?
+  phone           String?
+  jobId           String
+  stage           String   @default("sourced")  // sourced, screening, interview, assessment, offer, hired, rejected
+  source          String   @default("Website")  // LinkedIn, Naukri, Referral, Website, Campus, Agency
+  matchScore      Float    @default(0)
+  scoreBreakdown  String   @default("{}")  // JSON: {skills, experience, education, culture, overall}
+  daysInStage     Int      @default(0)
+  appliedDate     String   @default("")
+  lastActivity    String   @default("")
+  location        String   @default("")
+  experience      String   @default("")
+  salary          String   @default("")
+  timeline        String   @default("[]")  // JSON array of events
+  resumeText      String?
+  resumeFileName  String?
+  avatar          String   @default("")
+  role            String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  job             Job      @relation(fields: [jobId], references: [id])
+  aiAnalyses      AIAnalysis[]
+}
+
+model AIAnalysis {
+  id              String   @id @default(cuid())
+  candidateId     String
+  jobId           String
+  analysisType    String   @default("full")  // full, quick, batch
+  provider        String   @default("hiremind")  // hiremind, ollama, z-ai-sdk
+  model           String   @default("qwen2.5")
+
+  // Agent results stored as JSON
+  parsedResume    String   @default("{}")    // Agent 1: Resume Parser
+  domainDetection String   @default("{}")    // Agent 2: Domain Detector
+  seniorityLevel  String   @default("{}")    // Agent 3: Seniority Detector
+  skillExpansion  String   @default("{}")    // Agent 4: Skill Expansion
+  jdParsing       String   @default("{}")    // Agent 5: JD Parser
+  jobMatch        String   @default("{}")    // Agent 6: JD Match Engine
+  achievements    String   @default("{}")    // Agent 7: Achievement Analyzer
+  atsScore        String   @default("{}")    // Agent 8: ATS Scoring
+  gapAnalysis     String   @default("{}")    // Agent 9: Gap Analyzer
+  improvements    String   @default("{}")    // Agent 10: Resume Improvement
+  interviewPrediction String @default("{}") // Agent 11: Interview Prediction
+  recruiterInsights   String @default("{}") // Agent 12: Recruiter Insights
+  masterResult    String   @default("{}")    // Final orchestrated result
+
+  overallScore    Float    @default(0)
+  shortlistDecision Boolean @default(false)
+  confidence      Float    @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  candidate       Candidate @relation(fields: [candidateId], references: [id])
+  job             Job       @relation(fields: [jobId], references: [id])
+}
+
+model RAGDocument {
+  id              String   @id @default(cuid())
+  docType         String   // "resume", "jd", "skill_taxonomy", "knowledge_base"
+  sourceId        String?  // Link to Job or Candidate ID
+  content         String   // Original text content
+  embedding       String?  // JSON array of embedding vectors (for RAG similarity search)
+  metadata        String   @default("{}")  // JSON metadata
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

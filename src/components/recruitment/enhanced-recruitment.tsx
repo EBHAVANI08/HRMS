@@ -80,6 +80,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { analyzeResume, batchAnalyzeResumes } from "@/lib/recruitment/resume-engine";
 import type { MatchResult } from "@/lib/recruitment/resume-engine";
 
+/* ──────────────── AI/ML Skill Suggestions ──────────────── */
+
+const AI_ML_SKILL_SUGGESTIONS = [
+  "Python", "Machine Learning", "Deep Learning", "NLP", "Computer Vision", "LLMs",
+  "RAG", "Transformers", "PyTorch", "TensorFlow", "scikit-learn", "Pandas", "NumPy",
+  "Docker", "Kubernetes", "AWS", "GCP", "MLOps", "SQL", "Git", "FastAPI", "Flask",
+  "LangChain", "Hugging Face", "Fine-Tuning", "LoRA", "PEFT", "RAG Pipelines",
+  "Reinforcement Learning", "Generative AI", "Prompt Engineering", "Data Engineering",
+  "ETL", "Spark", "Airflow", "dbt", "Snowflake", "Feature Engineering",
+  "A/B Testing", "Model Deployment", "CI/CD", "Terraform", "Ansible",
+  "React", "Next.js", "TypeScript", "Node.js", "PostgreSQL", "MongoDB", "Redis",
+  "System Design", "Microservices", "REST API", "GraphQL", "Redis",
+];
+
 /* ──────────────── Animation Config ──────────────── */
 
 const EASE_SMOOTH = [0.22, 0.8, 0.22, 1] as const;
@@ -115,6 +129,22 @@ interface ScoreBreakdown {
   overall: number;
 }
 
+interface AIAnalysisData {
+  analysisId: string;
+  overallScore: number;
+  shortlistDecision: boolean;
+  confidence: number;
+  provider: string;
+  domainDetection: { primaryDomain: string; secondaryDomains: string[]; confidence: number };
+  seniorityLevel: { level: string; yearsRange: string; confidence: number };
+  skillExpansion: { original: string[]; expanded: { abbreviation: string; fullForms: string[]; relatedSkills: string[] }[]; allSkills: string[] };
+  jobMatch: { overallScore: number; skillsMatch: number; experienceMatch: number; matchedSkills: string[]; missingSkills: string[] };
+  atsScore: { overall: number; keywordOptimization: number; issues: string[]; recommendations: string[] };
+  gapAnalysis: { criticalGaps: string[]; moderateGaps: string[]; bridgingSteps: string[] };
+  recruiterInsights: { oneLineSummary: string; redFlags: string[]; greenFlags: string[]; shortlistRecommendation: string; recommendationReason: string };
+  interviewPrediction: { likelihood: number; expectedRounds: string[]; preparationTopics: string[]; potentialWeakAreas: string[] };
+}
+
 interface Candidate {
   id: string;
   name: string;
@@ -134,6 +164,7 @@ interface Candidate {
   experience: string;
   salary: string;
   timeline: TimelineEvent[];
+  aiAnalysis?: AIAnalysisData | null;
 }
 
 interface TimelineEvent {
@@ -536,12 +567,13 @@ function ScoreBar({ value, color, showLabel = true }: { value: number; color?: s
 /* ──────────────── Candidate Detail Dialog ──────────────── */
 
 function CandidateDetailDialog({
-  candidate, open, onOpenChange, onMoveStage,
+  candidate, open, onOpenChange, onMoveStage, onRunAIAnalysis,
 }: {
-  candidate: Candidate | null; open: boolean; onOpenChange: (open: boolean) => void; onMoveStage: (candidateId: string, newStage: PipelineStage) => void;
+  candidate: Candidate | null; open: boolean; onOpenChange: (open: boolean) => void; onMoveStage: (candidateId: string, newStage: PipelineStage) => void; onRunAIAnalysis: (candidate: Candidate) => void;
 }) {
   if (!candidate) return null;
   const cfg = STAGE_CONFIG[candidate.stage];
+  const analysis = candidate.aiAnalysis;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
@@ -572,6 +604,87 @@ function CandidateDetailDialog({
             <div className="flex items-center gap-2 text-sm"><Building2 className="size-3.5 text-[var(--saptta-mute)]" /><span className="text-[var(--saptta-ink-2)]">{candidate.source}</span></div>
             <div className="flex items-center gap-2 text-sm"><IndianRupee className="size-3.5 text-[var(--saptta-mute)]" /><span className="text-[var(--saptta-ink-2)]">{candidate.salary}</span></div>
           </div>
+          <Separator />
+
+          {/* AI Analysis Section */}
+          {analysis ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Brain className="size-4 text-[#FF9900]" />
+                <h3 className="text-sm font-semibold text-[var(--saptta-ink)]">HireMind AI Analysis</h3>
+                <Badge className="rounded-full text-[9px] border-0 px-2 py-0.5" style={{ backgroundColor: analysis.shortlistDecision ? "#22c55e15" : "#ef444415", color: analysis.shortlistDecision ? "#22c55e" : "#ef4444" }}>
+                  {analysis.shortlistDecision ? "✓ Shortlisted" : "✗ Not Shortlisted"}
+                </Badge>
+              </div>
+
+              {/* Recruiter Insights */}
+              {analysis.recruiterInsights && (
+                <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3 space-y-2">
+                  <p className="text-sm font-medium text-[var(--saptta-ink)]">{analysis.recruiterInsights.oneLineSummary}</p>
+                  {analysis.recruiterInsights.greenFlags?.length > 0 && (
+                    <div><p className="text-[10px] font-semibold text-green-600 mb-1">Green Flags</p>
+                    <div className="flex flex-wrap gap-1">{analysis.recruiterInsights.greenFlags.map((f, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-green-50 text-green-700">{f}</Badge>)}</div></div>
+                  )}
+                  {analysis.recruiterInsights.redFlags?.length > 0 && (
+                    <div><p className="text-[10px] font-semibold text-red-600 mb-1">Red Flags</p>
+                    <div className="flex flex-wrap gap-1">{analysis.recruiterInsights.redFlags.map((f, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-red-50 text-red-700">{f}</Badge>)}</div></div>
+                  )}
+                </div>
+              )}
+
+              {/* Skill Expansion */}
+              {analysis.skillExpansion?.expanded?.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-[var(--saptta-ink)] mb-2">Skill Expansion</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {analysis.skillExpansion.expanded.filter(e => e.fullForms?.length > 0).map((exp, i) => (
+                      <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0.5 bg-[#0066CC15] text-[#0066CC]">
+                        {exp.abbreviation} → {exp.fullForms[0]}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ATS Score */}
+              {analysis.atsScore && (
+                <div>
+                  <p className="text-xs font-semibold text-[var(--saptta-ink)] mb-2">ATS Score: {analysis.atsScore.overall}%</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="text-[10px] text-[var(--saptta-mute)]">Keyword Match: <span className="font-semibold text-[var(--saptta-ink)]">{analysis.atsScore.keywordOptimization}%</span></div>
+                  </div>
+                  {analysis.atsScore.issues?.length > 0 && (
+                    <div className="mt-1"><p className="text-[10px] text-[var(--saptta-mute)]">Issues: {analysis.atsScore.issues.slice(0, 2).join(", ")}</p></div>
+                  )}
+                </div>
+              )}
+
+              {/* Gap Analysis */}
+              {analysis.gapAnalysis?.criticalGaps?.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-[var(--saptta-ink)] mb-1">Critical Gaps</p>
+                  <div className="flex flex-wrap gap-1">{analysis.gapAnalysis.criticalGaps.map((g, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-red-50 text-red-700">{g}</Badge>)}</div>
+                </div>
+              )}
+
+              {/* Interview Prediction */}
+              {analysis.interviewPrediction && (
+                <div>
+                  <p className="text-xs font-semibold text-[var(--saptta-ink)] mb-1">Interview Likelihood: {analysis.interviewPrediction.likelihood}%</p>
+                  {analysis.interviewPrediction.expectedRounds?.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">{analysis.interviewPrediction.expectedRounds.map((r, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-[#FF990015] text-[#FF9900]">{r}</Badge>)}</div>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center py-4">
+              <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-9 text-xs px-5" onClick={() => { onRunAIAnalysis(candidate); onOpenChange(false); }}>
+                <Brain className="size-4 mr-2" />Run HireMind AI Analysis
+              </Button>
+            </div>
+          )}
+
           <Separator />
           <div>
             <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-3">Score Breakdown</h3>
@@ -1879,9 +1992,28 @@ function CreateEditJobDialog({
   jobs: JobPosting[];
 }) {
   const isEdit = !!editJob;
-  const [step, setStep] = useState<"template" | "form">("template");
+  const [step, setStep] = useState<"template" | "form">(isEdit ? "form" : "template");
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
-  const [formData, setFormData] = useState<Partial<JobPosting>>({
+  const [skillInput, setSkillInput] = useState("");
+  const [skillSuggestions, setSkillSuggestions] = useState<string[]>([]);
+  const [showSkillSuggestions, setShowSkillSuggestions] = useState(false);
+  const [formData, setFormData] = useState<Partial<JobPosting>>(isEdit && editJob ? {
+    title: editJob.title,
+    department: editJob.department,
+    location: editJob.location,
+    type: editJob.type,
+    status: editJob.status,
+    openings: editJob.openings,
+    salary: editJob.salary,
+    urgent: editJob.urgent,
+    hiringManager: editJob.hiringManager,
+    description: editJob.description,
+    requirements: [...editJob.requirements],
+    responsibilities: [...editJob.responsibilities],
+    experienceLevel: editJob.experienceLevel || "mid",
+    skills: editJob.skills ? [...editJob.skills] : [],
+    benefits: editJob.benefits ? [...editJob.benefits] : [""],
+  } : {
     title: "",
     department: "",
     location: "",
@@ -1895,56 +2027,47 @@ function CreateEditJobDialog({
     requirements: [""],
     responsibilities: [""],
     experienceLevel: "mid",
-    skills: [""],
+    skills: [],
     benefits: [""],
   });
 
-  // Reset form when dialog opens or editJob changes
-  useEffect(() => {
-    if (open) {
-      if (editJob) {
-        setStep("form");
-        setFormData({
-          title: editJob.title,
-          department: editJob.department,
-          location: editJob.location,
-          type: editJob.type,
-          status: editJob.status,
-          openings: editJob.openings,
-          salary: editJob.salary,
-          urgent: editJob.urgent,
-          hiringManager: editJob.hiringManager,
-          description: editJob.description,
-          requirements: [...editJob.requirements],
-          responsibilities: [...editJob.responsibilities],
-          experienceLevel: editJob.experienceLevel || "mid",
-          skills: editJob.skills ? [...editJob.skills] : [""],
-          benefits: editJob.benefits ? [...editJob.benefits] : [""],
-        });
-        setSelectedTemplate("");
-      } else {
-        setStep("template");
-        setFormData({
-          title: "",
-          department: "",
-          location: "",
-          type: "Full-time",
-          status: "draft",
-          openings: 1,
-          salary: "",
-          urgent: false,
-          hiringManager: "",
-          description: "",
-          requirements: [""],
-          responsibilities: [""],
-          experienceLevel: "mid",
-          skills: [""],
-          benefits: [""],
-        });
-        setSelectedTemplate("");
-      }
+  // Handle skill input with auto-suggestions
+  const handleSkillInputChange = (value: string) => {
+    setSkillInput(value);
+    if (value.trim().length > 0) {
+      const q = value.toLowerCase();
+      const currentSkills = formData.skills || [];
+      const filtered = AI_ML_SKILL_SUGGESTIONS.filter(
+        s => s.toLowerCase().includes(q) && !currentSkills.includes(s)
+      ).slice(0, 8);
+      setSkillSuggestions(filtered);
+      setShowSkillSuggestions(filtered.length > 0);
+    } else {
+      setSkillSuggestions([]);
+      setShowSkillSuggestions(false);
     }
-  }, [open, editJob]);
+  };
+
+  const addSkill = (skill: string) => {
+    const trimmed = skill.trim();
+    if (trimmed && !(formData.skills || []).includes(trimmed)) {
+      setFormData(prev => ({ ...prev, skills: [...(prev.skills || []), trimmed] }));
+    }
+    setSkillInput("");
+    setSkillSuggestions([]);
+    setShowSkillSuggestions(false);
+  };
+
+  const removeSkill = (skill: string) => {
+    setFormData(prev => ({ ...prev, skills: (prev.skills || []).filter(s => s !== skill) }));
+  };
+
+  const handleSkillKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && skillInput.trim()) {
+      e.preventDefault();
+      addSkill(skillInput);
+    }
+  };
 
   const applyTemplate = (templateId: string) => {
     const template = AI_JOB_TEMPLATES.find((t) => t.label === templateId);
@@ -2259,21 +2382,43 @@ function CreateEditJobDialog({
 
             {/* Skills */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-[var(--saptta-ink)]">Required Skills</h3>
-                <Button variant="outline" size="sm" className="rounded-full text-[10px] h-6 px-2" onClick={() => addListItem("skills")}>
-                  <Plus className="size-3 mr-1" />Add
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {(formData.skills || [""]).map((skill, i) => (
-                  <div key={i} className="flex items-center gap-1">
-                    <Input placeholder="e.g., Python" className="rounded-full h-7 text-[10px] px-3 w-28" value={skill} onChange={(e) => updateListItem("skills", i, e.target.value)} />
-                    <Button variant="ghost" size="sm" className="size-6 shrink-0 rounded-full" onClick={() => removeListItem("skills", i)}>
-                      <X className="size-2.5 text-[var(--saptta-mute)]" />
-                    </Button>
-                  </div>
-                ))}
+              <h3 className="text-sm font-semibold text-[var(--saptta-ink)]">Skills</h3>
+              <div className="space-y-2">
+                {/* Selected skills as tags */}
+                <div className="flex flex-wrap gap-1.5">
+                  {(formData.skills || []).map((skill, i) => (
+                    <Badge key={i} className="rounded-full text-[10px] font-medium border-0 px-2.5 py-0.5 bg-[#FF990015] text-[#FF9900] hover:bg-[#FF990025] cursor-pointer" onClick={() => removeSkill(skill)}>
+                      {skill}
+                      <X className="size-2.5 ml-1" />
+                    </Badge>
+                  ))}
+                </div>
+                {/* Skill input with auto-suggestions */}
+                <div className="relative">
+                  <Input
+                    placeholder="Type a skill (e.g., Python, ML, Docker) and press Enter..."
+                    className="rounded-xl h-9 text-xs"
+                    value={skillInput}
+                    onChange={(e) => handleSkillInputChange(e.target.value)}
+                    onKeyDown={handleSkillKeyDown}
+                    onFocus={() => { if (skillSuggestions.length > 0) setShowSkillSuggestions(true); }}
+                    onBlur={() => { setTimeout(() => setShowSkillSuggestions(false), 200); }}
+                  />
+                  {showSkillSuggestions && skillSuggestions.length > 0 && (
+                    <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-[var(--saptta-line)] rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                      {skillSuggestions.map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          className="w-full text-left px-3 py-2 text-xs hover:bg-[var(--saptta-bg-2)] transition-colors"
+                          onMouseDown={(e) => { e.preventDefault(); addSkill(suggestion); }}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <p className="text-[10px] text-[var(--saptta-mute)]">Press Enter or click a suggestion to add. Click a tag to remove.</p>
               </div>
             </div>
 
@@ -2468,7 +2613,7 @@ function JobsTab({ candidates, onPublish, jobs, onCreateJob, onEditJob, onDelete
 
 /* ──────────────── Candidates Tab ──────────────── */
 
-function CandidatesTab({ candidates, onMoveStage }: { candidates: Candidate[]; onMoveStage: (id: string, stage: PipelineStage) => void }) {
+function CandidatesTab({ candidates, onMoveStage, onRunAIAnalysis }: { candidates: Candidate[]; onMoveStage: (id: string, stage: PipelineStage) => void; onRunAIAnalysis: (candidate: Candidate) => void }) {
   const [search, setSearch] = useState("");
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -2512,7 +2657,12 @@ function CandidatesTab({ candidates, onMoveStage }: { candidates: Candidate[]; o
                     <TableCell><Badge className="rounded-full text-[10px] font-medium border-0 px-2.5 py-0.5" style={{ backgroundColor: stageCfg.bgColor, color: stageCfg.color }}>{stageCfg.label}</Badge></TableCell>
                     <TableCell><div className="flex items-center gap-2 min-w-[100px]"><ScoreBar value={c.matchScore} showLabel={false} /><span className="text-xs font-semibold" style={{ color: getScoreColor(c.matchScore) }}>{c.matchScore}%</span></div></TableCell>
                     <TableCell><span className="text-xs text-[var(--saptta-mute)]">{c.lastActivity}</span></TableCell>
-                    <TableCell><ChevronRight className="size-4 text-[var(--saptta-mute)]" /></TableCell>
+                    <TableCell><div className="flex items-center gap-1">
+                      <Button variant="ghost" size="sm" className="size-7 rounded-full" onClick={(e) => { e.stopPropagation(); onRunAIAnalysis(c); }} title="Run AI Analysis">
+                        <Brain className="size-3.5 text-[#FF9900]" />
+                      </Button>
+                      <ChevronRight className="size-4 text-[var(--saptta-mute)]" />
+                    </div></TableCell>
                   </TableRow>
                 );
               })}
@@ -2520,7 +2670,7 @@ function CandidatesTab({ candidates, onMoveStage }: { candidates: Candidate[]; o
           </Table>
         </ScrollArea>
       </Card>
-      <CandidateDetailDialog candidate={selectedCandidate} open={detailOpen} onOpenChange={setDetailOpen} onMoveStage={onMoveStage} />
+      <CandidateDetailDialog candidate={selectedCandidate} open={detailOpen} onOpenChange={setDetailOpen} onMoveStage={onMoveStage} onRunAIAnalysis={onRunAIAnalysis} />
     </div>
   );
 }
@@ -2577,6 +2727,90 @@ export function EnhancedRecruitmentView() {
   const [createJobOpen, setCreateJobOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<JobPosting | null>(null);
 
+  // AI Analysis state
+  const [aiAnalysisOpen, setAiAnalysisOpen] = useState(false);
+  const [aiAnalysisCandidate, setAiAnalysisCandidate] = useState<Candidate | null>(null);
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<AIAnalysisData | null>(null);
+  const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
+
+  // Load data from API on mount
+  useEffect(() => {
+    loadJobsFromDB();
+    loadCandidatesFromDB();
+  }, []);
+
+  const loadJobsFromDB = async () => {
+    try {
+      const res = await fetch("/api/recruitment/jobs");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.data?.length > 0) {
+          setJobs(data.data);
+        }
+      }
+    } catch { /* use mock data as fallback */ }
+  };
+
+  const loadCandidatesFromDB = async () => {
+    try {
+      const res = await fetch("/api/recruitment/candidates");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.data?.length > 0) {
+          const mapped = data.data.map((c: any) => ({
+            ...c,
+            scoreBreakdown: typeof c.scoreBreakdown === "string" ? JSON.parse(c.scoreBreakdown) : c.scoreBreakdown,
+            timeline: typeof c.timeline === "string" ? JSON.parse(c.timeline) : c.timeline,
+          }));
+          setCandidates(mapped);
+        }
+      }
+    } catch { /* use mock data as fallback */ }
+  };
+
+  const handleRunAIAnalysis = useCallback(async (candidate: Candidate) => {
+    setAiAnalysisCandidate(candidate);
+    setAiAnalysisLoading(true);
+    setAiAnalysisOpen(true);
+    setAiAnalysisResult(null);
+
+    try {
+      // Get resume text (from mock data or candidate record)
+      const resumeText = candidate.aiAnalysis ? null :
+        MOCK_RESUME_TEXTS.find(r => r.id === `mr${MOCK_CANDIDATES.findIndex(c => c.id === candidate.id) + 1}`)?.text ||
+        `Name: ${candidate.name}\nEmail: ${candidate.email}\nRole: ${candidate.role}\nExperience: ${candidate.experience}\nSkills: Based on ${candidate.role}`;
+
+      const res = await fetch("/api/recruitment/hiremind-analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          resumeText,
+          jobId: candidate.jobId,
+          candidateName: candidate.name,
+          candidateEmail: candidate.email,
+          analysisType: "full",
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setAiAnalysisResult(data.data.result);
+          // Update candidate score
+          setCandidates(prev => prev.map(c =>
+            c.id === candidate.id
+              ? { ...c, matchScore: data.data.result.overallScore, aiAnalysis: data.data.result }
+              : c
+          ));
+        }
+      }
+    } catch (error) {
+      console.error("AI Analysis failed:", error);
+    } finally {
+      setAiAnalysisLoading(false);
+    }
+  }, []);
+
   const handleMoveStage = useCallback((candidateId: string, newStage: PipelineStage) => {
     setCandidates((prev) => prev.map((c) => (c.id === candidateId ? { ...c, stage: newStage } : c)));
   }, []);
@@ -2597,7 +2831,28 @@ export function EnhancedRecruitmentView() {
     setCreateJobOpen(true);
   }, []);
 
-  const handleSaveJob = useCallback((job: JobPosting) => {
+  const handleSaveJob = useCallback(async (job: JobPosting) => {
+    // Try to save to API
+    try {
+      const existingJob = jobs.find(j => j.id === job.id);
+      if (existingJob) {
+        // Update
+        await fetch(`/api/recruitment/jobs/${job.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(job),
+        });
+      } else {
+        // Create
+        await fetch("/api/recruitment/jobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(job),
+        });
+      }
+    } catch { /* offline fallback */ }
+
+    // Update local state regardless
     setJobs((prev) => {
       const exists = prev.find((j) => j.id === job.id);
       if (exists) {
@@ -2605,7 +2860,7 @@ export function EnhancedRecruitmentView() {
       }
       return [job, ...prev];
     });
-  }, []);
+  }, [jobs]);
 
   const handleDeleteJob = useCallback((jobId: string) => {
     setJobs((prev) => prev.filter((j) => j.id !== jobId));
@@ -2705,19 +2960,193 @@ export function EnhancedRecruitmentView() {
 
         <TabsContent value="pipeline"><PipelineTab candidates={candidates} onMoveStage={handleMoveStage} /></TabsContent>
         <TabsContent value="jobs"><JobsTab candidates={candidates} onPublish={handlePublish} jobs={jobs} onCreateJob={handleCreateJob} onEditJob={handleEditJob} onDeleteJob={handleDeleteJob} /></TabsContent>
-        <TabsContent value="candidates"><CandidatesTab candidates={candidates} onMoveStage={handleMoveStage} /></TabsContent>
+        <TabsContent value="candidates"><CandidatesTab candidates={candidates} onMoveStage={handleMoveStage} onRunAIAnalysis={handleRunAIAnalysis} /></TabsContent>
         <TabsContent value="resume-analyzer"><ResumeAnalyzerTab /></TabsContent>
         <TabsContent value="batch-analysis"><BatchAnalysisTab onHighScore={handleHighScore} /></TabsContent>
       </Tabs>
 
-      {/* Create/Edit Job Dialog */}
-      <CreateEditJobDialog open={createJobOpen} onOpenChange={setCreateJobOpen} onSave={handleSaveJob} editJob={editingJob} jobs={jobs} />
+      {/* Create/Edit Job Dialog — key forces remount on editJob change */}
+      <CreateEditJobDialog key={editingJob?.id ?? "new"} open={createJobOpen} onOpenChange={setCreateJobOpen} onSave={handleSaveJob} editJob={editingJob} jobs={jobs} />
 
       {/* JD Publish Dialog */}
       <JDPublishDialog job={publishJob} open={publishOpen} onOpenChange={setPublishOpen} />
 
       {/* Email Dialog (from notification) */}
       <EmailCandidateDialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen} candidateName={emailTarget.name} candidateEmail={emailTarget.email} jobTitle={emailTarget.jobTitle} />
+
+      {/* HireMind AI Analysis Dialog */}
+      <Dialog open={aiAnalysisOpen} onOpenChange={setAiAnalysisOpen}>
+        <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
+          <div className="bg-[#FF9900] p-5 rounded-t-[24px]">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-[16px] bg-white/20 flex items-center justify-center">
+                <Brain className="size-5 text-white" />
+              </div>
+              <div>
+                <DialogTitle className="text-base font-bold text-white">HireMind AI Analysis</DialogTitle>
+                <DialogDescription className="text-xs text-white/70">
+                  {aiAnalysisCandidate ? `Analyzing ${aiAnalysisCandidate.name}` : "Analyzing candidate..."}
+                </DialogDescription>
+              </div>
+            </div>
+          </div>
+          <div className="p-5">
+            {aiAnalysisLoading ? (
+              <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                <Loader2 className="size-10 text-[#FF9900] animate-spin" />
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-[var(--saptta-ink)]">Running 12-Agent Analysis...</p>
+                  <p className="text-xs text-[var(--saptta-mute)] mt-1">This may take 30-60 seconds</p>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 w-full max-w-md mt-2">
+                  {["Resume Parser", "Domain Detector", "Seniority", "Skill Expansion", "JD Parser", "Job Matcher", "Achievements", "ATS Scoring", "Gap Analysis", "Improvements", "Interview Pred.", "Recruiter AI"].map((agent, i) => (
+                    <div key={agent} className="flex items-center gap-1.5 text-[9px] text-[var(--saptta-mute)]">
+                      <Loader2 className="size-2.5 animate-spin text-[#FF9900]" />
+                      {agent}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : aiAnalysisResult ? (
+              <div className="space-y-5">
+                {/* Score Overview */}
+                <div className="flex items-center gap-6">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold" style={{ color: getScoreColor(aiAnalysisResult.overallScore) }}>{aiAnalysisResult.overallScore}</div>
+                    <div className="text-[10px] text-[var(--saptta-mute)] uppercase tracking-wider">Overall Score</div>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[var(--saptta-mute)] w-20">Skills</span>
+                      <div className="flex-1"><ScoreBar value={aiAnalysisResult.jobMatch.skillsMatch} showLabel={false} /></div>
+                      <span className="text-xs font-semibold" style={{ color: getScoreColor(aiAnalysisResult.jobMatch.skillsMatch) }}>{aiAnalysisResult.jobMatch.skillsMatch}%</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[var(--saptta-mute)] w-20">Experience</span>
+                      <div className="flex-1"><ScoreBar value={aiAnalysisResult.jobMatch.experienceMatch} showLabel={false} /></div>
+                      <span className="text-xs font-semibold" style={{ color: getScoreColor(aiAnalysisResult.jobMatch.experienceMatch) }}>{aiAnalysisResult.jobMatch.experienceMatch}%</span>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <Badge className="rounded-full text-xs font-bold border-0 px-4 py-1" style={{ backgroundColor: aiAnalysisResult.shortlistDecision ? "#22c55e15" : "#ef444415", color: aiAnalysisResult.shortlistDecision ? "#22c55e" : "#ef4444" }}>
+                      {aiAnalysisResult.shortlistDecision ? "SHORTLIST" : "NOT SHORTLIST"}
+                    </Badge>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Skill Expansion */}
+                {aiAnalysisResult.skillExpansion?.expanded?.filter(e => e.fullForms?.length > 0).length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><Zap className="size-4 text-[#FF9900]" /> Skill Expansion</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {aiAnalysisResult.skillExpansion.expanded.filter(e => e.fullForms?.length > 0).map((exp, i) => (
+                        <div key={i} className="bg-[var(--saptta-bg-2)] rounded-lg px-3 py-1.5">
+                          <span className="text-xs font-medium text-[#0066CC]">{exp.abbreviation}</span>
+                          <span className="text-xs text-[var(--saptta-mute)] mx-1">→</span>
+                          <span className="text-xs text-[var(--saptta-ink)]">{exp.fullForms[0]}</span>
+                          {exp.relatedSkills?.length > 0 && (
+                            <div className="flex flex-wrap gap-0.5 mt-0.5">{exp.relatedSkills.slice(0, 3).map((rs, j) => <Badge key={j} className="text-[8px] rounded-full border-0 px-1.5 py-0 bg-[#0066CC10] text-[#0066CC]">{rs}</Badge>)}</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Matched / Missing Skills */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-xs font-semibold text-green-600 mb-2">Matched Skills</h4>
+                    <div className="flex flex-wrap gap-1">{aiAnalysisResult.jobMatch.matchedSkills?.map((s, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-green-50 text-green-700">{s}</Badge>)}</div>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-semibold text-red-600 mb-2">Missing Skills</h4>
+                    <div className="flex flex-wrap gap-1">{aiAnalysisResult.jobMatch.missingSkills?.map((s, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-red-50 text-red-700">{s}</Badge>)}</div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Recruiter Insights */}
+                {aiAnalysisResult.recruiterInsights && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><Eye className="size-4 text-[#0066CC]" /> Recruiter Insights</h3>
+                    <div className="bg-[var(--saptta-bg-2)] rounded-xl p-4 space-y-3">
+                      <p className="text-sm text-[var(--saptta-ink)]">{aiAnalysisResult.recruiterInsights.oneLineSummary}</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {aiAnalysisResult.recruiterInsights.greenFlags?.length > 0 && (
+                          <div><p className="text-[10px] font-semibold text-green-600 mb-1">Green Flags</p>
+                          <ul className="space-y-0.5">{aiAnalysisResult.recruiterInsights.greenFlags.slice(0, 4).map((f, i) => <li key={i} className="text-[10px] text-green-700">✓ {f}</li>)}</ul></div>
+                        )}
+                        {aiAnalysisResult.recruiterInsights.redFlags?.length > 0 && (
+                          <div><p className="text-[10px] font-semibold text-red-600 mb-1">Red Flags</p>
+                          <ul className="space-y-0.5">{aiAnalysisResult.recruiterInsights.redFlags.slice(0, 4).map((f, i) => <li key={i} className="text-[10px] text-red-700">✗ {f}</li>)}</ul></div>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-[var(--saptta-mute)]">Recommendation: <span className="font-semibold text-[var(--saptta-ink)]">{aiAnalysisResult.recruiterInsights.shortlistRecommendation}</span></p>
+                      <p className="text-[10px] text-[var(--saptta-mute)]">{aiAnalysisResult.recruiterInsights.recommendationReason}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Gap Analysis */}
+                {aiAnalysisResult.gapAnalysis && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><AlertTriangle className="size-4 text-[#FF9900]" /> Gap Analysis</h3>
+                    {aiAnalysisResult.gapAnalysis.criticalGaps?.length > 0 && (
+                      <div className="mb-2"><p className="text-[10px] font-semibold text-red-600 mb-1">Critical Gaps</p>
+                      <div className="flex flex-wrap gap-1">{aiAnalysisResult.gapAnalysis.criticalGaps.map((g, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-red-50 text-red-700">{g}</Badge>)}</div></div>
+                    )}
+                    {aiAnalysisResult.gapAnalysis.bridgingSteps?.length > 0 && (
+                      <div><p className="text-[10px] font-semibold text-[#0066CC] mb-1">Bridging Steps</p>
+                      <ul className="space-y-0.5">{aiAnalysisResult.gapAnalysis.bridgingSteps.slice(0, 4).map((s, i) => <li key={i} className="text-[10px] text-[var(--saptta-ink-2)]">→ {s}</li>)}</ul></div>
+                    )}
+                  </div>
+                )}
+
+                {/* Interview Prediction */}
+                {aiAnalysisResult.interviewPrediction && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><Target className="size-4 text-[#22c55e]" /> Interview Prediction</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-[10px] text-[var(--saptta-mute)]">Likelihood</p>
+                        <p className="text-sm font-bold" style={{ color: getScoreColor(aiAnalysisResult.interviewPrediction.likelihood) }}>{aiAnalysisResult.interviewPrediction.likelihood}%</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-[var(--saptta-mute)]">Expected Rounds</p>
+                        <div className="flex flex-wrap gap-1 mt-0.5">{aiAnalysisResult.interviewPrediction.expectedRounds?.map((r, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-[#FF990015] text-[#FF9900]">{r}</Badge>)}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ATS Score */}
+                {aiAnalysisResult.atsScore && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><ShieldCheck className="size-4 text-[#0066CC]" /> ATS Compatibility: {aiAnalysisResult.atsScore.overall}%</h3>
+                    {aiAnalysisResult.atsScore.recommendations?.length > 0 && (
+                      <div className="space-y-0.5">{aiAnalysisResult.atsScore.recommendations.slice(0, 3).map((r, i) => <p key={i} className="text-[10px] text-[var(--saptta-ink-2)]">→ {r}</p>)}</div>
+                    )}
+                  </div>
+                )}
+
+                {/* Provider info */}
+                <div className="text-center pt-2">
+                  <p className="text-[9px] text-[var(--saptta-mute)]">Powered by HireMind AI ({aiAnalysisResult.provider}) • Confidence: {Math.round(aiAnalysisResult.confidence * 100)}%</p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Brain className="size-12 text-[var(--saptta-mute)] mx-auto mb-3" />
+                <p className="text-sm text-[var(--saptta-mute)]">No analysis results available</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
