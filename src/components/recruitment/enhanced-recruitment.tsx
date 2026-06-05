@@ -142,6 +142,8 @@ interface TimelineEvent {
   type: "applied" | "screened" | "interview" | "assessment" | "offer" | "hired" | "rejected" | "note" | "email";
 }
 
+type ExperienceLevel = "fresher" | "0-1" | "1-3" | "2-5" | "3-5" | "5-10" | "10+" | "mid" | "senior" | "lead" | "executive";
+
 interface JobPosting {
   id: string;
   title: string;
@@ -159,6 +161,9 @@ interface JobPosting {
   description: string;
   requirements: string[];
   responsibilities: string[];
+  experienceLevel?: ExperienceLevel;
+  skills?: string[];
+  benefits?: string[];
 }
 
 interface HighScoreNotification {
@@ -223,7 +228,10 @@ const MOCK_JOBS: JobPosting[] = [
   { id: "j9", title: "QA Engineer", department: "Engineering", location: "Hyderabad, IN", type: "Full-time", status: "open", openings: 1, applicants: 12, daysOpen: 20, salary: "₹14-22 LPA", postedDate: "2025-01-30", urgent: false, hiringManager: "Kavitha Reddy", description: "We need a detail-oriented QA Engineer to ensure the quality of our HRMS platform. You will design test plans, automate regression tests, and work closely with developers to deliver bug-free releases.", requirements: ["3+ years in QA/testing", "Experience with automated testing (Selenium, Cypress, or Playwright)", "Strong understanding of SDLC and testing methodologies", "Knowledge of API testing tools (Postman, REST Assured)", "Experience with performance testing is a plus"], responsibilities: ["Design and execute test plans and test cases", "Automate regression and smoke test suites", "Report and track defects using JIRA", "Perform API and integration testing", "Collaborate with developers on bug fixes and root cause analysis"] },
   { id: "j10", title: "Digital Marketing Manager", department: "Marketing", location: "Delhi, IN", type: "Full-time", status: "open", openings: 1, applicants: 19, daysOpen: 12, salary: "₹18-26 LPA", postedDate: "2025-02-06", urgent: false, hiringManager: "Vikram Singh", description: "Looking for a creative and data-driven Digital Marketing Manager to lead our online marketing efforts. You will own our digital presence, drive lead generation, and optimize conversion funnels.", requirements: ["5+ years in digital marketing", "Expert in SEO, SEM, and social media marketing", "Experience with Google Analytics and marketing automation", "Strong copywriting and content strategy skills", "Experience with B2B SaaS marketing preferred"], responsibilities: ["Develop and execute digital marketing strategies", "Manage PPC campaigns and optimize for ROI", "Create content calendars and oversee social media", "Analyze campaign performance and report insights", "Manage marketing budget and vendor relationships"] },
   { id: "j11", title: "Financial Analyst", department: "Finance", location: "Mumbai, IN", type: "Full-time", status: "open", openings: 1, applicants: 8, daysOpen: 25, salary: "₹16-24 LPA", postedDate: "2025-01-25", urgent: false, hiringManager: "Priya Sharma", description: "Seeking a Financial Analyst to support our financial planning and analysis. You will prepare budgets, forecast revenues, and provide actionable financial insights to leadership.", requirements: ["3+ years in financial analysis", "Strong proficiency in Excel and financial modeling", "Knowledge of accounting principles (GAAP/IFRS)", "Experience with ERP systems (SAP, Oracle)", "CFA or MBA preferred"], responsibilities: ["Prepare monthly and quarterly financial reports", "Build financial models for forecasting", "Analyze budget vs actuals and explain variances", "Support strategic planning with data-driven insights", "Ensure compliance with financial regulations"] },
-  { id: "j12", title: "Technical Recruiter", department: "HR & Admin", location: "Bangalore, IN (Remote)", type: "Full-time", status: "open", openings: 2, applicants: 14, daysOpen: 7, salary: "₹12-20 LPA", postedDate: "2025-02-15", urgent: true, hiringManager: "Kavitha Reddy", description: "We need a Technical Recruiter who understands software engineering roles and can source top talent. You will manage the full recruitment lifecycle from sourcing to offer closure for our engineering team.", requirements: ["2+ years in technical recruitment", "Strong understanding of software engineering roles and technologies", "Experience with ATS platforms and sourcing tools", "Excellent candidate engagement and relationship-building skills", "Knowledge of IT staffing market trends"], responsibilities: ["Source and screen technical candidates", "Manage end-to-end recruitment for engineering roles", "Build and maintain talent pipelines", "Conduct initial phone screens and coordinate interviews", "Negotiate offers and manage candidate experience"] },
+  { id: "j12", title: "Technical Recruiter", department: "HR & Admin", location: "Bangalore, IN (Remote)", type: "Full-time", status: "open", openings: 2, applicants: 14, daysOpen: 7, salary: "₹12-20 LPA", postedDate: "2025-02-15", urgent: true, hiringManager: "Kavitha Reddy", description: "We need a Technical Recruiter who understands software engineering roles and can source top talent. You will manage the full recruitment lifecycle from sourcing to offer closure for our engineering team.", requirements: ["2+ years in technical recruitment", "Strong understanding of software engineering roles and technologies", "Experience with ATS platforms and sourcing tools", "Excellent candidate engagement and relationship-building skills", "Knowledge of IT staffing market trends"], responsibilities: ["Source and screen technical candidates", "Manage end-to-end recruitment for engineering roles", "Build and maintain talent pipelines", "Conduct initial phone screens and coordinate interviews", "Negotiate offers and manage candidate experience"], experienceLevel: "1-3" },
+  { id: "j13", title: "AI Developer - Fresher", department: "AI & Machine Learning", location: "Bangalore, IN", type: "Full-time", status: "open", openings: 5, applicants: 67, daysOpen: 5, salary: "₹6-10 LPA", postedDate: "2025-02-18", urgent: true, hiringManager: "Rajesh Kumar", description: "Kickstart your career in Artificial Intelligence! We are looking for passionate freshers who want to build intelligent systems. You will work alongside senior AI engineers on real-world ML/AI projects, learning cutting-edge technologies like deep learning, NLP, and computer vision from day one.", requirements: ["0-1 years of experience (freshers welcome)", "B.Tech/M.Tech in Computer Science, AI/ML, or related field", "Strong fundamentals in Python, mathematics, and statistics", "Familiarity with machine learning concepts (supervised/unsupervised learning)", "Knowledge of libraries like NumPy, Pandas, scikit-learn is a plus", "Good problem-solving and analytical skills", "Eagerness to learn and adapt quickly"], responsibilities: ["Assist in building and training ML models under senior guidance", "Perform data preprocessing, feature engineering, and EDA", "Write clean, well-documented Python code for AI pipelines", "Participate in code reviews and team knowledge-sharing sessions", "Contribute to research and experimentation on new AI approaches", "Help maintain AI model documentation and experiment tracking"], experienceLevel: "fresher", skills: ["Python", "Machine Learning", "Deep Learning", "NumPy", "Pandas", "scikit-learn", "TensorFlow/PyTorch", "SQL", "Git", "Mathematics"], benefits: ["Comprehensive AI/ML training program", "Mentorship from senior AI engineers", "Health insurance for self and family", "Flexible work hours", "Learning budget for courses and conferences", "Free meals and snacks"] },
+  { id: "j14", title: "AI Developer (2+ Years Exp)", department: "AI & Machine Learning", location: "Bangalore, IN (Hybrid)", type: "Full-time", status: "open", openings: 3, applicants: 42, daysOpen: 12, salary: "₹15-25 LPA", postedDate: "2025-02-11", urgent: true, hiringManager: "Rajesh Kumar", description: "We are looking for an experienced AI Developer with 2+ years of hands-on experience building and deploying machine learning models in production. You will design ML pipelines, fine-tune LLMs, and build intelligent features that power our AI-driven HRMS platform.", requirements: ["2-5 years of experience in AI/ML development", "Strong proficiency in Python and ML frameworks (TensorFlow, PyTorch)", "Experience with NLP, LLMs, and transformer architectures", "Hands-on with model deployment (Docker, Kubernetes, MLflow)", "Understanding of cloud platforms (AWS SageMaker, GCP Vertex AI, Azure ML)", "Experience with MLOps practices and CI/CD for ML systems", "B.Tech/M.Tech in CS, AI/ML, or equivalent experience"], responsibilities: ["Design, train, and deploy production ML models for HR intelligence features", "Fine-tune and integrate large language models for resume parsing and JD matching", "Build robust data pipelines for model training and inference", "Implement MLOps best practices (versioning, monitoring, A/B testing)", "Collaborate with product and engineering teams on AI feature roadmaps", "Mentor junior AI developers and review their work"], experienceLevel: "2-5", skills: ["Python", "TensorFlow", "PyTorch", "NLP", "LLMs", "Transformers", "Docker", "Kubernetes", "MLflow", "AWS SageMaker", "MLOps", "SQL", "Git"], benefits: ["Competitive salary with ESOPs", "Remote-first culture with office access", "Health insurance for self and family", "Annual learning budget of ₹2 Lakhs", "Sponsored conference attendance", "Flexible work hours"] },
+  { id: "j15", title: "Senior AI Developer (5-10 Years Exp)", department: "AI & Machine Learning", location: "Bangalore, IN (Remote)", type: "Full-time", status: "open", openings: 2, applicants: 28, daysOpen: 18, salary: "₹30-50 LPA", postedDate: "2025-02-05", urgent: false, hiringManager: "Rajesh Kumar", description: "Lead our AI strategy and architecture. We need a seasoned AI professional who can drive innovation, architect large-scale ML systems, and mentor a growing team of AI engineers. You will own the end-to-end AI roadmap for our HRMS platform, from research to production deployment.", requirements: ["5-10 years of experience in AI/ML with at least 2 years in a leadership role", "Deep expertise in NLP, computer vision, and generative AI", "Proven track record of deploying ML systems at scale (millions of predictions/day)", "Expert-level Python, with strong systems design and architecture skills", "Experience with LLM fine-tuning (LoRA, QLoRA), RAG pipelines, and vector databases", "Strong understanding of AI ethics, bias mitigation, and responsible AI practices", "PhD or MS in CS/AI/ML from a top institution preferred"], responsibilities: ["Define and execute the AI/ML technical roadmap for the HRMS platform", "Architect scalable ML infrastructure (training, serving, monitoring, feedback loops)", "Lead research on cutting-edge AI techniques and evaluate their business impact", "Build and mentor a team of 5-10 AI developers", "Collaborate with C-suite on AI strategy and investment decisions", "Ensure AI compliance with EU AI Act, NYC LL 144, and other regulations", "Present AI capabilities and ROI to stakeholders and board"], experienceLevel: "5-10", skills: ["Python", "TensorFlow", "PyTorch", "LLMs", "RAG", "Transformers", "Computer Vision", "MLOps", "Kubernetes", "AWS/GCP", "System Design", "AI Ethics", "Leadership", "Research"], benefits: ["₹30-50 LPA + ESOPs", "VP-level title and authority", "Dedicated research budget", "Full remote flexibility", "Premium health insurance", "Annual international conference sponsorship", "Stock options with accelerated vesting"] },
 ];
 
 /* ──────────────── Mock Resume Texts ──────────────── */
@@ -514,11 +522,12 @@ function CandidateDetailDialog({
 
 /* ──────────────── Job Detail Dialog ──────────────── */
 
-function JobDetailDialog({ job, open, onOpenChange, candidates, onPublish }: {
-  job: JobPosting | null; open: boolean; onOpenChange: (open: boolean) => void; candidates: Candidate[]; onPublish: (job: JobPosting) => void;
+function JobDetailDialog({ job, open, onOpenChange, candidates, onPublish, onEdit }: {
+  job: JobPosting | null; open: boolean; onOpenChange: (open: boolean) => void; candidates: Candidate[]; onPublish: (job: JobPosting) => void; onEdit?: (job: JobPosting) => void;
 }) {
   if (!job) return null;
   const statusCfg = JOB_STATUS_CONFIG[job.status];
+  const expCfg = EXPERIENCE_LEVEL_CONFIG[job.experienceLevel || "mid"];
   const jobCandidates = candidates.filter((c) => c.jobId === job.id);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -534,6 +543,14 @@ function JobDetailDialog({ job, open, onOpenChange, candidates, onPublish }: {
             </div>
             <div className="flex items-center gap-2">
               <Badge className="rounded-full text-[11px] font-medium border-0 px-3 py-0.5" style={{ backgroundColor: statusCfg.bgColor, color: statusCfg.color }}>{statusCfg.label}</Badge>
+              {job.experienceLevel && (
+                <Badge className="rounded-full text-[10px] border-0 px-2.5 py-0.5" style={{ backgroundColor: expCfg.bgColor, color: expCfg.color }}>{expCfg.label}</Badge>
+              )}
+              {onEdit && (
+                <Button size="sm" variant="outline" className="rounded-full h-7 text-[10px] px-3 border-[var(--saptta-line)]" onClick={() => { onEdit(job); onOpenChange(false); }}>
+                  <FileText className="size-3 mr-1" />Edit
+                </Button>
+              )}
               {job.status === "open" && (
                 <Button size="sm" className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-7 text-[10px] px-3" onClick={() => onPublish(job)}>
                   <Globe className="size-3 mr-1" />Publish
@@ -764,6 +781,29 @@ function ResumeAnalyzerTab() {
     setParseError("");
     setUploadedFileName(file.name);
 
+    const fileName = file.name.toLowerCase();
+
+    // For .txt files, read directly on client side (no API needed)
+    if (fileName.endsWith(".txt")) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const text = ev.target?.result as string;
+        setResumeText(text);
+        const firstLine = text.split("\n")[0]?.trim() || "";
+        if (firstLine) setCandidateName(firstLine);
+        const emailMatch = text.match(/[\w.-]+@[\w.-]+\.\w+/);
+        if (emailMatch) setCandEmail(emailMatch[0]);
+        setFileParsing(false);
+      };
+      reader.onerror = () => {
+        setParseError("Failed to read text file.");
+        setFileParsing(false);
+      };
+      reader.readAsText(file);
+      return;
+    }
+
+    // For .docx / .doc / .pdf — use server-side API
     const formData = new FormData();
     formData.append("file", file);
 
@@ -788,26 +828,19 @@ function ResumeAnalyzerTab() {
         }
       } else {
         setParseError(data.error || "Failed to parse file");
-        // Fallback: try reading as plain text for .txt files
-        if (file.name.endsWith(".txt")) {
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            const text = ev.target?.result as string;
-            setResumeText(text);
-          };
-          reader.readAsText(file);
+        // For docx/doc files that failed server parsing, try extracting what we can
+        if (fileName.endsWith(".docx") || fileName.endsWith(".doc")) {
+          setParseError("Could not extract text from this DOCX file. The file may be image-based or corrupted. Please try pasting the resume text directly, or upload a .txt or .pdf file instead.");
         }
       }
     } catch (err: any) {
-      setParseError("Network error. Please check your connection and try again.");
-      // Fallback for .txt files
-      if (file.name.endsWith(".txt")) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const text = ev.target?.result as string;
-          setResumeText(text);
-        };
-        reader.readAsText(file);
+      // Network error — provide helpful message
+      if (fileName.endsWith(".docx") || fileName.endsWith(".doc")) {
+        setParseError("Network error while parsing DOCX. Please paste your resume text directly into the text area below, or try again.");
+      } else if (fileName.endsWith(".pdf")) {
+        setParseError("Network error while parsing PDF. Please paste your resume text directly into the text area below, or try again.");
+      } else {
+        setParseError("Network error. Please check your connection and try again.");
       }
     } finally {
       setFileParsing(false);
@@ -1485,28 +1518,677 @@ function PipelineTab({ candidates, onMoveStage }: { candidates: Candidate[]; onM
   );
 }
 
+/* ──────────────── AI Job Role Templates ──────────────── */
+
+const AI_JOB_TEMPLATES: { label: string; data: Omit<JobPosting, "id" | "applicants" | "daysOpen" | "postedDate"> }[] = [
+  {
+    label: "AI Developer - Fresher",
+    data: {
+      title: "AI Developer - Fresher",
+      department: "AI & Machine Learning",
+      location: "Bangalore, IN",
+      type: "Full-time",
+      status: "draft",
+      openings: 3,
+      salary: "₹6-10 LPA",
+      urgent: false,
+      hiringManager: "Rajesh Kumar",
+      description: "We are looking for passionate freshers who want to build intelligent systems. You will work alongside senior AI engineers on real-world ML/AI projects, learning cutting-edge technologies like deep learning, NLP, and computer vision from day one.",
+      requirements: ["0-1 years of experience (freshers welcome)", "B.Tech/M.Tech in Computer Science, AI/ML, or related field", "Strong fundamentals in Python, mathematics, and statistics", "Familiarity with machine learning concepts", "Knowledge of NumPy, Pandas, scikit-learn is a plus", "Good problem-solving and analytical skills"],
+      responsibilities: ["Assist in building and training ML models", "Perform data preprocessing and feature engineering", "Write clean, well-documented Python code for AI pipelines", "Participate in code reviews and knowledge-sharing sessions", "Contribute to research on new AI approaches"],
+      experienceLevel: "fresher",
+      skills: ["Python", "Machine Learning", "Deep Learning", "NumPy", "Pandas", "scikit-learn", "TensorFlow/PyTorch", "SQL", "Git"],
+      benefits: ["Comprehensive AI/ML training program", "Mentorship from senior AI engineers", "Health insurance", "Flexible work hours", "Learning budget"],
+    },
+  },
+  {
+    label: "AI Developer (2+ Years)",
+    data: {
+      title: "AI Developer (2+ Years Exp)",
+      department: "AI & Machine Learning",
+      location: "Bangalore, IN (Hybrid)",
+      type: "Full-time",
+      status: "draft",
+      openings: 2,
+      salary: "₹15-25 LPA",
+      urgent: false,
+      hiringManager: "Rajesh Kumar",
+      description: "We are looking for an experienced AI Developer with 2+ years of hands-on experience building and deploying ML models in production. You will design ML pipelines, fine-tune LLMs, and build intelligent features for our AI-driven HRMS platform.",
+      requirements: ["2-5 years of experience in AI/ML development", "Strong proficiency in Python and ML frameworks (TensorFlow, PyTorch)", "Experience with NLP, LLMs, and transformer architectures", "Hands-on with model deployment (Docker, Kubernetes, MLflow)", "Understanding of cloud platforms (AWS SageMaker, GCP Vertex AI)", "Experience with MLOps practices"],
+      responsibilities: ["Design, train, and deploy production ML models", "Fine-tune and integrate large language models", "Build robust data pipelines for model training and inference", "Implement MLOps best practices", "Collaborate with product teams on AI feature roadmaps", "Mentor junior AI developers"],
+      experienceLevel: "2-5",
+      skills: ["Python", "TensorFlow", "PyTorch", "NLP", "LLMs", "Transformers", "Docker", "Kubernetes", "MLflow", "AWS SageMaker", "MLOps"],
+      benefits: ["Competitive salary with ESOPs", "Remote-first culture", "Health insurance", "Annual learning budget ₹2 Lakhs", "Sponsored conference attendance"],
+    },
+  },
+  {
+    label: "Senior AI Developer (5-10 Years)",
+    data: {
+      title: "Senior AI Developer (5-10 Years Exp)",
+      department: "AI & Machine Learning",
+      location: "Bangalore, IN (Remote)",
+      type: "Full-time",
+      status: "draft",
+      openings: 1,
+      salary: "₹30-50 LPA",
+      urgent: false,
+      hiringManager: "Rajesh Kumar",
+      description: "Lead our AI strategy and architecture. We need a seasoned AI professional who can drive innovation, architect large-scale ML systems, and mentor a growing team of AI engineers. You will own the end-to-end AI roadmap for our HRMS platform.",
+      requirements: ["5-10 years of experience in AI/ML with 2+ years in leadership", "Deep expertise in NLP, computer vision, and generative AI", "Proven track record of deploying ML systems at scale", "Expert-level Python with strong systems design skills", "Experience with LLM fine-tuning (LoRA, QLoRA), RAG pipelines", "Strong understanding of AI ethics and responsible AI"],
+      responsibilities: ["Define and execute the AI/ML technical roadmap", "Architect scalable ML infrastructure", "Lead research on cutting-edge AI techniques", "Build and mentor a team of AI developers", "Collaborate with C-suite on AI strategy", "Ensure AI compliance with regulations"],
+      experienceLevel: "5-10",
+      skills: ["Python", "TensorFlow", "PyTorch", "LLMs", "RAG", "Transformers", "Computer Vision", "MLOps", "Kubernetes", "AWS/GCP", "System Design", "AI Ethics", "Leadership"],
+      benefits: ["₹30-50 LPA + ESOPs", "VP-level title", "Dedicated research budget", "Full remote flexibility", "Premium health insurance", "International conference sponsorship"],
+    },
+  },
+  {
+    label: "ML Engineer",
+    data: {
+      title: "Machine Learning Engineer",
+      department: "AI & Machine Learning",
+      location: "Pune, IN",
+      type: "Full-time",
+      status: "draft",
+      openings: 2,
+      salary: "₹18-30 LPA",
+      urgent: false,
+      hiringManager: "Rajesh Kumar",
+      description: "Build and optimize ML systems that power our intelligent HRMS platform. You will focus on model deployment, serving infrastructure, and building robust ML pipelines.",
+      requirements: ["3+ years in ML engineering", "Strong Python and systems programming skills", "Experience with model serving (TensorFlow Serving, Triton)", "Knowledge of distributed computing (Spark, Ray)", "Experience with cloud ML platforms", "Understanding of model optimization (quantization, distillation)"],
+      responsibilities: ["Build and optimize ML serving infrastructure", "Implement model training pipelines", "Design A/B testing frameworks for ML models", "Optimize model inference for latency and cost", "Implement monitoring and alerting for ML systems"],
+      experienceLevel: "3-5",
+      skills: ["Python", "TensorFlow", "PyTorch", "Docker", "Kubernetes", "MLflow", "Spark", "Ray", "AWS/GCP", "CI/CD"],
+      benefits: ["Competitive salary", "Health insurance", "Learning budget", "Flexible work hours"],
+    },
+  },
+  {
+    label: "Data Scientist",
+    data: {
+      title: "Data Scientist - AI Team",
+      department: "AI & Machine Learning",
+      location: "Hyderabad, IN (Hybrid)",
+      type: "Full-time",
+      status: "draft",
+      openings: 1,
+      salary: "₹20-35 LPA",
+      urgent: false,
+      hiringManager: "Rajesh Kumar",
+      description: "Join our AI team as a Data Scientist to extract insights from HR data, build predictive models, and drive data-informed decision making across the platform.",
+      requirements: ["3+ years in data science", "Strong statistics and experimental design skills", "Proficiency in Python, SQL, and BI tools", "Experience with A/B testing and causal inference", "Knowledge of HR analytics domain is a plus"],
+      responsibilities: ["Build predictive models for attrition, performance, and hiring", "Design and analyze A/B tests", "Create dashboards and reports for stakeholders", "Collaborate with AI engineers on model features", "Present findings to leadership"],
+      experienceLevel: "3-5",
+      skills: ["Python", "SQL", "Statistics", "A/B Testing", "Tableau/PowerBI", "Pandas", "scikit-learn", "Experiment Design"],
+      benefits: ["Competitive salary", "Health insurance", "Conference budget", "Flexible work hours"],
+    },
+  },
+  {
+    label: "Prompt Engineer",
+    data: {
+      title: "Prompt Engineer / AI Specialist",
+      department: "AI & Machine Learning",
+      location: "Delhi, IN (Remote)",
+      type: "Full-time",
+      status: "draft",
+      openings: 2,
+      salary: "₹12-22 LPA",
+      urgent: false,
+      hiringManager: "Kavitha Reddy",
+      description: "Design and optimize prompts for LLM-powered features in our HRMS platform. You will work at the intersection of AI research and product development, crafting prompts that deliver accurate, reliable, and bias-free results.",
+      requirements: ["1+ years working with LLMs (GPT, Claude, Llama, Mistral)", "Strong written communication and analytical skills", "Understanding of prompt engineering techniques (chain-of-thought, few-shot, RAG)", "Experience with API integrations and evaluation frameworks", "Basic Python skills"],
+      responsibilities: ["Design and test prompts for resume parsing, JD generation, and candidate matching", "Build evaluation frameworks for LLM outputs", "Optimize prompts for accuracy, speed, and cost", "Document prompt strategies and best practices", "Collaborate with AI engineers on model fine-tuning"],
+      experienceLevel: "1-3",
+      skills: ["Prompt Engineering", "LLMs", "RAG", "Python", "API Integration", "Evaluation Frameworks", "NLP", "Technical Writing"],
+      benefits: ["Competitive salary", "Health insurance", "Learning budget", "Flexible work hours"],
+    },
+  },
+];
+
+const EXPERIENCE_LEVEL_CONFIG: Record<string, { label: string; color: string; bgColor: string }> = {
+  fresher: { label: "Fresher", color: "#22c55e", bgColor: "#22c55e15" },
+  "0-1": { label: "0-1 Years", color: "#22c55e", bgColor: "#22c55e15" },
+  "1-3": { label: "1-3 Years", color: "#0066CC", bgColor: "#0066CC20" },
+  "2-5": { label: "2-5 Years", color: "#0066CC", bgColor: "#0066CC20" },
+  "3-5": { label: "3-5 Years", color: "#FF9900", bgColor: "#FF990015" },
+  "5-10": { label: "5-10 Years", color: "#FF9900", bgColor: "#FF990015" },
+  "10+": { label: "10+ Years", color: "#ef4444", bgColor: "#ef444415" },
+  mid: { label: "Mid-Level", color: "#0066CC", bgColor: "#0066CC20" },
+  senior: { label: "Senior", color: "#FF9900", bgColor: "#FF990015" },
+  lead: { label: "Lead", color: "#8b5cf6", bgColor: "#8b5cf615" },
+  executive: { label: "Executive", color: "#ef4444", bgColor: "#ef444415" },
+};
+
+/* ──────────────── Create/Edit Job Dialog ──────────────── */
+
+function CreateEditJobDialog({
+  open,
+  onOpenChange,
+  onSave,
+  editJob,
+  jobs,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (job: JobPosting) => void;
+  editJob: JobPosting | null;
+  jobs: JobPosting[];
+}) {
+  const isEdit = !!editJob;
+  const [step, setStep] = useState<"template" | "form">("template");
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const [formData, setFormData] = useState<Partial<JobPosting>>({
+    title: "",
+    department: "",
+    location: "",
+    type: "Full-time",
+    status: "draft",
+    openings: 1,
+    salary: "",
+    urgent: false,
+    hiringManager: "",
+    description: "",
+    requirements: [""],
+    responsibilities: [""],
+    experienceLevel: "mid",
+    skills: [""],
+    benefits: [""],
+  });
+
+  // Reset form when dialog opens or editJob changes
+  useEffect(() => {
+    if (open) {
+      if (editJob) {
+        setStep("form");
+        setFormData({
+          title: editJob.title,
+          department: editJob.department,
+          location: editJob.location,
+          type: editJob.type,
+          status: editJob.status,
+          openings: editJob.openings,
+          salary: editJob.salary,
+          urgent: editJob.urgent,
+          hiringManager: editJob.hiringManager,
+          description: editJob.description,
+          requirements: [...editJob.requirements],
+          responsibilities: [...editJob.responsibilities],
+          experienceLevel: editJob.experienceLevel || "mid",
+          skills: editJob.skills ? [...editJob.skills] : [""],
+          benefits: editJob.benefits ? [...editJob.benefits] : [""],
+        });
+        setSelectedTemplate("");
+      } else {
+        setStep("template");
+        setFormData({
+          title: "",
+          department: "",
+          location: "",
+          type: "Full-time",
+          status: "draft",
+          openings: 1,
+          salary: "",
+          urgent: false,
+          hiringManager: "",
+          description: "",
+          requirements: [""],
+          responsibilities: [""],
+          experienceLevel: "mid",
+          skills: [""],
+          benefits: [""],
+        });
+        setSelectedTemplate("");
+      }
+    }
+  }, [open, editJob]);
+
+  const applyTemplate = (templateId: string) => {
+    const template = AI_JOB_TEMPLATES.find((t) => t.label === templateId);
+    if (template) {
+      setFormData({
+        ...template.data,
+        requirements: [...template.data.requirements],
+        responsibilities: [...template.data.responsibilities],
+        skills: template.data.skills ? [...template.data.skills] : [""],
+        benefits: template.data.benefits ? [...template.data.benefits] : [""],
+      });
+      setSelectedTemplate(templateId);
+      setStep("form");
+    }
+  };
+
+  const startFromScratch = () => {
+    setSelectedTemplate("");
+    setStep("form");
+  };
+
+  const updateField = (field: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const updateListItem = (field: "requirements" | "responsibilities" | "skills" | "benefits", index: number, value: string) => {
+    setFormData((prev) => {
+      const list = [...(prev[field] || [])];
+      list[index] = value;
+      return { ...prev, [field]: list };
+    });
+  };
+
+  const addListItem = (field: "requirements" | "responsibilities" | "skills" | "benefits") => {
+    setFormData((prev) => ({ ...prev, [field]: [...(prev[field] || []), ""] }));
+  };
+
+  const removeListItem = (field: "requirements" | "responsibilities" | "skills" | "benefits", index: number) => {
+    setFormData((prev) => {
+      const list = [...(prev[field] || [])];
+      list.splice(index, 1);
+      return { ...prev, [field]: list.length ? list : [""] };
+    });
+  };
+
+  const handleSave = () => {
+    if (!formData.title?.trim() || !formData.department?.trim()) return;
+    const job: JobPosting = {
+      id: editJob?.id || `j${Date.now()}`,
+      title: formData.title!.trim(),
+      department: formData.department!.trim(),
+      location: formData.location || "Bangalore, IN",
+      type: formData.type || "Full-time",
+      status: formData.status || "draft",
+      openings: formData.openings || 1,
+      applicants: editJob?.applicants || 0,
+      daysOpen: editJob?.daysOpen || 0,
+      salary: formData.salary || "Competitive",
+      postedDate: editJob?.postedDate || new Date().toISOString().split("T")[0],
+      urgent: formData.urgent || false,
+      hiringManager: formData.hiringManager || "Rajesh Kumar",
+      description: formData.description || "",
+      requirements: (formData.requirements || []).filter((r) => r.trim()),
+      responsibilities: (formData.responsibilities || []).filter((r) => r.trim()),
+      experienceLevel: formData.experienceLevel as ExperienceLevel,
+      skills: (formData.skills || []).filter((s) => s.trim()),
+      benefits: (formData.benefits || []).filter((b) => b.trim()),
+    };
+    onSave(job);
+    onOpenChange(false);
+  };
+
+  const isValid = formData.title?.trim() && formData.department?.trim();
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto rounded-[24px] p-0">
+        {/* Header */}
+        <div className="bg-[#FF9900] p-5 rounded-t-[24px]">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-[16px] bg-white/20 flex items-center justify-center">
+              {isEdit ? <Files className="size-5 text-white" /> : <Plus className="size-5 text-white" />}
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white">{isEdit ? "Edit Job Role" : "Create New Job Role"}</h2>
+              <p className="text-xs text-white/70">{isEdit ? "Update job details and requirements" : "Add a new position to your hiring pipeline"}</p>
+            </div>
+          </div>
+        </div>
+
+        {step === "template" && !isEdit ? (
+          /* Template Selection Step */
+          <div className="p-5 space-y-5">
+            <div>
+              <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-1">Choose a Template</h3>
+              <p className="text-xs text-[var(--saptta-mute)]">Start with a pre-built AI role template or create from scratch</p>
+            </div>
+
+            {/* AI Role Templates */}
+            <div className="space-y-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--saptta-mute)]">AI & Machine Learning Roles</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {AI_JOB_TEMPLATES.map((template) => {
+                  const expCfg = EXPERIENCE_LEVEL_CONFIG[template.data.experienceLevel || "mid"];
+                  return (
+                    <motion.div
+                      key={template.label}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <Card
+                        className={`border-2 cursor-pointer transition-all hover:shadow-md rounded-[16px] ${selectedTemplate === template.label ? "border-[#FF9900] bg-[#FF990008]" : "border-[var(--saptta-line)] hover:border-[#FF9900]/40"}`}
+                        onClick={() => applyTemplate(template.label)}
+                      >
+                        <CardContent className="p-4 space-y-2">
+                          <div className="flex items-start justify-between">
+                            <h4 className="text-sm font-semibold text-[var(--saptta-ink)]">{template.data.title}</h4>
+                            <Badge className="rounded-full text-[9px] border-0 px-2 py-0 h-4 shrink-0 ml-2" style={{ backgroundColor: expCfg.bgColor, color: expCfg.color }}>
+                              {expCfg.label}
+                            </Badge>
+                          </div>
+                          <p className="text-[10px] text-[var(--saptta-mute)] line-clamp-2">{template.data.description.slice(0, 100)}...</p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[9px] text-[var(--saptta-mute)] flex items-center gap-0.5"><MapPin className="size-2.5" />{template.data.location}</span>
+                            <span className="text-[9px] text-[var(--saptta-mute)] flex items-center gap-0.5"><IndianRupee className="size-2.5" />{template.data.salary}</span>
+                          </div>
+                          {template.data.skills && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {template.data.skills.slice(0, 5).map((skill) => (
+                                <Badge key={skill} variant="outline" className="text-[8px] rounded-full px-1.5 py-0 h-4 border-[var(--saptta-line)]">{skill}</Badge>
+                              ))}
+                              {template.data.skills.length > 5 && (
+                                <Badge variant="outline" className="text-[8px] rounded-full px-1.5 py-0 h-4 border-[var(--saptta-line)]">+{template.data.skills.length - 5}</Badge>
+                              )}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Start from scratch */}
+            <Button variant="outline" className="w-full rounded-full h-10 border-dashed border-2" onClick={startFromScratch}>
+              <Plus className="size-4 mr-2" />Create from Scratch
+            </Button>
+          </div>
+        ) : (
+          /* Form Step */
+          <div className="p-5 space-y-5">
+            {/* Back button when creating */}
+            {!isEdit && (
+              <Button variant="ghost" size="sm" className="rounded-full text-xs -ml-2 mb-2" onClick={() => setStep("template")}>
+                <ChevronRight className="size-3 mr-1 rotate-180" />Back to Templates
+              </Button>
+            )}
+
+            {/* Basic Info */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-[var(--saptta-ink)]">Basic Information</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="text-[10px] font-medium text-[var(--saptta-mute)] mb-1 block">Job Title *</label>
+                  <Input
+                    placeholder="e.g., AI Developer - Fresher"
+                    className="rounded-xl h-9 text-xs"
+                    value={formData.title || ""}
+                    onChange={(e) => updateField("title", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-medium text-[var(--saptta-mute)] mb-1 block">Department *</label>
+                  <Select value={formData.department || ""} onValueChange={(v) => updateField("department", v)}>
+                    <SelectTrigger className="rounded-xl h-9 text-xs"><SelectValue placeholder="Select department" /></SelectTrigger>
+                    <SelectContent>
+                      {["AI & Machine Learning", "Engineering", "Design", "Sales", "Marketing", "Analytics", "HR & Admin", "Finance", "Operations", "Product"].map((d) => (
+                        <SelectItem key={d} value={d} className="text-xs">{d}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-[10px] font-medium text-[var(--saptta-mute)] mb-1 block">Experience Level</label>
+                  <Select value={formData.experienceLevel || "mid"} onValueChange={(v) => updateField("experienceLevel", v)}>
+                    <SelectTrigger className="rounded-xl h-9 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(EXPERIENCE_LEVEL_CONFIG).map(([key, cfg]) => (
+                        <SelectItem key={key} value={key} className="text-xs">{cfg.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-[10px] font-medium text-[var(--saptta-mute)] mb-1 block">Location</label>
+                  <Input placeholder="e.g., Bangalore, IN" className="rounded-xl h-9 text-xs" value={formData.location || ""} onChange={(e) => updateField("location", e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-medium text-[var(--saptta-mute)] mb-1 block">Job Type</label>
+                  <Select value={formData.type || "Full-time"} onValueChange={(v) => updateField("type", v)}>
+                    <SelectTrigger className="rounded-xl h-9 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {["Full-time", "Part-time", "Contract", "Internship", "Freelance"].map((t) => (
+                        <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-[10px] font-medium text-[var(--saptta-mute)] mb-1 block">Salary Range</label>
+                  <Input placeholder="e.g., ₹15-25 LPA" className="rounded-xl h-9 text-xs" value={formData.salary || ""} onChange={(e) => updateField("salary", e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-medium text-[var(--saptta-mute)] mb-1 block">Openings</label>
+                  <Input type="number" min={1} className="rounded-xl h-9 text-xs" value={formData.openings || 1} onChange={(e) => updateField("openings", parseInt(e.target.value) || 1)} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-medium text-[var(--saptta-mute)] mb-1 block">Hiring Manager</label>
+                  <Input placeholder="e.g., Rajesh Kumar" className="rounded-xl h-9 text-xs" value={formData.hiringManager || ""} onChange={(e) => updateField("hiringManager", e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-medium text-[var(--saptta-mute)] mb-1 block">Status</label>
+                  <Select value={formData.status || "draft"} onValueChange={(v) => updateField("status", v)}>
+                    <SelectTrigger className="rounded-xl h-9 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(JOB_STATUS_CONFIG).map(([key, cfg]) => (
+                        <SelectItem key={key} value={key} className="text-xs">{cfg.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-end gap-2 pb-1">
+                  <Switch checked={formData.urgent || false} onCheckedChange={(v) => updateField("urgent", v)} />
+                  <label className="text-xs text-[var(--saptta-ink)]">Urgent Position</label>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Description */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-[var(--saptta-ink)]">Job Description</h3>
+              <Textarea
+                placeholder="Describe the role, team, and what makes this opportunity exciting..."
+                className="rounded-xl text-xs min-h-[120px] resize-none"
+                value={formData.description || ""}
+                onChange={(e) => updateField("description", e.target.value)}
+              />
+            </div>
+
+            <Separator />
+
+            {/* Requirements */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-[var(--saptta-ink)]">Requirements</h3>
+                <Button variant="outline" size="sm" className="rounded-full text-[10px] h-6 px-2" onClick={() => addListItem("requirements")}>
+                  <Plus className="size-3 mr-1" />Add
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {(formData.requirements || [""]).map((req, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-[10px] text-[var(--saptta-mute)] w-4 shrink-0">{i + 1}.</span>
+                    <Input placeholder="e.g., 3+ years of experience in..." className="rounded-xl h-8 text-xs flex-1" value={req} onChange={(e) => updateListItem("requirements", i, e.target.value)} />
+                    <Button variant="ghost" size="sm" className="size-7 shrink-0 rounded-full" onClick={() => removeListItem("requirements", i)}>
+                      <X className="size-3 text-[var(--saptta-mute)]" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Responsibilities */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-[var(--saptta-ink)]">Responsibilities</h3>
+                <Button variant="outline" size="sm" className="rounded-full text-[10px] h-6 px-2" onClick={() => addListItem("responsibilities")}>
+                  <Plus className="size-3 mr-1" />Add
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {(formData.responsibilities || [""]).map((resp, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-[10px] text-[var(--saptta-mute)] w-4 shrink-0">{i + 1}.</span>
+                    <Input placeholder="e.g., Design and build ML pipelines..." className="rounded-xl h-8 text-xs flex-1" value={resp} onChange={(e) => updateListItem("responsibilities", i, e.target.value)} />
+                    <Button variant="ghost" size="sm" className="size-7 shrink-0 rounded-full" onClick={() => removeListItem("responsibilities", i)}>
+                      <X className="size-3 text-[var(--saptta-mute)]" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Skills */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-[var(--saptta-ink)]">Required Skills</h3>
+                <Button variant="outline" size="sm" className="rounded-full text-[10px] h-6 px-2" onClick={() => addListItem("skills")}>
+                  <Plus className="size-3 mr-1" />Add
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(formData.skills || [""]).map((skill, i) => (
+                  <div key={i} className="flex items-center gap-1">
+                    <Input placeholder="e.g., Python" className="rounded-full h-7 text-[10px] px-3 w-28" value={skill} onChange={(e) => updateListItem("skills", i, e.target.value)} />
+                    <Button variant="ghost" size="sm" className="size-6 shrink-0 rounded-full" onClick={() => removeListItem("skills", i)}>
+                      <X className="size-2.5 text-[var(--saptta-mute)]" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Benefits */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-[var(--saptta-ink)]">Benefits</h3>
+                <Button variant="outline" size="sm" className="rounded-full text-[10px] h-6 px-2" onClick={() => addListItem("benefits")}>
+                  <Plus className="size-3 mr-1" />Add
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {(formData.benefits || [""]).map((ben, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-[10px] text-[var(--saptta-mute)] w-4 shrink-0">{i + 1}.</span>
+                    <Input placeholder="e.g., Health insurance, ESOPs..." className="rounded-xl h-8 text-xs flex-1" value={ben} onChange={(e) => updateListItem("benefits", i, e.target.value)} />
+                    <Button variant="ghost" size="sm" className="size-7 shrink-0 rounded-full" onClick={() => removeListItem("benefits", i)}>
+                      <X className="size-3 text-[var(--saptta-mute)]" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <DialogFooter className="pt-2 gap-2">
+              <Button variant="outline" className="rounded-full" onClick={() => onOpenChange(false)}>Cancel</Button>
+              <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90" disabled={!isValid} onClick={handleSave}>
+                {isEdit ? <><Check className="size-4 mr-1.5" />Update Job</> : <><Plus className="size-4 mr-1.5" />Create Job</>}
+              </Button>
+            </DialogFooter>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /* ──────────────── Jobs Tab ──────────────── */
 
-function JobsTab({ candidates, onPublish }: { candidates: Candidate[]; onPublish: (job: JobPosting) => void }) {
+function JobsTab({ candidates, onPublish, jobs, onCreateJob, onEditJob, onDeleteJob }: {
+  candidates: Candidate[];
+  onPublish: (job: JobPosting) => void;
+  jobs: JobPosting[];
+  onCreateJob: () => void;
+  onEditJob: (job: JobPosting) => void;
+  onDeleteJob: (jobId: string) => void;
+}) {
   const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
   const [jobDetailOpen, setJobDetailOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [jobToDelete, setJobToDelete] = useState<JobPosting | null>(null);
+  const [filterDept, setFilterDept] = useState<string>("all");
+  const [filterExp, setFilterExp] = useState<string>("all");
+
+  const filteredJobs = useMemo(() => {
+    let result = jobs;
+    if (filterDept !== "all") result = result.filter((j) => j.department === filterDept);
+    if (filterExp !== "all") result = result.filter((j) => j.experienceLevel === filterExp);
+    return result;
+  }, [jobs, filterDept, filterExp]);
+
+  const departments = useMemo(() => [...new Set(jobs.map((j) => j.department))], [jobs]);
+
+  const handleDeleteClick = (e: React.MouseEvent, job: JobPosting) => {
+    e.stopPropagation();
+    setJobToDelete(job);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (jobToDelete) {
+      onDeleteJob(jobToDelete.id);
+      setDeleteConfirmOpen(false);
+      setJobToDelete(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div><p className="text-sm text-[var(--saptta-mute)]">{MOCK_JOBS.filter((j) => j.status === "open").length} active positions</p></div>
-        <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-8 text-xs px-4"><Plus className="size-3.5 mr-1.5" />Create Job</Button>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <p className="text-sm text-[var(--saptta-mute)]">{jobs.filter((j) => j.status === "open").length} active positions</p>
+          <Select value={filterDept} onValueChange={setFilterDept}>
+            <SelectTrigger className="rounded-full h-7 text-[10px] w-40"><SelectValue placeholder="Department" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="text-xs">All Departments</SelectItem>
+              {departments.map((d) => (
+                <SelectItem key={d} value={d} className="text-xs">{d}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterExp} onValueChange={setFilterExp}>
+            <SelectTrigger className="rounded-full h-7 text-[10px] w-36"><SelectValue placeholder="Experience" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="text-xs">All Levels</SelectItem>
+              {Object.entries(EXPERIENCE_LEVEL_CONFIG).map(([key, cfg]) => (
+                <SelectItem key={key} value={key} className="text-xs">{cfg.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-8 text-xs px-4" onClick={onCreateJob}>
+          <Plus className="size-3.5 mr-1.5" />Create Job
+        </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {MOCK_JOBS.map((job, i) => {
+        {filteredJobs.map((job, i) => {
           const statusCfg = JOB_STATUS_CONFIG[job.status];
+          const expCfg = EXPERIENCE_LEVEL_CONFIG[job.experienceLevel || "mid"];
           return (
-            <motion.div key={job.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06, duration: 0.4, ease: [0.22, 0.8, 0.22, 1] }}>
+            <motion.div key={job.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04, duration: 0.4, ease: [0.22, 0.8, 0.22, 1] }}>
               <Card className="border-[var(--saptta-line)] rounded-[24px] hover:shadow-lg transition-all duration-300 hover:border-[var(--saptta-accent)]/30 cursor-pointer group" onClick={() => { setSelectedJob(job); setJobDetailOpen(true); }}>
                 <CardContent className="p-5 space-y-4">
                   <div className="flex items-start justify-between">
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2"><h3 className="text-sm font-semibold text-[var(--saptta-ink)] truncate">{job.title}</h3>{job.urgent && <Badge className="bg-red-50 text-red-500 text-[9px] rounded-full border-0 px-1.5 py-0 h-4">Urgent</Badge>}</div>
-                      <p className="text-xs text-[var(--saptta-mute)] mt-0.5">{job.department}</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-sm font-semibold text-[var(--saptta-ink)] truncate">{job.title}</h3>
+                        {job.urgent && <Badge className="bg-red-50 text-red-500 text-[9px] rounded-full border-0 px-1.5 py-0 h-4">Urgent</Badge>}
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                        <p className="text-xs text-[var(--saptta-mute)]">{job.department}</p>
+                        {job.experienceLevel && (
+                          <Badge className="rounded-full text-[8px] border-0 px-1.5 py-0 h-3.5" style={{ backgroundColor: expCfg.bgColor, color: expCfg.color }}>
+                            {expCfg.label}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                     <Badge className="rounded-full text-[10px] font-medium border-0 px-2.5 py-0.5 shrink-0" style={{ backgroundColor: statusCfg.bgColor, color: statusCfg.color }}>{statusCfg.label}</Badge>
                   </div>
@@ -1514,6 +2196,14 @@ function JobsTab({ candidates, onPublish }: { candidates: Candidate[]; onPublish
                     <div className="flex items-center gap-1.5 text-xs text-[var(--saptta-mute)]"><MapPin className="size-3" /> {job.location}</div>
                     <div className="flex items-center gap-1.5 text-xs text-[var(--saptta-mute)]"><IndianRupee className="size-3" /> {job.salary}</div>
                   </div>
+                  {job.skills && job.skills.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {job.skills.slice(0, 4).map((skill) => (
+                        <Badge key={skill} variant="outline" className="text-[8px] rounded-full px-1.5 py-0 h-4 border-[var(--saptta-line)]">{skill}</Badge>
+                      ))}
+                      {job.skills.length > 4 && <Badge variant="outline" className="text-[8px] rounded-full px-1.5 py-0 h-4 border-[var(--saptta-line)]">+{job.skills.length - 4}</Badge>}
+                    </div>
+                  )}
                   <Separator />
                   <div className="grid grid-cols-3 gap-2">
                     <div className="text-center"><p className="text-lg font-bold text-[var(--saptta-ink)]">{job.openings}</p><p className="text-[10px] text-[var(--saptta-mute)]">Openings</p></div>
@@ -1522,7 +2212,14 @@ function JobsTab({ candidates, onPublish }: { candidates: Candidate[]; onPublish
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] text-[var(--saptta-mute)]">Posted {job.postedDate}</span>
-                    <ChevronRight className="size-4 text-[var(--saptta-mute)] group-hover:text-[var(--saptta-accent)] transition-colors" />
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="sm" className="size-7 rounded-full" onClick={(e) => { e.stopPropagation(); onEditJob(job); }}>
+                        <FileText className="size-3 text-[var(--saptta-mute)]" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="size-7 rounded-full" onClick={(e) => handleDeleteClick(e, job)}>
+                        <X className="size-3 text-red-400" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1530,7 +2227,26 @@ function JobsTab({ candidates, onPublish }: { candidates: Candidate[]; onPublish
           );
         })}
       </div>
-      <JobDetailDialog job={selectedJob} open={jobDetailOpen} onOpenChange={setJobDetailOpen} candidates={candidates} onPublish={onPublish} />
+      <JobDetailDialog job={selectedJob} open={jobDetailOpen} onOpenChange={setJobDetailOpen} candidates={candidates} onPublish={onPublish} onEdit={onEditJob} />
+
+      {/* Delete Confirmation */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-md rounded-[24px] p-0">
+          <div className="p-6 text-center space-y-4">
+            <div className="size-14 rounded-full bg-red-50 flex items-center justify-center mx-auto">
+              <AlertTriangle className="size-7 text-red-500" />
+            </div>
+            <h2 className="text-lg font-bold text-[var(--saptta-ink)]">Delete Job Role?</h2>
+            <p className="text-sm text-[var(--saptta-mute)]">
+              Are you sure you want to delete <span className="font-semibold text-[var(--saptta-ink)]">&quot;{jobToDelete?.title}&quot;</span>? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-center pt-2">
+              <Button variant="outline" className="rounded-full px-6" onClick={() => setDeleteConfirmOpen(false)}>Cancel</Button>
+              <Button className="rounded-full bg-red-500 text-white hover:bg-red-600 px-6" onClick={confirmDelete}>Delete</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -1635,11 +2351,16 @@ function HighScoreBanner({ notification, onDismiss, onViewProfile, onEmail }: {
 
 export function EnhancedRecruitmentView() {
   const [candidates, setCandidates] = useState<Candidate[]>(MOCK_CANDIDATES);
+  const [jobs, setJobs] = useState<JobPosting[]>(MOCK_JOBS);
   const [publishJob, setPublishJob] = useState<JobPosting | null>(null);
   const [publishOpen, setPublishOpen] = useState(false);
   const [notifications, setNotifications] = useState<HighScoreNotification[]>([]);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [emailTarget, setEmailTarget] = useState({ name: "", email: "", jobTitle: "" });
+
+  // Job CRUD state
+  const [createJobOpen, setCreateJobOpen] = useState(false);
+  const [editingJob, setEditingJob] = useState<JobPosting | null>(null);
 
   const handleMoveStage = useCallback((candidateId: string, newStage: PipelineStage) => {
     setCandidates((prev) => prev.map((c) => (c.id === candidateId ? { ...c, stage: newStage } : c)));
@@ -1648,6 +2369,31 @@ export function EnhancedRecruitmentView() {
   const handlePublish = useCallback((job: JobPosting) => {
     setPublishJob(job);
     setPublishOpen(true);
+  }, []);
+
+  // Job CRUD handlers
+  const handleCreateJob = useCallback(() => {
+    setEditingJob(null);
+    setCreateJobOpen(true);
+  }, []);
+
+  const handleEditJob = useCallback((job: JobPosting) => {
+    setEditingJob(job);
+    setCreateJobOpen(true);
+  }, []);
+
+  const handleSaveJob = useCallback((job: JobPosting) => {
+    setJobs((prev) => {
+      const exists = prev.find((j) => j.id === job.id);
+      if (exists) {
+        return prev.map((j) => (j.id === job.id ? job : j));
+      }
+      return [job, ...prev];
+    });
+  }, []);
+
+  const handleDeleteJob = useCallback((jobId: string) => {
+    setJobs((prev) => prev.filter((j) => j.id !== jobId));
   }, []);
 
   const handleHighScore = useCallback((notification: HighScoreNotification) => {
@@ -1664,8 +2410,8 @@ export function EnhancedRecruitmentView() {
   }, []);
 
   // Stats
-  const openJobs = MOCK_JOBS.filter((j) => j.status === "open").length;
-  const totalApplicants = MOCK_JOBS.reduce((sum, j) => sum + j.applicants, 0);
+  const openJobs = jobs.filter((j) => j.status === "open").length;
+  const totalApplicants = jobs.reduce((sum, j) => sum + j.applicants, 0);
   const avgTimeToHire = 18;
   const offerRate = Math.round((candidates.filter((c) => c.stage === "hired").length / candidates.length) * 100);
 
@@ -1698,7 +2444,7 @@ export function EnhancedRecruitmentView() {
               <span className="absolute -top-1 -right-1 size-4 rounded-full bg-[#FF9900] text-white text-[8px] flex items-center justify-center">{notifications.length}</span>
             </Button>
           )}
-          <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-9 text-xs px-4 saptta-btn-fill">
+          <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-9 text-xs px-4 saptta-btn-fill" onClick={handleCreateJob}>
             <Plus className="size-3.5 mr-1.5" />New Job
           </Button>
         </div>
@@ -1743,11 +2489,14 @@ export function EnhancedRecruitmentView() {
         </TabsList>
 
         <TabsContent value="pipeline"><PipelineTab candidates={candidates} onMoveStage={handleMoveStage} /></TabsContent>
-        <TabsContent value="jobs"><JobsTab candidates={candidates} onPublish={handlePublish} /></TabsContent>
+        <TabsContent value="jobs"><JobsTab candidates={candidates} onPublish={handlePublish} jobs={jobs} onCreateJob={handleCreateJob} onEditJob={handleEditJob} onDeleteJob={handleDeleteJob} /></TabsContent>
         <TabsContent value="candidates"><CandidatesTab candidates={candidates} onMoveStage={handleMoveStage} /></TabsContent>
         <TabsContent value="resume-analyzer"><ResumeAnalyzerTab /></TabsContent>
         <TabsContent value="batch-analysis"><BatchAnalysisTab onHighScore={handleHighScore} /></TabsContent>
       </Tabs>
+
+      {/* Create/Edit Job Dialog */}
+      <CreateEditJobDialog open={createJobOpen} onOpenChange={setCreateJobOpen} onSave={handleSaveJob} editJob={editingJob} jobs={jobs} />
 
       {/* JD Publish Dialog */}
       <JDPublishDialog job={publishJob} open={publishOpen} onOpenChange={setPublishOpen} />

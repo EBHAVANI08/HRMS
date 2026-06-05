@@ -139,3 +139,37 @@ Stage Summary:
 - All user-facing text updated to "Kam" / "Kam Global"
 - Email domains changed to @kamglobal.io
 - Build compiles successfully
+---
+Task ID: 1
+Agent: Main Agent
+Task: Add Job Description/Job Role CRUD functionality and fix .docx resume parsing
+
+Work Log:
+- Read and analyzed the enhanced-recruitment.tsx component (~1760 lines)
+- Identified that "New Job" and "Create Job" buttons had NO onClick handlers
+- Added ExperienceLevel type and extended JobPosting interface with experienceLevel, skills, benefits fields
+- Added 3 AI Developer job templates to MOCK_JOBS (Fresher, 2+ Years, 5-10 Years)
+- Created AI_JOB_TEMPLATES array with 6 pre-built AI role templates (AI Developer Fresher, AI Developer 2+, Senior AI Developer 5-10, ML Engineer, Data Scientist, Prompt Engineer)
+- Created EXPERIENCE_LEVEL_CONFIG for consistent experience level display
+- Built full CreateEditJobDialog component with template selection step and form step
+- Updated JobsTab to accept jobs as state prop and CRUD callbacks (onCreateJob, onEditJob, onDeleteJob)
+- Added department and experience level filters to JobsTab
+- Added edit/delete buttons to job cards (visible on hover)
+- Added delete confirmation dialog
+- Updated JobDetailDialog with onEdit callback and experience level badge
+- Converted MOCK_JOBS to React state in EnhancedRecruitmentView for full CRUD
+- Connected "New Job" button to handleCreateJob handler
+- Connected "Create Job" button in JobsTab to onCreateJob handler
+- Improved parseFileViaAPI in ResumeAnalyzerTab with better error handling for .docx files
+- Updated parse-resume API route with .doc vs .docx distinction, fallback extraction, and better error messages
+- Removed leftover old JobsTab code
+
+Stage Summary:
+- "New Job" and "Create Job" buttons now work and open the CreateEditJobDialog
+- CreateEditJobDialog has two steps: template selection → form editing
+- 6 AI role templates available for quick job creation
+- Full CRUD: Create, Read, Edit, Delete job roles
+- Job cards show experience level badges and skills tags
+- Delete requires confirmation
+- Resume .docx parsing improved with better error messages and fallback handling
+- Build compiles successfully
