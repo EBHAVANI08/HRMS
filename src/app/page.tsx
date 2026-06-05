@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppShell } from '@/components/app-shell';
+import { allNavItems } from '@/components/app-shell';
 import { useAppStore } from '@/lib/store';
 import { LoginPage } from '@/components/auth/login-page';
 import { RegistrationPage } from '@/components/auth/register-page';
@@ -32,9 +33,24 @@ const viewMap: Record<string, React.ComponentType> = {
   compliance: ComplianceDashboard,
 };
 
+// Get the set of allowed view IDs for a given role
+function getAllowedViews(role: string): Set<string> {
+  return new Set(allNavItems.filter((item) => item.roles.includes(role as any)).map((item) => item.id));
+}
+
 export default function HomePage() {
-  const { isAuthenticated, currentView, userRole } = useAppStore();
+  const { isAuthenticated, currentView, setCurrentView, userRole } = useAppStore();
   const [showRegister, setShowRegister] = useState(false);
+
+  // Protect views: redirect to dashboard if current view is not allowed for the role
+  useEffect(() => {
+    if (isAuthenticated) {
+      const allowedViews = getAllowedViews(userRole);
+      if (!allowedViews.has(currentView)) {
+        setCurrentView('dashboard');
+      }
+    }
+  }, [isAuthenticated, userRole, currentView, setCurrentView]);
 
   // Show registration page
   if (!isAuthenticated && showRegister) {

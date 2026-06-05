@@ -75,18 +75,26 @@ import { Input } from "@/components/ui/input";
 
 import type { UserRole } from "@/lib/store";
 
-const allNavItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["hr_admin", "manager", "employee", "recruiter", "applicant"] },
-  { id: "core-hr", label: "Core HR", icon: Users, roles: ["hr_admin", "manager"] },
-  { id: "recruitment", label: "Recruitment", icon: Briefcase, roles: ["hr_admin", "recruiter", "manager", "applicant"] },
-  { id: "attendance", label: "Attendance & Leave", icon: Clock, roles: ["hr_admin", "manager", "employee"] },
-  { id: "payroll", label: "Payroll", icon: Banknote, roles: ["hr_admin", "employee"] },
-  { id: "performance", label: "Performance", icon: TrendingUp, roles: ["hr_admin", "manager", "employee"] },
+export type NavItemConfig = {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  roles: UserRole[];
+  roleLabels?: Partial<Record<UserRole, string>>;
+};
+
+export const allNavItems: NavItemConfig[] = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["hr_admin", "manager", "employee", "recruiter", "applicant"], roleLabels: { applicant: "My Dashboard" } },
+  { id: "core-hr", label: "Core HR", icon: Users, roles: ["hr_admin"] },
+  { id: "recruitment", label: "Recruitment", icon: Briefcase, roles: ["hr_admin", "recruiter", "manager", "applicant"], roleLabels: { applicant: "My Applications", recruiter: "ATS & Recruitment" } },
+  { id: "attendance", label: "Attendance & Leave", icon: Clock, roles: ["hr_admin", "manager", "employee"], roleLabels: { employee: "My Attendance" } },
+  { id: "payroll", label: "Payroll", icon: Banknote, roles: ["hr_admin", "employee"], roleLabels: { employee: "My Payslips", hr_admin: "Payroll Management" } },
+  { id: "performance", label: "Performance", icon: TrendingUp, roles: ["hr_admin", "manager", "employee"], roleLabels: { employee: "My Performance", manager: "Team Performance" } },
   { id: "onboarding", label: "Onboarding", icon: UserPlus, roles: ["hr_admin", "manager"] },
-  { id: "engagement", label: "Engagement", icon: Heart, roles: ["hr_admin", "manager"] },
-  { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["hr_admin", "manager", "recruiter"] },
+  { id: "engagement", label: "Engagement", icon: Heart, roles: ["hr_admin", "manager"], roleLabels: { manager: "Team Engagement" } },
+  { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["hr_admin", "manager", "recruiter"], roleLabels: { recruiter: "Recruiting Analytics" } },
   { id: "compliance", label: "Compliance", icon: Shield, roles: ["hr_admin", "recruiter", "applicant"] },
-  { id: "ai-assistant", label: "AI Assistant", icon: Sparkles, roles: ["hr_admin", "manager", "employee", "recruiter", "applicant"] },
+  { id: "ai-assistant", label: "AI Assistant", icon: Sparkles, roles: ["hr_admin", "manager", "employee", "recruiter", "applicant"], roleLabels: { applicant: "AI Career Coach" } },
 ];
 
 const tenants = [
@@ -147,7 +155,7 @@ function NavItem({
   collapsed,
   onClick,
 }: {
-  item: (typeof navItems)[number];
+  item: NavItemConfig & { label: string };
   active: boolean;
   collapsed: boolean;
   onClick: () => void;
@@ -213,8 +221,13 @@ function NavItem({
 function SidebarContent({ collapsed }: { collapsed: boolean }) {
   const { currentView, setCurrentView, userRole } = useAppStore();
 
-  // Filter nav items based on user role
-  const navItems = allNavItems.filter((item) => item.roles.includes(userRole));
+  // Filter nav items based on user role & apply role-specific labels
+  const navItems = allNavItems
+    .filter((item) => item.roles.includes(userRole))
+    .map((item) => ({
+      ...item,
+      label: item.roleLabels?.[userRole] || item.label,
+    }));
 
   // Adjust sidebar AI assistant text based on role
   const aiText = userRole === "applicant" ? "AI Career Coach" : "AI Assistant";
@@ -540,8 +553,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const [notifPanelOpen, setNotifPanelOpen] = React.useState(false);
 
-  // Filter nav items based on role
-  const navItems = allNavItems.filter((item) => item.roles.includes(userRole));
+  // Filter nav items based on role & apply role-specific labels
+  const navItems = allNavItems
+    .filter((item) => item.roles.includes(userRole))
+    .map((item) => ({
+      ...item,
+      label: item.roleLabels?.[userRole] || item.label,
+    }));
 
   const currentNavLabel =
     navItems.find((n) => n.id === currentView)?.label ?? "Dashboard";

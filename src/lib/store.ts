@@ -366,6 +366,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     return {
       userRole: role,
       user: { ...state.user, ...roleConfig[role] },
+      currentView: "dashboard",
       notifications: isApplicant ? 2 : state.notifications,
       notificationList: isApplicant ? applicantNotifications : state.notificationList,
     };
