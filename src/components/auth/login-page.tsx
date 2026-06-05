@@ -270,7 +270,7 @@ function DemoRoleCard({
 
 /* ─── Main LoginPage Component ─── */
 
-export function LoginPage() {
+export function LoginPage({ onSwitchToRegister }: { onSwitchToRegister?: () => void }) {
   const { login, isLoading } = useAppStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -674,6 +674,24 @@ export function LoginPage() {
                 Privacy Policy
               </span>
             </motion.p>
+
+            {/* Register link */}
+            {onSwitchToRegister && (
+              <motion.p
+                variants={staggerItem}
+                className="mt-4 text-center text-sm"
+                style={{ color: "var(--saptta-mute)" }}
+              >
+                New applicant?{" "}
+                <button
+                  onClick={onSwitchToRegister}
+                  className="font-medium hover:underline"
+                  style={{ color: "var(--saptta-accent)" }}
+                >
+                  Create an account
+                </button>
+              </motion.p>
+            )}
           </motion.div>
         </div>
       </div>

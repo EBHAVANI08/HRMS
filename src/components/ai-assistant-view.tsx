@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles, Send, Lightbulb, BarChart3, Users, Clock, Database,
@@ -22,6 +22,9 @@ import {
   BarChart, Bar, LineChart, Line, PieChart as RechartsPieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from "recharts";
+import { generateLocalResponse, getSuggestedQuestions } from "@/lib/ai/local-chat-engine";
+import { generateJD, inferJDParams, type JDInput } from "@/lib/ai/jd-generator";
+import { useAppStore } from "@/lib/store";
 
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const fadeUp = {
@@ -214,6 +217,7 @@ const queryHistory = [
 ];
 
 export function AIAssistantView() {
+  const { userRole, user } = useAppStore();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -222,35 +226,43 @@ export function AIAssistantView() {
   const [policyQuestion, setPolicyQuestion] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [showGeneratedContent, setShowGeneratedContent] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState(sampleGeneratedContent);
   const [nlQuery, setNlQuery] = useState("");
   const [showNlResult, setShowNlResult] = useState(false);
+
+  // JD form state
+  const [jdForm, setJdForm] = useState<Record<string, string>>({});
+
+  // Get role-specific suggestions
+  const roleSuggestions = getSuggestedQuestions(userRole);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  const handleSend = () => {
+  const handleSend = useCallback(() => {
     if (!input.trim()) return;
     const userMsg: ChatMessage = { role: "user", content: input, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
     setMessages((prev) => [...prev, userMsg]);
+    const queryText = input;
     setInput("");
     setIsTyping(true);
 
+    // Use local AI engine - no API needed!
     setTimeout(() => {
-      const categories: MessageCategory[] = ["Data Query", "Policy", "Action", "Report"];
-      const cat = categories[Math.floor(Math.random() * categories.length)];
+      const response = generateLocalResponse(queryText);
       const aiMsg: ChatMessage = {
         role: "assistant",
-        content: `Based on the current data in your organization, here's what I found regarding "${input}":\n\n📊 **Key Findings:**\n• Your query relates to an active area of your HR operations\n• I've analyzed 3 data sources to compile this response\n• The data reflects the most recent updates from March 2026\n\n**Summary:** The metrics show positive trends aligned with your organizational goals. I'd recommend diving deeper into the specific department-level data for more actionable insights.\n\nWould you like me to generate a detailed report or explore any specific aspect further?`,
-        category: cat,
-        sources: ["HR Database — Employee Master", "Analytics Module — Workforce Data"],
-        followUps: ["Show department-level breakdown", "Compare with previous quarter", "Export this analysis"],
+        content: response.content,
+        category: response.category,
+        sources: response.sources,
+        followUps: response.followUps,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, aiMsg]);
       setIsTyping(false);
-    }, 1500);
-  };
+    }, 800 + Math.random() * 700); // Natural typing delay
+  }, [input]);
 
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -262,7 +274,7 @@ export function AIAssistantView() {
     <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
       <motion.div variants={fadeUp}>
         <h1 className="text-2xl md:text-3xl font-bold text-[var(--saptta-ink)] tracking-tight">AI Assistant</h1>
-        <p className="text-[var(--saptta-mute)] mt-1 text-sm">Ask saptta AI anything about your HR data, policies, and analytics.</p>
+        <p className="text-[var(--saptta-mute)] mt-1 text-sm">Ask saptta AI anything about your HR data, policies, and analytics. <span className="text-green-600 text-xs font-medium">100% Local — No API Key Required</span></p>
       </motion.div>
 
       <motion.div variants={fadeUp}>
@@ -375,18 +387,22 @@ export function AIAssistantView() {
                 </div>
               )}
 
-              {/* Suggestions */}
+              {/* Suggestions - role specific */}
               <div className="border-t border-[var(--saptta-line)] px-4 py-3">
                 <div className="flex flex-wrap gap-2">
-                  {chatSuggestions.map((s) => (
-                    <button
-                      key={s.label}
-                      onClick={() => setInput(s.label)}
-                      className="saptta-tag hover:bg-[var(--saptta-accent)]/10 hover:text-[var(--saptta-accent)] transition-colors cursor-pointer gap-1.5"
-                    >
-                      <s.icon className="size-3" />{s.label}
-                    </button>
-                  ))}
+                  {roleSuggestions.map((s, i) => {
+                    const icons = [Users, BarChart3, Clock, Lightbulb, Sparkles, Search];
+                    const Icon = icons[i % icons.length];
+                    return (
+                      <button
+                        key={s.label}
+                        onClick={() => setInput(s.label)}
+                        className="saptta-tag hover:bg-[var(--saptta-accent)]/10 hover:text-[var(--saptta-accent)] transition-colors cursor-pointer gap-1.5"
+                      >
+                        <Icon className="size-3" />{s.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -598,24 +614,83 @@ export function AIAssistantView() {
                             {contentTemplates.find(t => t.id === selectedTemplate)?.params.map((param) => (
                               <div key={param}>
                                 <label className="text-[10px] font-medium text-[var(--saptta-mute)] mb-1 block">{param}</label>
-                                <Input placeholder={`Enter ${param.toLowerCase()}`} className="rounded-xl h-9 text-xs" />
+                                <Input
+                                  placeholder={`Enter ${param.toLowerCase()}`}
+                                  className="rounded-xl h-9 text-xs"
+                                  value={jdForm[param] || ""}
+                                  onChange={(e) => setJdForm(prev => ({ ...prev, [param]: e.target.value }))}
+                                />
                               </div>
                             ))}
                           </div>
-                          <Button onClick={() => setShowGeneratedContent(true)} className="rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90">
+                          <Button onClick={() => {
+                            // Use the local JD generator engine
+                            if (selectedTemplate === "t1") {
+                              const jobTitle = jdForm["Job Title"] || "Software Engineer";
+                              const inferred = inferJDParams(jobTitle);
+                              const jdInput: JDInput = {
+                                jobTitle,
+                                department: jdForm["Department"] || inferred.department || "Engineering",
+                                level: (jdForm["Level"] as any) || inferred.level || "Mid",
+                                location: jdForm["Location"] || inferred.location || "Bangalore, India",
+                                employmentType: (jdForm["Employment Type"] as any) || "Full-Time",
+                                experienceMin: inferred.experienceMin || 3,
+                                experienceMax: inferred.experienceMax || 5,
+                                salaryMin: "12",
+                                salaryMax: "20",
+                                skills: [],
+                                responsibilities: [],
+                                education: inferred.education || "B.Tech/M.Tech in Computer Science or equivalent",
+                              };
+                              const result = generateJD(jdInput);
+                              setGeneratedContent(result.content);
+                            } else if (selectedTemplate === "t2") {
+                              const candidateName = jdForm["Candidate Name"] || "Candidate";
+                              const position = jdForm["Position"] || "Software Engineer";
+                              const startDate = jdForm["Start Date"] || "April 1, 2026";
+                              const salary = jdForm["Salary"] || "14,00,000";
+                              const dept = jdForm["Department"] || "Engineering";
+                              setGeneratedContent(`# Offer Letter\n\n**Date:** ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}\n\n**To:** ${candidateName}\n\n**Subject:** Offer of Employment — ${position}\n\nDear ${candidateName},\n\nWe are delighted to extend an offer of employment for the position of **${position}** in our **${dept}** department at saptta Inc.\n\n**Terms of Employment:**\n\n| Component | Details |\n|-----------|--------|\n| Position | ${position} |\n| Department | ${dept} |\n| Start Date | ${startDate} |\n| CTC | INR ${salary} per annum |\n| Employment Type | Full-Time |\n| Probation | 6 months |\n| Reporting To | Department Head |\n\n**Compensation Breakup:**\n- Basic Pay: 42% of CTC\n- HRA: 21% of CTC\n- Special Allowance: Balance\n- PF: 12% of Basic (Employer + Employee)\n\n**Conditions:**\n1. This offer is contingent upon successful background verification\n2. You must submit all required documents before joining\n3. A 30-day notice period applies after confirmation\n\nPlease confirm your acceptance by signing and returning this letter within 5 business days.\n\nWelcome aboard!\n\nBest regards,\nHR Team\nsaptta Inc.`);
+                            } else if (selectedTemplate === "t3") {
+                              const empName = jdForm["Employee Name"] || "Employee";
+                              const reviewPeriod = jdForm["Review Period"] || "Q1 2026";
+                              const rating = jdForm["Rating"] || "3";
+                              const dept = jdForm["Department"] || "Engineering";
+                              const manager = jdForm["Manager"] || "Manager";
+                              setGeneratedContent(`# Performance Review — ${empName}\n\n**Review Period:** ${reviewPeriod}\n**Department:** ${dept}\n**Manager:** ${manager}\n\n## Overall Rating: ${rating}/5\n\n## Goals Assessment\n| Goal | Target | Achievement | Rating |\n|------|--------|-------------|--------|\n| Project Delivery | On-time | Achieved | 4/5 |\n| Code Quality | <5% defect rate | 3.2% | 5/5 |\n| Team Collaboration | Peer feedback >4 | 4.2 | 4/5 |\n| Learning | 2 certifications | 1 completed | 3/5 |\n\n## Strengths\n- Consistently delivers high-quality work\n- Strong technical problem-solving abilities\n- Good collaboration with cross-functional teams\n\n## Areas for Improvement\n- Could take more initiative in leading technical discussions\n- Complete pending certifications\n- Improve documentation practices\n\n## Development Plan\n1. Enroll in advanced architecture course\n2. Lead at least 2 technical brown-bag sessions\n3. Mentor 1 junior team member\n\n## Manager Comments\n${empName} has been a reliable contributor this quarter. The focus for next quarter should be on expanding leadership scope and completing the certification roadmap.`);
+                            } else if (selectedTemplate === "t4") {
+                              const policyName = jdForm["Policy Name"] || "New Policy";
+                              const category = jdForm["Category"] || "General";
+                              const effectiveDate = jdForm["Effective Date"] || "April 1, 2026";
+                              const applicableTo = jdForm["Applicable To"] || "All Employees";
+                              setGeneratedContent(`# ${policyName}\n\n**Category:** ${category}\n**Effective Date:** ${effectiveDate}\n**Applicable To:** ${applicableTo}\n**Version:** 1.0\n**Approved By:** HR Committee\n\n## 1. Purpose\nThis policy establishes guidelines and procedures for ${policyName.toLowerCase()} at saptta Inc. It aims to ensure consistency, fairness, and compliance with applicable regulations.\n\n## 2. Scope\nThis policy applies to ${applicableTo.toLowerCase()} across all offices and remote locations.\n\n## 3. Definitions\n- **Employee:** Any person employed by saptta Inc. on a full-time, part-time, or contractual basis\n- **Manager:** Direct reporting manager of the employee\n- **HR:** Human Resources department\n\n## 4. Policy Guidelines\n\n### 4.1 General Provisions\nAll employees are expected to adhere to the guidelines outlined in this document.\n\n### 4.2 Procedures\n1. Employees must submit requests through the HR portal\n2. Managers must review and approve within 5 business days\n3. HR will process approved requests within 10 business days\n\n### 4.3 Exceptions\nAny exceptions to this policy require written approval from the HR Director and department VP.\n\n## 5. Compliance\nNon-compliance may result in disciplinary action as per the Code of Conduct.\n\n## 6. Review Cycle\nThis policy will be reviewed annually or as needed based on regulatory changes.\n\n## 7. Contact\nFor questions, contact: hr@company.com`);
+                            } else if (selectedTemplate === "t5") {
+                              const emailType = jdForm["Email Type"] || "Welcome";
+                              const recipient = jdForm["Recipient"] || "Team";
+                              const subject = jdForm["Subject"] || "Welcome to the team!";
+                              const tone = jdForm["Tone"] || "Professional";
+                              setGeneratedContent(`**To:** ${recipient}\n**Subject:** ${subject}\n**Tone:** ${tone}\n\n---\n\nDear ${recipient},\n\n${emailType === "Welcome" ? `We are thrilled to welcome you to saptta Inc.! We're excited to have you join our team and look forward to the contributions you'll make.\n\n**Your First Week:**\n- Day 1: Orientation and IT setup at 9:30 AM\n- Day 2-3: Team introductions and project onboarding\n- Day 4-5: Tool setup and initial assignments\n\n**Important Contacts:**\n- HR: Priya Sharma (priya@saptta.io)\n- IT Support: helpdesk@saptta.io\n- Your Buddy: Will be assigned on Day 1\n\n**What to Bring:**\n- Government ID for verification\n- Bank account details for payroll setup\n- Previous employment documents (if applicable)\n\nDon't hesitate to reach out if you have any questions before your start date.\n\nBest regards,\nHR Team\nsaptta Inc.` : emailType === "Interview Invitation" ? `We are pleased to invite you for an interview for the position at saptta Inc.\n\n**Interview Details:**\n- Date: [To be confirmed]\n- Time: [To be confirmed]\n- Format: Technical Round (Video Call)\n- Duration: Approximately 60 minutes\n\n**What to Expect:**\n- Technical problem-solving discussion\n- System design conversation\n- Q&A about the role and team\n\nPlease confirm your availability by replying to this email.\n\nBest regards,\nRecruitment Team\nsaptta Inc.` : `Thank you for your continued dedication and hard work. We appreciate your contributions to the team and the organization.\n\nIf you have any questions or concerns, please don't hesitate to reach out to your manager or the HR team.\n\nBest regards,\nHR Team\nsaptta Inc.`}\n\n---\n*This email was generated locally by saptta AI — no cloud API used.*`);
+                            }
+                            setShowGeneratedContent(true);
+                          }} className="rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90">
                             <Wand2 className="size-4 mr-1.5" />Generate Content
                           </Button>
                         </>
                       ) : (
                         <>
+                          <div className="flex items-center gap-2 mb-3">
+                            <Badge variant="secondary" className="text-[9px] rounded-[999px] bg-green-50 text-green-600 gap-1">
+                              <Zap className="size-2.5" />Generated Locally — No API Key
+                            </Badge>
+                          </div>
                           <div className="rounded-xl bg-[var(--saptta-bg-2)] p-4 max-h-[400px] overflow-y-auto">
-                            <pre className="text-xs text-[var(--saptta-ink)] whitespace-pre-wrap font-sans leading-relaxed">{sampleGeneratedContent}</pre>
+                            <pre className="text-xs text-[var(--saptta-ink)] whitespace-pre-wrap font-sans leading-relaxed">{generatedContent}</pre>
                           </div>
                           <div className="flex items-center gap-2">
                             <Button variant="outline" className="rounded-xl text-xs" onClick={() => setShowGeneratedContent(false)}>
                               <RefreshCw className="size-3 mr-1" />Regenerate
                             </Button>
-                            <Button variant="outline" className="rounded-xl text-xs" onClick={() => handleCopy(sampleGeneratedContent, "gen-content")}>
+                            <Button variant="outline" className="rounded-xl text-xs" onClick={() => handleCopy(generatedContent, "gen-content")}>
                               {copied === "gen-content" ? <Check className="size-3 mr-1 text-green-500" /> : <Copy className="size-3 mr-1" />}
                               {copied === "gen-content" ? "Copied!" : "Copy"}
                             </Button>

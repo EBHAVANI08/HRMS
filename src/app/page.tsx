@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { useAppStore } from '@/lib/store';
 import { LoginPage } from '@/components/auth/login-page';
+import { RegistrationPage } from '@/components/auth/register-page';
 import { RoleBasedDashboardView } from '@/components/role-based-dashboard';
 import { CoreHRView as CoreHrView } from '@/components/core-hr-view';
 import { EnhancedRecruitmentView } from '@/components/recruitment/enhanced-recruitment';
@@ -33,10 +34,16 @@ const viewMap: Record<string, React.ComponentType> = {
 
 export default function HomePage() {
   const { isAuthenticated, currentView, userRole } = useAppStore();
+  const [showRegister, setShowRegister] = useState(false);
+
+  // Show registration page
+  if (!isAuthenticated && showRegister) {
+    return <RegistrationPage onSwitchToLogin={() => setShowRegister(false)} />;
+  }
 
   // Show login page if not authenticated
   if (!isAuthenticated) {
-    return <LoginPage />;
+    return <LoginPage onSwitchToRegister={() => setShowRegister(true)} />;
   }
 
   // Applicants get their own dedicated dashboard for all views
