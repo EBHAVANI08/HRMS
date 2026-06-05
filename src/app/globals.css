@@ -1,0 +1,408 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* saptta brand colors */
+  --color-saptta-accent: #ff6a2c;
+  --color-saptta-accent-2: #c8e056;
+  --color-saptta-accent-3: #5a3a2a;
+  --color-saptta-ink: #0a0a0a;
+  --color-saptta-ink-2: #2b2b2b;
+  --color-saptta-mute: #8a8680;
+  --color-saptta-line: #e8e8e8;
+  --color-saptta-bg: #ffffff;
+  --color-saptta-bg-2: #f5f5f5;
+  --color-saptta-dark: #0a0a0b;
+  --color-saptta-dark-2: #141416;
+  --color-saptta-dark-card: #1a1a1c;
+  --color-saptta-dark-line: #2a2a2c;
+
+  /* custom animations */
+  --animate-fade-up: fadeUp 0.5s cubic-bezier(.22,.8,.22,1) forwards;
+  --animate-pulse-glow: pulseGlow 2s ease-in-out infinite;
+  --animate-bar-rise: barRise 0.6s cubic-bezier(.22,.8,.22,1) forwards;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-live-dot: liveDot 1.5s ease-in-out infinite;
+  --animate-ring-fill: ringFill 1.5s cubic-bezier(.22,.8,.22,1) forwards;
+  --animate-slide-in: slideIn 0.3s cubic-bezier(.22,.8,.22,1) forwards;
+  --animate-shimmer: shimmer 2s linear infinite;
+}
+
+/* ─── saptta Design Tokens ─── */
+:root {
+  --radius: 0.625rem;
+  --saptta-accent: #ff6a2c;
+  --saptta-accent-2: #c8e056;
+  --saptta-accent-3: #5a3a2a;
+  --saptta-ink: #0a0a0a;
+  --saptta-ink-2: #2b2b2b;
+  --saptta-mute: #8a8680;
+  --saptta-line: #e8e8e8;
+  --saptta-bg: #ffffff;
+  --saptta-bg-2: #f5f5f5;
+  --saptta-dark: #0a0a0b;
+  --saptta-dark-2: #141416;
+  --saptta-dark-card: #1a1a1c;
+  --saptta-dark-line: #2a2a2c;
+
+  /* saptta easing */
+  --ease-smooth: cubic-bezier(.22,.8,.22,1);
+  --ease-bounce: cubic-bezier(.34,1.56,.64,1);
+
+  /* saptta radii */
+  --radius-card: 24px;
+  --radius-pill: 999px;
+  --radius-icon: 16px;
+  --radius-module: 20px;
+
+  /* shadcn/ui mapped to saptta */
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #ff6a2c;
+  --primary-foreground: #ffffff;
+  --secondary: #c8e056;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f5f5f5;
+  --muted-foreground: #8a8680;
+  --accent: #fff5ef;
+  --accent-foreground: #ff6a2c;
+  --destructive: #ef4444;
+  --border: #e8e8e8;
+  --input: #e8e8e8;
+  --ring: #ff6a2c;
+
+  --chart-1: #ff6a2c;
+  --chart-2: #c8e056;
+  --chart-3: #5a3a2a;
+  --chart-4: #f59e0b;
+  --chart-5: #8b5cf6;
+
+  --sidebar: #fafafa;
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #ff6a2c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fff5ef;
+  --sidebar-accent-foreground: #ff6a2c;
+  --sidebar-border: #e8e8e8;
+  --sidebar-ring: #ff6a2c;
+}
+
+.dark {
+  --background: #0a0a0b;
+  --foreground: #f5f5f5;
+  --card: #1a1a1c;
+  --card-foreground: #f5f5f5;
+  --popover: #1a1a1c;
+  --popover-foreground: #f5f5f5;
+  --primary: #ff6a2c;
+  --primary-foreground: #ffffff;
+  --secondary: #c8e056;
+  --secondary-foreground: #0a0a0a;
+  --muted: #141416;
+  --muted-foreground: #8a8680;
+  --accent: #1a1a1c;
+  --accent-foreground: #ff6a2c;
+  --destructive: #ef4444;
+  --border: #2a2a2c;
+  --input: #2a2a2c;
+  --ring: #ff6a2c;
+
+  --chart-1: #ff6a2c;
+  --chart-2: #c8e056;
+  --chart-3: #5a3a2a;
+  --chart-4: #f59e0b;
+  --chart-5: #8b5cf6;
+
+  --sidebar: #0a0a0b;
+  --sidebar-foreground: #f5f5f5;
+  --sidebar-primary: #ff6a2c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1a1a1c;
+  --sidebar-accent-foreground: #ff6a2c;
+  --sidebar-border: #2a2a2c;
+  --sidebar-ring: #ff6a2c;
+}
+
+/* ─── Keyframe Animations ─── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 106, 44, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px rgba(255, 106, 44, 0.15);
+  }
+}
+
+@keyframes barRise {
+  from {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+  to {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes liveDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes ringFill {
+  from {
+    stroke-dashoffset: 283;
+  }
+  to {
+    stroke-dashoffset: var(--ring-offset, 70);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ─── Grain Overlay ─── */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+.dark body::before {
+  opacity: 0.04;
+}
+
+/* ─── Base Styles ─── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ─── Custom Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--saptta-line);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--saptta-mute);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--saptta-dark-line);
+}
+
+/* ─── saptta Utility Classes ─── */
+.saptta-card-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.saptta-btn-fill {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+.saptta-btn-fill::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  background: var(--saptta-accent);
+  transition: height 0.35s var(--ease-smooth);
+  z-index: -1;
+}
+.saptta-btn-fill:hover::after {
+  height: 100%;
+}
+
+.saptta-tag {
+  font-style: italic;
+  border-radius: 999px;
+  background: var(--saptta-bg-2);
+  color: var(--saptta-ink-2);
+  font-size: 0.75rem;
+  padding: 0.125rem 0.625rem;
+  display: inline-flex;
+  align-items: center;
+}
+.dark .saptta-tag {
+  background: var(--saptta-dark-card);
+  color: var(--saptta-mute);
+}
+
+.saptta-module-card {
+  border-radius: var(--radius-module);
+  transition: all 0.4s var(--ease-smooth);
+  overflow: hidden;
+  position: relative;
+}
+.saptta-module-card::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  background: var(--saptta-dark);
+  transition: height 0.45s var(--ease-smooth);
+  z-index: 0;
+}
+.saptta-module-card:hover::before {
+  height: 100%;
+}
+.saptta-module-card > * {
+  position: relative;
+  z-index: 1;
+}
+.saptta-module-card:hover .module-icon {
+  transform: rotate(12deg) scale(1.15);
+  color: var(--saptta-accent);
+}
+.saptta-module-card:hover .module-text {
+  color: #ffffff;
+}
+
+.module-icon {
+  transition: all 0.35s var(--ease-bounce);
+}
+.module-text {
+  transition: color 0.35s var(--ease-smooth);
+}
+
+.saptta-pipeline-row {
+  transition: transform 0.3s var(--ease-smooth);
+}
+.saptta-pipeline-row:hover {
+  transform: translateX(4px);
+}
+
+.saptta-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #22c55e;
+  animation: liveDot 1.5s ease-in-out infinite;
+}
+
+.saptta-attendance-ring {
+  animation: ringFill 1.5s var(--ease-smooth) forwards;
+}

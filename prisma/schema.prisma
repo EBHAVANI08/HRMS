@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  id           String   @id @default(cuid())
+  empId        String   @unique
+  name         String
+  email        String   @unique
+  department   String
+  designation  String
+  joinDate     DateTime
+  status       String   @default("active")
+  avatar       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  attendance   Attendance[]
+  leaves       LeaveRequest[]
+  salary       SalaryStructure?
+  payslips     Payslip[]
+  loans        Loan[]
+}
+
+model Attendance {
+  id           String   @id @default(cuid())
+  employeeId   String
+  date         DateTime
+  checkIn      DateTime?
+  checkOut     DateTime?
+  totalHours   Float    @default(0)
+  status       String   @default("present")
+  shift        String   @default("general")
+  location     String?
+  regularizeReason String?
+  regularizeStatus  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  employee     Employee @relation(fields: [employeeId], references: [id])
+}
+
+model LeaveRequest {
+  id           String   @id @default(cuid())
+  employeeId   String
+  leaveType    String
+  fromDate     DateTime
+  toDate       DateTime
+  totalDays    Float
+  halfDay      Boolean  @default(false)
+  reason       String
+  status       String   @default("pending")
+  approverId   String?
+  approverNote String?
+  attachment   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  employee     Employee @relation(fields: [employeeId], references: [id])
+}
+
+model LeaveBalance {
+  id           String   @id @default(cuid())
+  employeeId   String
+  leaveType    String
+  total        Float    @default(0)
+  used         Float    @default(0)
+  carried      Float    @default(0)
+  year         Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Holiday {
+  id           String   @id @default(cuid())
+  date         DateTime
+  name         String
+  type         String   @default("national")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Shift {
+  id           String   @id @default(cuid())
+  name         String
+  startTime    String
+  endTime      String
+  graceMinutes Int      @default(15)
+  type         String   @default("fixed")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SalaryStructure {
+  id           String   @id @default(cuid())
+  employeeId   String   @unique
+  ctc          Float
+  basic        Float
+  hra          Float
+  da           Float
+  specialAllowance Float
+  transport    Float
+  medical      Float
+  pf           Float
+  esi          Float
+  pt           Float
+  tds          Float
+  template     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  employee     Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Payslip {
+  id           String   @id @default(cuid())
+  employeeId   String
+  month        Int
+  year         Int
+  grossPay     Float
+  totalDeductions Float
+  netPay       Float
+  lopDays      Float    @default(0)
+  overtime     Float    @default(0)
+  status       String   @default("generated")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  employee     Employee @relation(fields: [employeeId], references: [id])
+}
+
+model PayrollRun {
+  id           String   @id @default(cuid())
+  month        Int
+  year         Int
+  status       String   @default("draft")
+  totalGross   Float    @default(0)
+  totalNet     Float    @default(0)
+  totalDeductions Float @default(0)
+  employeesProcessed Int @default(0)
+  anomalies    String?
+  lockedAt     DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Loan {
+  id           String   @id @default(cuid())
+  employeeId   String
+  loanType     String
+  amount       Float
+  tenure       Int
+  emiAmount    Float
+  outstanding  Float
+  status       String   @default("active")
+  startDate    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  employee     Employee @relation(fields: [employeeId], references: [id])
+}
