@@ -2,12 +2,10 @@
  * HireMind AI Engine — 12-Agent Resume Analysis System
  *
  * Architecture:
- * - LLM Provider Abstraction: Works with Ollama (when available) and z-ai-web-dev-sdk
+ * - LLM Provider Abstraction: Works with Ollama (local) — no external AI API keys required
  * - 12 Focused Agents: Each agent calls the LLM with targeted prompts (NOT massive JSON dumps)
  * - RAG Pipeline: TF-IDF based document retrieval for context enrichment
  * - Skill Abbreviation Expansion: Comprehensive dictionary for AI/ML domain
- *
- * IMPORTANT: This runs server-side only. z-ai-web-dev-sdk must NOT be imported on the client.
  */
 
 /* ──────────────── Types ──────────────── */
@@ -202,42 +200,6 @@ export class OllamaProvider implements LLMProvider {
   }
 }
 
-/* ──────────────── z-ai-web-dev-sdk Provider ──────────────── */
-
-export class ZAISDKProvider implements LLMProvider {
-  name = "z-ai-sdk";
-  private sdk: any;
-
-  constructor() {
-    // Dynamically imported to ensure server-side only
-  }
-
-  async isAvailable(): Promise<boolean> {
-    try {
-      const ZAI = (await import("z-ai-web-dev-sdk")).default;
-      this.sdk = ZAI;
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  async generate(prompt: string, systemPrompt: string): Promise<string> {
-    if (!this.sdk) {
-      const ZAI = (await import("z-ai-web-dev-sdk")).default;
-      this.sdk = ZAI;
-    }
-
-    const response = await this.sdk.chat.completions.create({
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: prompt },
-      ],
-    });
-
-    return response.choices?.[0]?.message?.content || "";
-  }
-}
 
 /* ──────────────── Skill Abbreviation Dictionary ──────────────── */
 
@@ -637,8 +599,7 @@ export class HireMindEngine {
   constructor(provider?: LLMProvider) {
     this.skillExpander = new SkillExpansionEngine();
     this.ragPipeline = new RAGPipeline();
-    // Default to z-ai-sdk provider
-    this.provider = provider || new ZAISDKProvider();
+    this.provider = provider || new OllamaProvider();
     this.providerName = this.provider.name;
   }
 
@@ -646,12 +607,9 @@ export class HireMindEngine {
   async init(): Promise<void> {
     const available = await this.provider.isAvailable();
     if (!available) {
-      console.warn(`[HireMind] Provider "${this.providerName}" not available, falling back to z-ai-sdk`);
-      this.provider = new ZAISDKProvider();
-      this.providerName = "z-ai-sdk";
-      await this.provider.isAvailable();
+      console.warn(`[HireMind] Provider "${this.providerName}" not available. Start Ollama locally: ollama serve`);
     }
-    console.log(`[HireMind] Using provider: ${this.providerName}`);
+    console.log(`[HireMind] Using provider: ${this.providerName}, available: ${available}`);
   }
 
   private async callLLM(prompt: string, systemPrompt: string): Promise<string> {
