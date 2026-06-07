@@ -59,6 +59,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAppStore, type CoreHrTab } from "@/lib/store";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 /* ──────────────── Types ──────────────── */
 
@@ -324,6 +328,10 @@ function CompRow({ label, value }: { label: string; value: string }) {
 
 function EmployeeDetailView({ employee, onBack }: { employee: Employee; onBack: () => void }) {
   const [detailTab, setDetailTab] = useState("personal");
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [msgOpen, setMsgOpen] = useState(false);
+  const [emailBody, setEmailBody] = useState("");
+  const [msgText, setMsgText] = useState("");
   const initials = employee.name.split(" ").map((n) => n[0]).join("");
 
   const formatCurrency = (val: number) => {
@@ -375,14 +383,17 @@ function EmployeeDetailView({ employee, onBack }: { employee: Employee; onBack: 
                 </span>
               </div>
               <div className="flex gap-2 mt-4">
-                <Button size="sm" className="rounded-xl bg-[var(--saptta-ink)] text-white h-8 text-xs">
+                <Button size="sm" className="rounded-xl bg-[var(--saptta-ink)] text-white h-8 text-xs" onClick={() => setEmailOpen(true)}>
                   <Mail className="size-3.5 mr-1" /> Email
                 </Button>
-                <Button size="sm" variant="outline" className="rounded-xl border-[var(--saptta-line)] h-8 text-xs">
+                <Button size="sm" variant="outline" className="rounded-xl border-[var(--saptta-line)] h-8 text-xs" onClick={() => toast.info(`Calling ${employee.name} · ${employee.phone}`)}>
                   <Phone className="size-3.5 mr-1" /> Call
                 </Button>
-                <Button size="sm" variant="outline" className="rounded-xl border-[var(--saptta-line)] h-8 text-xs">
+                <Button size="sm" variant="outline" className="rounded-xl border-[var(--saptta-line)] h-8 text-xs" onClick={() => setDetailTab("documents")}>
                   <FileText className="size-3.5 mr-1" /> Documents
+                </Button>
+                <Button size="sm" variant="outline" className="rounded-xl border-[var(--saptta-line)] h-8 text-xs" onClick={() => setMsgOpen(true)}>
+                  Send Message
                 </Button>
               </div>
             </div>
@@ -490,7 +501,7 @@ function EmployeeDetailView({ employee, onBack }: { employee: Employee; onBack: 
                 <h4 className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2">
                   <FileText className="size-4 text-[var(--saptta-accent)]" /> Uploaded Documents
                 </h4>
-                <Button size="sm" className="rounded-xl bg-[var(--saptta-accent)] text-white h-8 text-xs hover:bg-[var(--saptta-accent)]/90">
+                <Button size="sm" className="rounded-xl bg-[var(--saptta-accent)] text-white h-8 text-xs hover:bg-[var(--saptta-accent)]/90" onClick={() => { const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".pdf,.doc,.docx,.jpg,.png"; inp.onchange = (e) => { const f = (e.target as HTMLInputElement).files?.[0]; if (f) toast.success(`Uploading "${f.name}" for ${employee.name}...`); }; inp.click(); }}>
                   <Upload className="size-3.5 mr-1" /> Upload
                 </Button>
               </div>
@@ -506,7 +517,7 @@ function EmployeeDetailView({ employee, onBack }: { employee: Employee; onBack: 
                         <p className="text-xs text-[var(--saptta-mute)]">{doc.type} · {doc.size} · {doc.date}</p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="icon" className="size-8">
+                    <Button variant="ghost" size="icon" className="size-8" onClick={() => toast.success(`Downloading "${doc.name}"...`)}>
                       <Download className="size-4 text-[var(--saptta-mute)]" />
                     </Button>
                   </div>
@@ -567,6 +578,45 @@ function EmployeeDetailView({ employee, onBack }: { employee: Employee; onBack: 
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* ── Email Dialog ── */}
+      <Dialog open={emailOpen} onOpenChange={setEmailOpen}>
+        <DialogContent className="sm:max-w-lg rounded-[24px]">
+          <DialogHeader>
+            <DialogTitle>Email {employee.name}</DialogTitle>
+            <DialogDescription className="text-xs text-[var(--saptta-mute)]">Compose and send an email to {employee.email}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div><Label className="text-xs">To</Label><input className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm bg-[var(--saptta-bg-2)]" value={employee.email} readOnly /></div>
+            <div><Label className="text-xs">Subject</Label><input className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm" placeholder="e.g. Performance Review – June 2026" /></div>
+            <div><Label className="text-xs">Message</Label><Textarea className="mt-1 rounded-xl border-[var(--saptta-line)] text-sm min-h-[120px]" placeholder={`Hi ${employee.name.split(" ")[0]},\n\n`} value={emailBody} onChange={(e) => setEmailBody(e.target.value)} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="rounded-xl" onClick={() => setEmailOpen(false)}>Cancel</Button>
+            <Button className="rounded-xl bg-[var(--saptta-ink)] text-white hover:bg-[var(--saptta-ink)]/90" onClick={() => { setEmailOpen(false); setEmailBody(""); toast.success(`Email sent to ${employee.name}`); }}>
+              <Mail className="size-3.5 mr-1.5" />Send Email
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Send Message Dialog ── */}
+      <Dialog open={msgOpen} onOpenChange={setMsgOpen}>
+        <DialogContent className="sm:max-w-md rounded-[24px]">
+          <DialogHeader>
+            <DialogTitle>Message {employee.name}</DialogTitle>
+            <DialogDescription className="text-xs text-[var(--saptta-mute)]">Send an internal message</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div><Label className="text-xs">To</Label><input className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm bg-[var(--saptta-bg-2)]" value={`${employee.name} (${employee.employeeId})`} readOnly /></div>
+            <div><Label className="text-xs">Message</Label><Textarea className="mt-1 rounded-xl border-[var(--saptta-line)] text-sm min-h-[100px]" placeholder="Type your message..." value={msgText} onChange={(e) => setMsgText(e.target.value)} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="rounded-xl" onClick={() => setMsgOpen(false)}>Cancel</Button>
+            <Button className="rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => { setMsgOpen(false); setMsgText(""); toast.success(`Message sent to ${employee.name}`); }}>Send</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
@@ -815,6 +865,11 @@ function EmployeesTab() {
   const [locFilter, setLocFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
+  const [addOpen, setAddOpen] = useState(false);
+  const [editEmp, setEditEmp] = useState<Employee | null>(null);
+  const [bulkEmailOpen, setBulkEmailOpen] = useState(false);
+  const [bulkStatusOpen, setBulkStatusOpen] = useState(false);
+  const [newEmp, setNewEmp] = useState({ name: "", email: "", department: "", designation: "", location: "", status: "Active" as EmployeeStatus });
 
   const filtered = employees.filter((emp) => {
     const matchSearch =
@@ -886,12 +941,12 @@ function EmployeesTab() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>Export CSV</DropdownMenuItem>
-              <DropdownMenuItem>Send Bulk Email</DropdownMenuItem>
-              <DropdownMenuItem>Bulk Update Status</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toast.success("Exporting employee list as CSV...")}>Export CSV</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setBulkEmailOpen(true)}>Send Bulk Email</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setBulkStatusOpen(true)}>Bulk Update Status</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button className="rounded-[999px] bg-[var(--saptta-accent)] text-white text-sm h-10 hover:bg-[var(--saptta-accent)]/90">
+          <Button className="rounded-[999px] bg-[var(--saptta-accent)] text-white text-sm h-10 hover:bg-[var(--saptta-accent)]/90" onClick={() => setAddOpen(true)}>
             <Plus className="size-4 mr-1" /> Add Employee
           </Button>
         </div>
@@ -954,8 +1009,8 @@ function EmployeesTab() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setSelectedEmployeeId(emp.id); }}>View Profile</DropdownMenuItem>
-                        <DropdownMenuItem onClick={(e) => e.stopPropagation()}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={(e) => e.stopPropagation()}>Send Message</DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setEditEmp(emp); }}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.success(`Message sent to ${emp.name}`); }}>Send Message</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -988,6 +1043,108 @@ function EmployeesTab() {
           </div>
         </div>
       </Card>
+
+      {/* ── Add Employee Dialog ── */}
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent className="sm:max-w-lg rounded-[24px]">
+          <DialogHeader>
+            <DialogTitle>Add New Employee</DialogTitle>
+            <DialogDescription className="text-xs text-[var(--saptta-mute)]">Fill in the details to onboard a new employee</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2"><Label className="text-xs">Full Name *</Label><input className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm" placeholder="e.g. Priya Sharma" value={newEmp.name} onChange={(e) => setNewEmp({...newEmp, name: e.target.value})} /></div>
+            <div className="col-span-2"><Label className="text-xs">Work Email *</Label><input className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm" placeholder="priya@kamglobal.com" value={newEmp.email} onChange={(e) => setNewEmp({...newEmp, email: e.target.value})} /></div>
+            <div><Label className="text-xs">Department *</Label>
+              <select className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm" value={newEmp.department} onChange={(e) => setNewEmp({...newEmp, department: e.target.value})}>
+                <option value="">Select...</option>
+                {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+            <div><Label className="text-xs">Location</Label>
+              <select className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm" value={newEmp.location} onChange={(e) => setNewEmp({...newEmp, location: e.target.value})}>
+                <option value="">Select...</option>
+                {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+              </select>
+            </div>
+            <div className="col-span-2"><Label className="text-xs">Designation</Label><input className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm" placeholder="e.g. Software Engineer" value={newEmp.designation} onChange={(e) => setNewEmp({...newEmp, designation: e.target.value})} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="rounded-xl" onClick={() => setAddOpen(false)}>Cancel</Button>
+            <Button className="rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => { if (!newEmp.name || !newEmp.email) { toast.error("Name and email are required"); return; } setAddOpen(false); toast.success(`${newEmp.name} added to ${newEmp.department || "the organisation"}`); setNewEmp({ name: "", email: "", department: "", designation: "", location: "", status: "Active" }); }}>
+              <Plus className="size-3.5 mr-1.5" />Add Employee
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Edit Employee Dialog ── */}
+      <Dialog open={!!editEmp} onOpenChange={(o) => { if (!o) setEditEmp(null); }}>
+        <DialogContent className="sm:max-w-lg rounded-[24px]">
+          <DialogHeader>
+            <DialogTitle>Edit {editEmp?.name}</DialogTitle>
+            <DialogDescription className="text-xs text-[var(--saptta-mute)]">Update employee information</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2"><Label className="text-xs">Full Name</Label><input defaultValue={editEmp?.name} className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm" /></div>
+            <div className="col-span-2"><Label className="text-xs">Work Email</Label><input defaultValue={editEmp?.email} className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm" /></div>
+            <div><Label className="text-xs">Department</Label><input defaultValue={editEmp?.department} className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm" /></div>
+            <div><Label className="text-xs">Location</Label><input defaultValue={editEmp?.location} className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm" /></div>
+            <div className="col-span-2"><Label className="text-xs">Designation</Label><input defaultValue={editEmp?.designation} className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm" /></div>
+            <div><Label className="text-xs">Status</Label>
+              <select defaultValue={editEmp?.status} className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm">
+                {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="rounded-xl" onClick={() => setEditEmp(null)}>Cancel</Button>
+            <Button className="rounded-xl bg-[var(--saptta-ink)] text-white hover:bg-[var(--saptta-ink)]/90" onClick={() => { setEditEmp(null); toast.success(`${editEmp?.name} updated successfully`); }}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Bulk Email Dialog ── */}
+      <Dialog open={bulkEmailOpen} onOpenChange={setBulkEmailOpen}>
+        <DialogContent className="sm:max-w-lg rounded-[24px]">
+          <DialogHeader>
+            <DialogTitle>Send Bulk Email</DialogTitle>
+            <DialogDescription className="text-xs text-[var(--saptta-mute)]">Send an email to all {filtered.length} filtered employees</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div><Label className="text-xs">To</Label><input readOnly className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm bg-[var(--saptta-bg-2)]" value={`All employees (${filtered.length} recipients)`} /></div>
+            <div><Label className="text-xs">Subject</Label><input className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm" placeholder="e.g. Company-wide Announcement" /></div>
+            <div><Label className="text-xs">Message</Label><Textarea className="mt-1 rounded-xl border-[var(--saptta-line)] text-sm min-h-[100px]" placeholder="Dear Team,&#10;&#10;" /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="rounded-xl" onClick={() => setBulkEmailOpen(false)}>Cancel</Button>
+            <Button className="rounded-xl bg-[var(--saptta-ink)] text-white hover:bg-[var(--saptta-ink)]/90" onClick={() => { setBulkEmailOpen(false); toast.success(`Bulk email sent to ${filtered.length} employees`); }}>
+              <Mail className="size-3.5 mr-1.5" />Send to All
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Bulk Status Update Dialog ── */}
+      <Dialog open={bulkStatusOpen} onOpenChange={setBulkStatusOpen}>
+        <DialogContent className="sm:max-w-sm rounded-[24px]">
+          <DialogHeader>
+            <DialogTitle>Bulk Update Status</DialogTitle>
+            <DialogDescription className="text-xs text-[var(--saptta-mute)]">Update status for all {filtered.length} filtered employees</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div><Label className="text-xs">New Status</Label>
+              <select className="mt-1 w-full rounded-xl border border-[var(--saptta-line)] px-3 py-2 text-sm">
+                {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div><Label className="text-xs">Reason (optional)</Label><Textarea className="mt-1 rounded-xl border-[var(--saptta-line)] text-sm" placeholder="Reason for bulk status change..." /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="rounded-xl" onClick={() => setBulkStatusOpen(false)}>Cancel</Button>
+            <Button className="rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => { setBulkStatusOpen(false); toast.success(`Status updated for ${filtered.length} employees`); }}>Apply Update</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

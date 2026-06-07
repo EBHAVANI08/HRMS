@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import React, { useState, useCallback } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield,
@@ -153,20 +154,15 @@ const demoRoles: DemoRole[] = [
 function KamLoginLogo({ size = "default" }: { size?: "default" | "small" }) {
   const isSmall = size === "small";
   return (
-    <div className="flex items-center gap-3">
-      <div
-        className={`relative flex shrink-0 items-center justify-center rounded-[16px] text-white font-bold shadow-lg ${
-          isSmall ? "size-9 text-base" : "size-12 text-xl"
-        }`}
-        style={{ background: "var(--saptta-accent)" }}
-      >
-        <span className="relative z-10">K</span>
-      </div>
-      <span
-        className={`font-bold tracking-tight text-white ${isSmall ? "text-xl" : "text-3xl"}`}
-      >
-        <span style={{ color: "var(--saptta-accent)" }}>K</span><span style={{ color: "var(--saptta-accent-2)" }}>am</span>
-      </span>
+    <div className="flex items-center">
+      <Image
+        src="/kam-logo.png"
+        alt="Kam Global — AI-Powered HRMS"
+        width={isSmall ? 120 : 180}
+        height={isSmall ? 40 : 58}
+        priority
+        style={{ objectFit: "contain", filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.3))" }}
+      />
     </div>
   );
 }

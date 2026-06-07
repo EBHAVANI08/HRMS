@@ -327,14 +327,13 @@ function NotificationPanel({
 
   function handleNotifClick(notif: typeof notificationList[0]) {
     markNotificationRead(notif.id);
-    const route = NOTIF_ROUTES[notif.type];
-    if (route) {
-      setCurrentView(route);
-      onOpenChange(false);
-    }
+    setPreviewNotif(notif);
+    setPreviewOpen(true);
   }
   const [emailDialogOpen, setEmailDialogOpen] = React.useState(false);
   const [selectedNotif, setSelectedNotif] = React.useState<typeof notificationList[0] | null>(null);
+  const [previewOpen, setPreviewOpen] = React.useState(false);
+  const [previewNotif, setPreviewNotif] = React.useState<typeof notificationList[0] | null>(null);
 
   const unread = notificationList.filter(n => !n.read);
 
@@ -556,7 +555,6 @@ Kam Global HR Team` : ''}
             <Button
               className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90"
               onClick={() => {
-                // In production, this would call the API to send the email
                 setEmailDialogOpen(false);
               }}
             >
@@ -564,6 +562,59 @@ Kam Global HR Team` : ''}
               Send Email
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Notification Preview Dialog ── */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="sm:max-w-md rounded-[24px] p-0">
+          <DialogHeader className="p-5 pb-3 border-b border-[var(--saptta-line)]">
+            <div className="flex items-center gap-3">
+              <div className="shrink-0">{previewNotif && getNotifIcon(previewNotif.type)}</div>
+              <div>
+                <DialogTitle className="text-base font-bold text-[var(--saptta-ink)]">{previewNotif?.title}</DialogTitle>
+                <p className="text-[10px] text-[var(--saptta-mute)] mt-0.5">{previewNotif?.timestamp}</p>
+              </div>
+            </div>
+          </DialogHeader>
+          <div className="p-5 space-y-4">
+            <p className="text-sm text-[var(--saptta-ink-2)] leading-relaxed">{previewNotif?.message}</p>
+            {previewNotif?.score && (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--saptta-bg-2)]">
+                <Badge className="rounded-full font-bold border-0 px-3" style={{ backgroundColor: `${getScoreColor(previewNotif.score)}15`, color: getScoreColor(previewNotif.score) }}>
+                  {previewNotif.score}% Match
+                </Badge>
+                {previewNotif.jobTitle && <span className="text-sm font-medium text-[var(--saptta-ink)]">{previewNotif.jobTitle}</span>}
+                {previewNotif.candidateName && <span className="text-sm text-[var(--saptta-mute)]">· {previewNotif.candidateName}</span>}
+              </div>
+            )}
+            {previewNotif?.jobTitle && !previewNotif?.score && (
+              <div className="p-3 rounded-xl bg-[var(--saptta-bg-2)]">
+                <p className="text-xs text-[var(--saptta-mute)]">Role</p>
+                <p className="text-sm font-semibold text-[var(--saptta-ink)]">{previewNotif.jobTitle}</p>
+              </div>
+            )}
+            <div className="flex gap-2 pt-1">
+              {previewNotif?.type === "high_score_candidate" && (
+                <Button size="sm" variant="outline" className="rounded-full text-xs border-[var(--saptta-line)]" onClick={() => { setPreviewOpen(false); setSelectedNotif(previewNotif); setEmailDialogOpen(true); }}>
+                  <Mail className="size-3 mr-1" />Email Candidate
+                </Button>
+              )}
+              <Button
+                size="sm"
+                className="flex-1 rounded-full bg-[var(--saptta-accent)] text-white text-xs hover:bg-[var(--saptta-accent)]/90"
+                onClick={() => {
+                  const route = NOTIF_ROUTES[previewNotif?.type ?? ""];
+                  setPreviewOpen(false);
+                  onOpenChange(false);
+                  if (route) setCurrentView(route);
+                }}
+              >
+                <ArrowRight className="size-3 mr-1" />
+                Go to {previewNotif?.type?.includes("candidate") || previewNotif?.type?.includes("interview") || previewNotif?.type?.includes("offer") ? "Recruitment" : previewNotif?.type?.includes("leave") ? "Attendance" : "Dashboard"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </>

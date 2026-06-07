@@ -139,6 +139,9 @@ function AttendanceTab() {
   const [punchInTime] = useState(new Date(new Date().setHours(9, 15, 0)));
   const [elapsedTime, setElapsedTime] = useState("6h 45m");
   const [regularizeOpen, setRegularizeOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterMonth, setFilterMonth] = useState("june");
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
@@ -197,7 +200,7 @@ function AttendanceTab() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <motion.div className="lg:col-span-2" variants={fadeUp} initial="hidden" animate="show">
           <Card className="rounded-[24px] border-0 shadow-lg">
-            <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-lg font-semibold flex items-center gap-2"><Timer className="w-5 h-5 text-[var(--saptta-accent)]" />Attendance Log</CardTitle><div className="flex items-center gap-2"><Button variant="outline" size="sm" className="rounded-full text-xs"><Download className="w-3.5 h-3.5 mr-1" />Export</Button><Button variant="outline" size="sm" className="rounded-full text-xs"><Filter className="w-3.5 h-3.5 mr-1" />Filter</Button></div></div></CardHeader>
+            <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-lg font-semibold flex items-center gap-2"><Timer className="w-5 h-5 text-[var(--saptta-accent)]" />Attendance Log</CardTitle><div className="flex items-center gap-2"><Button variant="outline" size="sm" className="rounded-full text-xs" onClick={() => toast.success("Exporting attendance log as CSV...")}><Download className="w-3.5 h-3.5 mr-1" />Export</Button><Button variant="outline" size="sm" className="rounded-full text-xs" onClick={() => setFilterOpen(true)}><Filter className="w-3.5 h-3.5 mr-1" />Filter</Button></div></div></CardHeader>
             <CardContent><ScrollArea className="max-h-96"><Table><TableHeader><TableRow><TableHead className="text-xs font-medium">Date</TableHead><TableHead className="text-xs font-medium">Check-in</TableHead><TableHead className="text-xs font-medium">Check-out</TableHead><TableHead className="text-xs font-medium">Hours</TableHead><TableHead className="text-xs font-medium">Status</TableHead><TableHead className="text-xs font-medium">Action</TableHead></TableRow></TableHeader><TableBody>
               {attendanceLog.map((log) => (<TableRow key={log.id} className="hover:bg-[var(--saptta-bg-2)]"><TableCell className="text-sm font-medium">{new Date(log.date).toLocaleDateString("en-IN",{day:"2-digit",month:"short"})}</TableCell><TableCell className="text-sm">{log.checkIn}</TableCell><TableCell className="text-sm">{log.checkOut}</TableCell><TableCell className="text-sm font-medium">{log.hours > 0 ? `${log.hours}h` : "—"}</TableCell><TableCell><StatusBadge status={log.status} /></TableCell><TableCell>{(log.status==="Absent"||log.status==="Late")&&<Dialog open={regularizeOpen} onOpenChange={setRegularizeOpen}><DialogTrigger asChild><Button variant="ghost" size="sm" className="text-xs text-[var(--saptta-accent)] h-7 px-2"><RotateCcw className="w-3 h-3 mr-1" />Regularise</Button></DialogTrigger><DialogContent className="rounded-[24px] max-w-md"><DialogHeader><DialogTitle>Regularise Attendance</DialogTitle><DialogDescription>Request correction for {log.date}</DialogDescription></DialogHeader><div className="space-y-4"><div><Label className="text-sm">Correct Check-in</Label><Input type="time" className="rounded-xl mt-1" /></div><div><Label className="text-sm">Correct Check-out</Label><Input type="time" className="rounded-xl mt-1" /></div><div><Label className="text-sm">Reason</Label><Textarea className="rounded-xl mt-1" placeholder="E.g., Forgot to punch in..." /></div></div><DialogFooter><Button className="rounded-full bg-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)]/90 text-white"><Send className="w-4 h-4 mr-2" />Submit</Button></DialogFooter></DialogContent></Dialog>}</TableCell></TableRow>))}
             </TableBody></Table></ScrollArea></CardContent>
@@ -214,17 +217,83 @@ function AttendanceTab() {
           </Card>
         </motion.div>
       </div>
+      {/* ── Attendance Filter Dialog ── */}
+      <Dialog open={filterOpen} onOpenChange={setFilterOpen}>
+        <DialogContent className="sm:max-w-sm rounded-[24px] p-0">
+          <DialogHeader className="p-6 pb-3"><DialogTitle>Filter Attendance</DialogTitle></DialogHeader>
+          <div className="px-6 pb-6 space-y-4">
+            <div>
+              <label className="text-xs font-semibold text-[var(--saptta-ink-2)] mb-1.5 block">Status</label>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="rounded-xl h-9 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="present">Present</SelectItem>
+                  <SelectItem value="late">Late</SelectItem>
+                  <SelectItem value="absent">Absent</SelectItem>
+                  <SelectItem value="half-day">Half Day</SelectItem>
+                  <SelectItem value="wfh">WFH</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-[var(--saptta-ink-2)] mb-1.5 block">Month</label>
+              <Select value={filterMonth} onValueChange={setFilterMonth}>
+                <SelectTrigger className="rounded-xl h-9 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="june">June 2026</SelectItem>
+                  <SelectItem value="may">May 2026</SelectItem>
+                  <SelectItem value="april">April 2026</SelectItem>
+                  <SelectItem value="march">March 2026</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 pt-1">
+              <Button variant="outline" className="flex-1 rounded-xl text-xs" onClick={() => { setFilterStatus("all"); setFilterMonth("june"); }}>Reset</Button>
+              <Button className="flex-1 rounded-xl text-xs bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => { setFilterOpen(false); toast.success(`Showing: ${filterStatus === "all" ? "All" : filterStatus} · ${filterMonth}`); }}>Apply</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
 function ShiftsRosterTab() {
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [assignEmployee, setAssignEmployee] = useState("");
+  const [assignShift, setAssignShift] = useState("General");
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{shifts.map((shift)=>(
         <motion.div key={shift.id} variants={fadeUp} initial="hidden" animate="show"><Card className="rounded-[24px] border-0 shadow-lg hover:shadow-xl transition-shadow"><CardContent className="p-6"><div className="flex items-center justify-between mb-4"><div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-full flex items-center justify-center ${shift.name==="General"?"bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)]":shift.name==="Night"?"bg-purple-100 text-purple-600":"bg-[var(--saptta-accent-2)]/20 text-[#6b7a1e]"}`}>{shift.name==="General"?<Sun className="w-5 h-5" />:shift.name==="Night"?<Moon className="w-5 h-5" />:<RotateCcw className="w-5 h-5" />}</div><div><h3 className="font-semibold text-[var(--saptta-ink)]">{shift.name} Shift</h3><p className="text-xs text-[var(--saptta-mute)]">{shift.type}</p></div></div><Badge variant="secondary" className="rounded-full text-xs">{shift.employees} staff</Badge></div><div className="space-y-2"><div className="flex justify-between text-sm"><span className="text-[var(--saptta-mute)]">Timing</span><span className="font-medium">{shift.startTime} — {shift.endTime}</span></div><div className="flex justify-between text-sm"><span className="text-[var(--saptta-mute)]">Grace Period</span><span className="font-medium">{shift.grace} min</span></div></div></CardContent></Card></motion.div>
       ))}</div>
-      <motion.div variants={fadeUp} initial="hidden" animate="show"><Card className="rounded-[24px] border-0 shadow-lg"><CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-lg font-semibold flex items-center gap-2"><Calendar className="w-5 h-5 text-[var(--saptta-accent)]" />Weekly Roster</CardTitle><div className="flex items-center gap-2"><Button variant="outline" size="sm" className="rounded-full text-xs"><FileText className="w-3.5 h-3.5 mr-1" />Templates</Button><Button size="sm" className="rounded-full text-xs bg-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)]/90 text-white"><Plus className="w-3.5 h-3.5 mr-1" />Assign Shift</Button></div></div></CardHeader><CardContent><ScrollArea className="max-h-80"><Table><TableHeader><TableRow><TableHead className="text-xs font-medium">Employee</TableHead>{["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map((d)=><TableHead key={d} className="text-xs font-medium text-center">{d}</TableHead>)}</TableRow></TableHeader><TableBody>{rosterData.map((row,i)=>(<TableRow key={i} className="hover:bg-[var(--saptta-bg-2)]"><TableCell className="font-medium text-sm">{row.name}</TableCell>{(["mon","tue","wed","thu","fri","sat","sun"] as const).map((day)=>(<TableCell key={day} className="text-center"><span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${row[day]==="General"?"bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)]":row[day]==="Night"?"bg-purple-100 text-purple-600":row[day]==="Rotational"?"bg-[var(--saptta-accent-2)]/20 text-[#6b7a1e]":"bg-gray-100 text-gray-400"}`}>{row[day]}</span></TableCell>))}</TableRow>))}</TableBody></Table></ScrollArea></CardContent></Card></motion.div>
+      <motion.div variants={fadeUp} initial="hidden" animate="show"><Card className="rounded-[24px] border-0 shadow-lg"><CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-lg font-semibold flex items-center gap-2"><Calendar className="w-5 h-5 text-[var(--saptta-accent)]" />Weekly Roster</CardTitle><div className="flex items-center gap-2"><Button variant="outline" size="sm" className="rounded-full text-xs" onClick={() => toast.info("Opening shift templates library...")}><FileText className="w-3.5 h-3.5 mr-1" />Templates</Button><Button size="sm" className="rounded-full text-xs bg-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)]/90 text-white" onClick={() => setAssignOpen(true)}><Plus className="w-3.5 h-3.5 mr-1" />Assign Shift</Button></div></div></CardHeader><CardContent><ScrollArea className="max-h-80"><Table><TableHeader><TableRow><TableHead className="text-xs font-medium">Employee</TableHead>{["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map((d)=><TableHead key={d} className="text-xs font-medium text-center">{d}</TableHead>)}</TableRow></TableHeader><TableBody>{rosterData.map((row,i)=>(<TableRow key={i} className="hover:bg-[var(--saptta-bg-2)]"><TableCell className="font-medium text-sm">{row.name}</TableCell>{(["mon","tue","wed","thu","fri","sat","sun"] as const).map((day)=>(<TableCell key={day} className="text-center"><span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${row[day]==="General"?"bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)]":row[day]==="Night"?"bg-purple-100 text-purple-600":row[day]==="Rotational"?"bg-[var(--saptta-accent-2)]/20 text-[#6b7a1e]":"bg-gray-100 text-gray-400"}`}>{row[day]}</span></TableCell>))}</TableRow>))}</TableBody></Table></ScrollArea></CardContent></Card></motion.div>
+
+      {/* ── Assign Shift Dialog ── */}
+      <Dialog open={assignOpen} onOpenChange={setAssignOpen}>
+        <DialogContent className="sm:max-w-sm rounded-[24px] p-0">
+          <DialogHeader className="p-6 pb-3"><DialogTitle>Assign Shift</DialogTitle><DialogDescription className="text-xs text-[var(--saptta-mute)]">Assign a shift to an employee</DialogDescription></DialogHeader>
+          <div className="px-6 pb-6 space-y-4">
+            <div><Label className="text-xs">Employee Name</Label><Input className="mt-1 rounded-xl text-sm" placeholder="e.g. Aarav K." value={assignEmployee} onChange={(e) => setAssignEmployee(e.target.value)} /></div>
+            <div><Label className="text-xs">Shift</Label>
+              <Select value={assignShift} onValueChange={setAssignShift}>
+                <SelectTrigger className="mt-1 rounded-xl text-sm h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="General">General (9AM – 6PM)</SelectItem>
+                  <SelectItem value="Night">Night (10PM – 7AM)</SelectItem>
+                  <SelectItem value="Rotational">Rotational</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label className="text-xs">Effective From</Label><Input type="date" className="mt-1 rounded-xl text-sm" /></div>
+            <div className="flex gap-2 pt-1">
+              <Button variant="outline" className="flex-1 rounded-xl text-xs" onClick={() => setAssignOpen(false)}>Cancel</Button>
+              <Button className="flex-1 rounded-xl text-xs bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => { if (!assignEmployee) { toast.error("Enter employee name"); return; } setAssignOpen(false); toast.success(`${assignShift} shift assigned to ${assignEmployee}`); setAssignEmployee(""); }}>Assign</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -261,11 +330,38 @@ function LeaveTab() {
 
 function HolidaysTab() {
   const [filterType, setFilterType] = useState("all");
+  const [addHolidayOpen, setAddHolidayOpen] = useState(false);
+  const [newHoliday, setNewHoliday] = useState({ name: "", date: "", type: "National" });
   const filteredHolidays = holidays2026.filter(h => filterType === "all" || h.type.toLowerCase() === filterType);
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">{[{label:"National Holidays",count:holidays2026.filter(h=>h.type==="National").length,icon:<Flag className="w-5 h-5" />,color:"var(--saptta-accent)"},{label:"Company Holidays",count:holidays2026.filter(h=>h.type==="Company").length,icon:<Building2 className="w-5 h-5" />,color:"var(--saptta-accent-2)"},{label:"Restricted Holidays",count:holidays2026.filter(h=>h.type==="Restricted").length,icon:<Info className="w-5 h-5" />,color:"#f59e0b"}].map((item,i)=>(<motion.div key={item.label} variants={fadeUp} initial="hidden" animate="show" transition={{delay:i*0.05}}><Card className="rounded-[24px] border-0 shadow-lg"><CardContent className="p-5 flex items-center gap-4"><div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{backgroundColor:`${item.color}15`,color:item.color}}>{item.icon}</div><div><p className="text-2xl font-bold">{item.count}</p><p className="text-xs text-[var(--saptta-mute)]">{item.label}</p></div></CardContent></Card></motion.div>))}</div>
-      <motion.div variants={fadeUp} initial="hidden" animate="show"><Card className="rounded-[24px] border-0 shadow-lg"><CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-lg font-semibold">Holiday Calendar 2026</CardTitle><div className="flex items-center gap-2"><Select value={filterType} onValueChange={setFilterType}><SelectTrigger className="w-[140px] rounded-full h-8 text-xs"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All Types</SelectItem><SelectItem value="national">National</SelectItem><SelectItem value="company">Company</SelectItem><SelectItem value="restricted">Restricted</SelectItem></SelectContent></Select><Button size="sm" className="rounded-full text-xs bg-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)]/90 text-white"><Plus className="w-3.5 h-3.5 mr-1" />Add Holiday</Button></div></div></CardHeader><CardContent><ScrollArea className="max-h-96"><div className="space-y-2">{filteredHolidays.map((holiday)=>{const d=new Date(holiday.date);return(<div key={holiday.id} className="flex items-center justify-between p-3 rounded-2xl border border-[var(--saptta-line)] hover:border-[var(--saptta-accent)]/30 transition-colors"><div className="flex items-center gap-4"><div className="w-12 h-12 rounded-2xl bg-[var(--saptta-bg-2)] flex flex-col items-center justify-center"><span className="text-lg font-bold leading-none">{d.getDate()}</span><span className="text-[10px] text-[var(--saptta-mute)]">{d.toLocaleDateString("en-IN",{month:"short"})}</span></div><div><p className="font-medium text-sm">{holiday.name}</p><p className="text-xs text-[var(--saptta-mute)]">{d.toLocaleDateString("en-IN",{weekday:"long"})}</p></div></div><Badge variant="secondary" className={`rounded-full text-xs ${holiday.type==="National"?"bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)]":holiday.type==="Company"?"bg-[var(--saptta-accent-2)]/20 text-[#6b7a1e]":"bg-amber-100 text-amber-700"}`}>{holiday.type}</Badge></div>)})}</div></ScrollArea></CardContent></Card></motion.div>
+      <motion.div variants={fadeUp} initial="hidden" animate="show"><Card className="rounded-[24px] border-0 shadow-lg"><CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-lg font-semibold">Holiday Calendar 2026</CardTitle><div className="flex items-center gap-2"><Select value={filterType} onValueChange={setFilterType}><SelectTrigger className="w-[140px] rounded-full h-8 text-xs"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All Types</SelectItem><SelectItem value="national">National</SelectItem><SelectItem value="company">Company</SelectItem><SelectItem value="restricted">Restricted</SelectItem></SelectContent></Select><Button size="sm" className="rounded-full text-xs bg-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)]/90 text-white" onClick={() => setAddHolidayOpen(true)}><Plus className="w-3.5 h-3.5 mr-1" />Add Holiday</Button></div></div></CardHeader><CardContent><ScrollArea className="max-h-96"><div className="space-y-2">{filteredHolidays.map((holiday)=>{const d=new Date(holiday.date);return(<div key={holiday.id} className="flex items-center justify-between p-3 rounded-2xl border border-[var(--saptta-line)] hover:border-[var(--saptta-accent)]/30 transition-colors"><div className="flex items-center gap-4"><div className="w-12 h-12 rounded-2xl bg-[var(--saptta-bg-2)] flex flex-col items-center justify-center"><span className="text-lg font-bold leading-none">{d.getDate()}</span><span className="text-[10px] text-[var(--saptta-mute)]">{d.toLocaleDateString("en-IN",{month:"short"})}</span></div><div><p className="font-medium text-sm">{holiday.name}</p><p className="text-xs text-[var(--saptta-mute)]">{d.toLocaleDateString("en-IN",{weekday:"long"})}</p></div></div><Badge variant="secondary" className={`rounded-full text-xs ${holiday.type==="National"?"bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)]":holiday.type==="Company"?"bg-[var(--saptta-accent-2)]/20 text-[#6b7a1e]":"bg-amber-100 text-amber-700"}`}>{holiday.type}</Badge></div>)})}</div></ScrollArea></CardContent></Card></motion.div>
+
+      {/* ── Add Holiday Dialog ── */}
+      <Dialog open={addHolidayOpen} onOpenChange={setAddHolidayOpen}>
+        <DialogContent className="sm:max-w-sm rounded-[24px] p-0">
+          <DialogHeader className="p-6 pb-3"><DialogTitle>Add Holiday</DialogTitle><DialogDescription className="text-xs text-[var(--saptta-mute)]">Add to the 2026 holiday calendar</DialogDescription></DialogHeader>
+          <div className="px-6 pb-6 space-y-4">
+            <div><Label className="text-xs">Holiday Name *</Label><Input className="mt-1 rounded-xl text-sm" placeholder="e.g. Eid al-Fitr" value={newHoliday.name} onChange={(e) => setNewHoliday({...newHoliday, name: e.target.value})} /></div>
+            <div><Label className="text-xs">Date *</Label><Input type="date" className="mt-1 rounded-xl text-sm" value={newHoliday.date} onChange={(e) => setNewHoliday({...newHoliday, date: e.target.value})} /></div>
+            <div><Label className="text-xs">Type</Label>
+              <Select value={newHoliday.type} onValueChange={(v) => setNewHoliday({...newHoliday, type: v})}>
+                <SelectTrigger className="mt-1 rounded-xl text-sm h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="National">National</SelectItem>
+                  <SelectItem value="Company">Company</SelectItem>
+                  <SelectItem value="Restricted">Restricted</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 pt-1">
+              <Button variant="outline" className="flex-1 rounded-xl text-xs" onClick={() => setAddHolidayOpen(false)}>Cancel</Button>
+              <Button className="flex-1 rounded-xl text-xs bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => { if (!newHoliday.name || !newHoliday.date) { toast.error("Name and date are required"); return; } setAddHolidayOpen(false); toast.success(`"${newHoliday.name}" added to holiday calendar`); setNewHoliday({ name: "", date: "", type: "National" }); }}>Add Holiday</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
