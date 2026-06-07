@@ -68,7 +68,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   Table,
   TableBody,
@@ -578,7 +577,7 @@ function CandidateDetailDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
-        <VisuallyHidden.Root><DialogTitle>Candidate Details</DialogTitle></VisuallyHidden.Root>
+        <DialogTitle className="sr-only">Candidate Details</DialogTitle>
         <div className="bg-gradient-to-r from-[#0a0a0b] to-[#1a1a1c] p-6 rounded-t-[24px]">
           <div className="flex items-start gap-4">
             <Avatar className="size-14 rounded-2xl border-2 border-white/20">
@@ -753,7 +752,7 @@ function JobDetailDialog({ job, open, onOpenChange, candidates, onPublish, onEdi
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
-        <VisuallyHidden.Root><DialogTitle>Job Details</DialogTitle></VisuallyHidden.Root>
+        <DialogTitle className="sr-only">Job Details</DialogTitle>
         <div className="p-6 space-y-5">
           <div className="flex items-start justify-between">
             <div>
@@ -887,7 +886,7 @@ function JDPublishDialog({ job, open, onOpenChange }: { job: JobPosting | null; 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
-        <VisuallyHidden.Root><DialogTitle>Interview Schedule</DialogTitle></VisuallyHidden.Root>
+        <DialogTitle className="sr-only">Interview Schedule</DialogTitle>
         <div className="bg-gradient-to-r from-[#0a0a0b] to-[#1a1a1c] p-6 rounded-t-[24px]">
           <div className="flex items-center gap-3">
             <div className="size-10 rounded-[16px] bg-white/10 flex items-center justify-center"><Globe className="size-5 text-white" /></div>
@@ -934,7 +933,7 @@ function EmailCandidateDialog({ open, onOpenChange, candidateName, candidateEmai
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg rounded-[24px] p-0">
-        <VisuallyHidden.Root><DialogTitle>Email Candidate</DialogTitle></VisuallyHidden.Root>
+        <DialogTitle className="sr-only">Email Candidate</DialogTitle>
         <div className="bg-gradient-to-r from-[var(--saptta-accent)] to-[#ff8f5c] p-5 rounded-t-[24px]">
           <div className="flex items-center gap-3">
             <div className="size-10 rounded-[16px] bg-white/20 flex items-center justify-center"><Mail className="size-5 text-white" /></div>
@@ -2150,7 +2149,7 @@ function CreateEditJobDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto rounded-[24px] p-0">
-        <VisuallyHidden.Root><DialogTitle>Job Requisition</DialogTitle></VisuallyHidden.Root>
+        <DialogTitle className="sr-only">Job Requisition</DialogTitle>
         {/* Header */}
         <div className="bg-[var(--saptta-accent)] p-5 rounded-t-[24px]">
           <div className="flex items-center gap-3">
@@ -2598,7 +2597,7 @@ function JobsTab({ candidates, onPublish, jobs, onCreateJob, onEditJob, onDelete
       {/* Delete Confirmation */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <DialogContent className="sm:max-w-md rounded-[24px] p-0">
-          <VisuallyHidden.Root><DialogTitle>Confirm Delete</DialogTitle></VisuallyHidden.Root>
+          <DialogTitle className="sr-only">Confirm Delete</DialogTitle>
           <div className="p-6 text-center space-y-4">
             <div className="size-14 rounded-full bg-red-50 flex items-center justify-center mx-auto">
               <AlertTriangle className="size-7 text-red-500" />
@@ -3033,7 +3032,7 @@ export function EnhancedRecruitmentView() {
       {/* HireMind AI Analysis Dialog */}
       <Dialog open={aiAnalysisOpen} onOpenChange={setAiAnalysisOpen}>
         <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
-          <VisuallyHidden.Root><DialogTitle>AI Analysis</DialogTitle></VisuallyHidden.Root>
+          <DialogTitle className="sr-only">AI Analysis</DialogTitle>
           <div className="bg-[var(--saptta-accent)] p-5 rounded-t-[24px]">
             <div className="flex items-center gap-3">
               <div className="size-10 rounded-[16px] bg-white/20 flex items-center justify-center">
