@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -106,7 +106,7 @@ const demoRoles: DemoRole[] = [
     email: "priya@kamglobal.io",
     password: "admin123",
     icon: Shield,
-    accent: "#FF9900",
+    accent: "var(--saptta-accent)",
     accentLight: "rgba(255, 153, 0, 0.08)",
     description: "Full HR management & compliance",
   },
@@ -115,7 +115,7 @@ const demoRoles: DemoRole[] = [
     email: "rajesh@kamglobal.io",
     password: "manager123",
     icon: Users,
-    accent: "#0066CC",
+    accent: "var(--saptta-accent-2)",
     accentLight: "rgba(0, 102, 204, 0.08)",
     description: "Team oversight & approvals",
   },
@@ -124,7 +124,7 @@ const demoRoles: DemoRole[] = [
     email: "anita@kamglobal.io",
     password: "employee123",
     icon: UserCheck,
-    accent: "#FF9900",
+    accent: "var(--saptta-accent)",
     accentLight: "rgba(255, 153, 0, 0.08)",
     description: "Self-service HR portal",
   },
@@ -133,7 +133,7 @@ const demoRoles: DemoRole[] = [
     email: "kavitha@kamglobal.io",
     password: "recruiter123",
     icon: UserPlus,
-    accent: "#0066CC",
+    accent: "var(--saptta-accent-2)",
     accentLight: "rgba(0, 102, 204, 0.08)",
     description: "Candidate pipeline & screening",
   },
@@ -142,7 +142,7 @@ const demoRoles: DemoRole[] = [
     email: "arun@gmail.com",
     password: "applicant123",
     icon: Briefcase,
-    accent: "#003d7a",
+    accent: "var(--saptta-accent-3)",
     accentLight: "rgba(139, 92, 246, 0.08)",
     description: "Application tracking & status",
   },
@@ -158,14 +158,14 @@ function KamLoginLogo({ size = "default" }: { size?: "default" | "small" }) {
         className={`relative flex shrink-0 items-center justify-center rounded-[16px] text-white font-bold shadow-lg ${
           isSmall ? "size-9 text-base" : "size-12 text-xl"
         }`}
-        style={{ background: "#FF9900" }}
+        style={{ background: "var(--saptta-accent)" }}
       >
         <span className="relative z-10">K</span>
       </div>
       <span
         className={`font-bold tracking-tight text-white ${isSmall ? "text-xl" : "text-3xl"}`}
       >
-        <span style={{ color: "#FF9900" }}>K</span><span style={{ color: "#0066CC" }}>am</span>
+        <span style={{ color: "var(--saptta-accent)" }}>K</span><span style={{ color: "var(--saptta-accent-2)" }}>am</span>
       </span>
     </div>
   );
@@ -196,7 +196,7 @@ function FeatureHighlight({
           border: "1px solid rgba(255, 153, 0, 0.15)",
         }}
       >
-        <Icon className="size-5" style={{ color: "#FF9900" }} />
+        <Icon className="size-5" style={{ color: "var(--saptta-accent)" }} />
       </div>
       <div>
         <h4 className="text-sm font-semibold text-white mb-1">{title}</h4>
@@ -584,7 +584,7 @@ export function LoginPage({ onSwitchToRegister }: { onSwitchToRegister?: () => v
                 disabled={isLoading}
                 className="relative h-11 w-full rounded-[999px] text-sm font-semibold text-white shadow-lg transition-all duration-300 overflow-hidden group"
                 style={{
-                  background: "#FF9900",
+                  background: "var(--saptta-accent)",
                   boxShadow: "0 4px 20px rgba(255, 153, 0, 0.3)",
                 }}
               >

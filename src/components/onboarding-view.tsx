@@ -10,6 +10,7 @@ import {
   Package, Key, CreditCard, Library, Building2, UserCheck,
   FileDown, Eye, Play, Pause
 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -307,6 +308,36 @@ export function OnboardingView() {
   const [selectedHire, setSelectedHire] = useState(newHires[0]);
   const [showWelcomeEmail, setShowWelcomeEmail] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [addHireOpen, setAddHireOpen] = useState(false);
+  const [newHireForm, setNewHireForm] = useState({ name: "", role: "", dept: "", startDate: "", email: "" });
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewType, setPreviewType] = useState<"experience" | "relieving" | "service">("experience");
+
+  function handleAddHire() {
+    if (!newHireForm.name || !newHireForm.role) { toast.error("Name and Role are required"); return; }
+    toast.success(`New hire ${newHireForm.name} added successfully!`);
+    setAddHireOpen(false);
+    setNewHireForm({ name: "", role: "", dept: "", startDate: "", email: "" });
+  }
+
+  function handleGenerate(type: string) {
+    toast.success(`Generating ${type}… Download will start shortly.`);
+  }
+
+  const LETTER_PREVIEW: Record<string, { title: string; body: string }> = {
+    experience: {
+      title: "Experience Letter",
+      body: `To Whomsoever It May Concern,\n\nThis is to certify that ${selectedHire.name} was employed with Kam Global for Digital AI Media Solutions Pvt. Ltd. in the capacity of ${selectedHire.role}.\n\nDuring their tenure, they have demonstrated excellent skills and dedication.\n\nWe wish them success in their future endeavours.\n\nSincerely,\nHR Department\nKam Global for Digital AI Media Solutions Pvt. Ltd.`,
+    },
+    relieving: {
+      title: "Relieving Letter",
+      body: `Dear ${selectedHire.name},\n\nThis is to inform you that you have been relieved from your duties as ${selectedHire.role} at Kam Global for Digital AI Media Solutions Pvt. Ltd. effective from your last working day.\n\nYou have been relieved of all your responsibilities. We thank you for your contributions to the organisation.\n\nBest regards,\nHR Department\nKam Global for Digital AI Media Solutions Pvt. Ltd.`,
+    },
+    service: {
+      title: "Service Certificate",
+      body: `SERVICE CERTIFICATE\n\nThis is to certify that ${selectedHire.name} served as ${selectedHire.role} in the ${selectedHire.dept} department at Kam Global for Digital AI Media Solutions Pvt. Ltd.\n\nDuring the entire period of service, their conduct and performance were found to be satisfactory.\n\nIssued for the purpose of employment.\n\nHR Department\nKam Global for Digital AI Media Solutions Pvt. Ltd.`,
+    },
+  };
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
@@ -315,7 +346,7 @@ export function OnboardingView() {
           <h1 className="text-2xl md:text-3xl font-bold text-[var(--saptta-ink)] tracking-tight">Onboarding & Offboarding</h1>
           <p className="text-[var(--saptta-mute)] mt-1 text-sm">Manage new hire journeys, offboarding processes, and exit clearances.</p>
         </div>
-        <Button size="sm" className="rounded-xl bg-[var(--saptta-accent)] text-white text-xs hover:bg-[var(--saptta-accent)]/90">
+        <Button size="sm" onClick={() => setAddHireOpen(true)} className="rounded-xl bg-[var(--saptta-accent)] text-white text-xs hover:bg-[var(--saptta-accent)]/90">
           <UserPlus className="size-3.5 mr-1.5" />
           Add New Hire
         </Button>
@@ -917,10 +948,10 @@ export function OnboardingView() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="rounded-lg text-[10px] h-8">
+                        <Button variant="outline" size="sm" className="rounded-lg text-[10px] h-8" onClick={() => { setPreviewType("experience"); setPreviewOpen(true); }}>
                           <Eye className="size-3 mr-1" />Preview
                         </Button>
-                        <Button size="sm" className="rounded-lg bg-[var(--saptta-accent)] text-white text-[10px] h-8 hover:bg-[var(--saptta-accent)]/90">
+                        <Button size="sm" className="rounded-lg bg-[var(--saptta-accent)] text-white text-[10px] h-8 hover:bg-[var(--saptta-accent)]/90" onClick={() => handleGenerate("Experience Letter")}>
                           <FileDown className="size-3 mr-1" />Generate
                         </Button>
                       </div>
@@ -940,10 +971,10 @@ export function OnboardingView() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="rounded-lg text-[10px] h-8">
+                        <Button variant="outline" size="sm" className="rounded-lg text-[10px] h-8" onClick={() => { setPreviewType("relieving"); setPreviewOpen(true); }}>
                           <Eye className="size-3 mr-1" />Preview
                         </Button>
-                        <Button size="sm" className="rounded-lg bg-[var(--saptta-accent)] text-white text-[10px] h-8 hover:bg-[var(--saptta-accent)]/90">
+                        <Button size="sm" className="rounded-lg bg-[var(--saptta-accent)] text-white text-[10px] h-8 hover:bg-[var(--saptta-accent)]/90" onClick={() => handleGenerate("Relieving Letter")}>
                           <FileDown className="size-3 mr-1" />Generate
                         </Button>
                       </div>
@@ -963,10 +994,10 @@ export function OnboardingView() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="rounded-lg text-[10px] h-8">
+                        <Button variant="outline" size="sm" className="rounded-lg text-[10px] h-8" onClick={() => { setPreviewType("service"); setPreviewOpen(true); }}>
                           <Eye className="size-3 mr-1" />Preview
                         </Button>
-                        <Button size="sm" className="rounded-lg bg-[var(--saptta-accent)] text-white text-[10px] h-8 hover:bg-[var(--saptta-accent)]/90">
+                        <Button size="sm" className="rounded-lg bg-[var(--saptta-accent)] text-white text-[10px] h-8 hover:bg-[var(--saptta-accent)]/90" onClick={() => handleGenerate("Service Certificate")}>
                           <FileDown className="size-3 mr-1" />Generate
                         </Button>
                       </div>
@@ -985,6 +1016,67 @@ export function OnboardingView() {
           </TabsContent>
         </Tabs>
       </motion.div>
+
+      {/* ── Add New Hire Dialog ── */}
+      <Dialog open={addHireOpen} onOpenChange={setAddHireOpen}>
+        <DialogContent className="sm:max-w-md rounded-[24px] p-0">
+          <DialogHeader className="p-6 pb-3">
+            <DialogTitle className="text-lg font-bold text-[var(--saptta-ink)]">Add New Hire</DialogTitle>
+          </DialogHeader>
+          <div className="px-6 pb-6 space-y-3">
+            <div>
+              <label className="text-xs font-medium text-[var(--saptta-ink-2)] mb-1 block">Full Name *</label>
+              <Input placeholder="e.g. Priya Sharma" value={newHireForm.name} onChange={e => setNewHireForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl border-[var(--saptta-line)]" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-[var(--saptta-ink-2)] mb-1 block">Role / Designation *</label>
+              <Input placeholder="e.g. Frontend Developer" value={newHireForm.role} onChange={e => setNewHireForm(f => ({ ...f, role: e.target.value }))} className="rounded-xl border-[var(--saptta-line)]" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-[var(--saptta-ink-2)] mb-1 block">Department</label>
+              <Input placeholder="e.g. Engineering" value={newHireForm.dept} onChange={e => setNewHireForm(f => ({ ...f, dept: e.target.value }))} className="rounded-xl border-[var(--saptta-line)]" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-[var(--saptta-ink-2)] mb-1 block">Work Email</label>
+              <Input type="email" placeholder="priya@company.com" value={newHireForm.email} onChange={e => setNewHireForm(f => ({ ...f, email: e.target.value }))} className="rounded-xl border-[var(--saptta-line)]" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-[var(--saptta-ink-2)] mb-1 block">Start Date</label>
+              <Input type="date" value={newHireForm.startDate} onChange={e => setNewHireForm(f => ({ ...f, startDate: e.target.value }))} className="rounded-xl border-[var(--saptta-line)]" />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" className="flex-1 rounded-xl border-[var(--saptta-line)]" onClick={() => setAddHireOpen(false)}>Cancel</Button>
+              <Button className="flex-1 rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={handleAddHire}>
+                <UserPlus className="size-4 mr-1.5" />Add Hire
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Letter Preview Dialog ── */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="sm:max-w-lg rounded-[24px] p-0">
+          <DialogHeader className="p-6 pb-3 border-b border-[var(--saptta-line)]">
+            <DialogTitle className="text-base font-bold text-[var(--saptta-ink)]">
+              {LETTER_PREVIEW[previewType]?.title} — Preview
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-6">
+            <div className="rounded-xl bg-[var(--saptta-bg-2)] border border-[var(--saptta-line)] p-5">
+              <pre className="text-xs text-[var(--saptta-ink-2)] whitespace-pre-wrap font-sans leading-relaxed">
+                {LETTER_PREVIEW[previewType]?.body}
+              </pre>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <Button variant="outline" className="flex-1 rounded-xl border-[var(--saptta-line)]" onClick={() => setPreviewOpen(false)}>Close</Button>
+              <Button className="flex-1 rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => { handleGenerate(LETTER_PREVIEW[previewType]?.title); setPreviewOpen(false); }}>
+                <FileDown className="size-4 mr-1.5" />Generate & Download
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }

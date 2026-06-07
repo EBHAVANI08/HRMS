@@ -42,20 +42,20 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* Kam brand colors — Orange & Blue from Kam Global logo */
-  --color-kam-accent: #FF9900;
-  --color-kam-accent-2: #0066CC;
-  --color-kam-accent-3: #003d7a;
-  --color-kam-ink: #0a0a0a;
-  --color-kam-ink-2: #2b2b2b;
-  --color-kam-mute: #8a8680;
-  --color-kam-line: #e8e8e8;
+  /* Kam brand colors — Navy & Gold professional palette */
+  --color-kam-accent: #fdc500;
+  --color-kam-accent-2: #00509d;
+  --color-kam-accent-3: #003f88;
+  --color-kam-ink: #00296b;
+  --color-kam-ink-2: #003f88;
+  --color-kam-mute: #6b82a8;
+  --color-kam-line: #dde7f5;
   --color-kam-bg: #ffffff;
-  --color-kam-bg-2: #f5f5f5;
-  --color-kam-dark: #0a0a0b;
-  --color-kam-dark-2: #141416;
-  --color-kam-dark-card: #1a1a1c;
-  --color-kam-dark-line: #2a2a2c;
+  --color-kam-bg-2: #eef4ff;
+  --color-kam-dark: #00296b;
+  --color-kam-dark-2: #001d4a;
+  --color-kam-dark-card: #003166;
+  --color-kam-dark-line: #004080;
 
   /* custom animations */
   --animate-fade-up: fadeUp 0.5s cubic-bezier(.22,.8,.22,1) forwards;
@@ -71,34 +71,42 @@
 /* ─── Kam Design Tokens ─── */
 :root {
   --radius: 0.625rem;
-  --kam-accent: #FF9900;
-  --kam-accent-2: #0066CC;
-  --kam-accent-3: #003d7a;
-  --kam-ink: #0a0a0a;
-  --kam-ink-2: #2b2b2b;
-  --kam-mute: #8a8680;
-  --kam-line: #e8e8e8;
+
+  /* Kam professional palette */
+  --imperial-blue: #00296b;
+  --french-blue: #003f88;
+  --steel-azure: #00509d;
+  --school-bus-yellow: #fdc500;
+  --gold: #ffd500;
+
+  --kam-accent: #fdc500;
+  --kam-accent-2: #00509d;
+  --kam-accent-3: #003f88;
+  --kam-ink: #00296b;
+  --kam-ink-2: #003f88;
+  --kam-mute: #6b82a8;
+  --kam-line: #dde7f5;
   --kam-bg: #ffffff;
-  --kam-bg-2: #f5f5f5;
-  --kam-dark: #0a0a0b;
-  --kam-dark-2: #141416;
-  --kam-dark-card: #1a1a1c;
-  --kam-dark-line: #2a2a2c;
+  --kam-bg-2: #eef4ff;
+  --kam-dark: #00296b;
+  --kam-dark-2: #001d4a;
+  --kam-dark-card: #003166;
+  --kam-dark-line: #004080;
 
   /* Backward-compatible aliases (saptta → kam) */
-  --saptta-accent: #FF9900;
-  --saptta-accent-2: #0066CC;
-  --saptta-accent-3: #003d7a;
-  --saptta-ink: #0a0a0a;
-  --saptta-ink-2: #2b2b2b;
-  --saptta-mute: #8a8680;
-  --saptta-line: #e8e8e8;
+  --saptta-accent: #fdc500;
+  --saptta-accent-2: #00509d;
+  --saptta-accent-3: #003f88;
+  --saptta-ink: #00296b;
+  --saptta-ink-2: #003f88;
+  --saptta-mute: #6b82a8;
+  --saptta-line: #dde7f5;
   --saptta-bg: #ffffff;
-  --saptta-bg-2: #f5f5f5;
-  --saptta-dark: #0a0a0b;
-  --saptta-dark-2: #141416;
-  --saptta-dark-card: #1a1a1c;
-  --saptta-dark-line: #2a2a2c;
+  --saptta-bg-2: #eef4ff;
+  --saptta-dark: #00296b;
+  --saptta-dark-2: #001d4a;
+  --saptta-dark-card: #003166;
+  --saptta-dark-line: #004080;
 
   /* Kam easing */
   --ease-smooth: cubic-bezier(.22,.8,.22,1);
@@ -112,74 +120,74 @@
 
   /* shadcn/ui mapped to Kam */
   --background: #ffffff;
-  --foreground: #0a0a0a;
+  --foreground: #00296b;
   --card: #ffffff;
-  --card-foreground: #0a0a0a;
+  --card-foreground: #00296b;
   --popover: #ffffff;
-  --popover-foreground: #0a0a0a;
-  --primary: #FF9900;
+  --popover-foreground: #00296b;
+  --primary: #00509d;
   --primary-foreground: #ffffff;
-  --secondary: #0066CC;
-  --secondary-foreground: #ffffff;
-  --muted: #f5f5f5;
-  --muted-foreground: #8a8680;
-  --accent: #fff8ed;
-  --accent-foreground: #FF9900;
+  --secondary: #fdc500;
+  --secondary-foreground: #00296b;
+  --muted: #eef4ff;
+  --muted-foreground: #6b82a8;
+  --accent: #eef4ff;
+  --accent-foreground: #00509d;
   --destructive: #ef4444;
-  --border: #e8e8e8;
-  --input: #e8e8e8;
-  --ring: #FF9900;
+  --border: #dde7f5;
+  --input: #dde7f5;
+  --ring: #00509d;
 
-  --chart-1: #FF9900;
-  --chart-2: #0066CC;
-  --chart-3: #003d7a;
-  --chart-4: #f59e0b;
-  --chart-5: #8b5cf6;
+  --chart-1: #fdc500;
+  --chart-2: #00509d;
+  --chart-3: #003f88;
+  --chart-4: #ffd500;
+  --chart-5: #00296b;
 
-  --sidebar: #fafafa;
-  --sidebar-foreground: #0a0a0a;
-  --sidebar-primary: #FF9900;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #00296b;
+  --sidebar-primary: #00509d;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #fff8ed;
-  --sidebar-accent-foreground: #FF9900;
-  --sidebar-border: #e8e8e8;
-  --sidebar-ring: #FF9900;
+  --sidebar-accent: #eef4ff;
+  --sidebar-accent-foreground: #00509d;
+  --sidebar-border: #dde7f5;
+  --sidebar-ring: #00509d;
 }
 
 .dark {
-  --background: #0a0a0b;
-  --foreground: #f5f5f5;
-  --card: #1a1a1c;
-  --card-foreground: #f5f5f5;
-  --popover: #1a1a1c;
-  --popover-foreground: #f5f5f5;
-  --primary: #FF9900;
-  --primary-foreground: #ffffff;
-  --secondary: #0066CC;
+  --background: #001d4a;
+  --foreground: #e8f0ff;
+  --card: #003166;
+  --card-foreground: #e8f0ff;
+  --popover: #003166;
+  --popover-foreground: #e8f0ff;
+  --primary: #fdc500;
+  --primary-foreground: #00296b;
+  --secondary: #00509d;
   --secondary-foreground: #ffffff;
-  --muted: #141416;
-  --muted-foreground: #8a8680;
-  --accent: #1a1a1c;
-  --accent-foreground: #FF9900;
+  --muted: #003166;
+  --muted-foreground: #7da0c8;
+  --accent: #003f88;
+  --accent-foreground: #fdc500;
   --destructive: #ef4444;
-  --border: #2a2a2c;
-  --input: #2a2a2c;
-  --ring: #FF9900;
+  --border: #004080;
+  --input: #004080;
+  --ring: #fdc500;
 
-  --chart-1: #FF9900;
-  --chart-2: #0066CC;
-  --chart-3: #003d7a;
-  --chart-4: #f59e0b;
-  --chart-5: #8b5cf6;
+  --chart-1: #fdc500;
+  --chart-2: #00509d;
+  --chart-3: #7da0c8;
+  --chart-4: #ffd500;
+  --chart-5: #4d8bc9;
 
-  --sidebar: #0a0a0b;
-  --sidebar-foreground: #f5f5f5;
-  --sidebar-primary: #FF9900;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1a1a1c;
-  --sidebar-accent-foreground: #FF9900;
-  --sidebar-border: #2a2a2c;
-  --sidebar-ring: #FF9900;
+  --sidebar: #00296b;
+  --sidebar-foreground: #e8f0ff;
+  --sidebar-primary: #fdc500;
+  --sidebar-primary-foreground: #00296b;
+  --sidebar-accent: #003f88;
+  --sidebar-accent-foreground: #fdc500;
+  --sidebar-border: #004080;
+  --sidebar-ring: #fdc500;
 }
 
 /* ─── Keyframe Animations ─── */
@@ -196,10 +204,10 @@
 
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(255, 153, 0, 0);
+    box-shadow: 0 0 0 0 rgba(0, 80, 157, 0);
   }
   50% {
-    box-shadow: 0 0 20px 4px rgba(255, 153, 0, 0.15);
+    box-shadow: 0 0 20px 4px rgba(0, 80, 157, 0.15);
   }
 }
 
@@ -302,6 +310,14 @@ body::before {
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+  button, input, select, textarea {
+    font-family: inherit;
   }
 }
 

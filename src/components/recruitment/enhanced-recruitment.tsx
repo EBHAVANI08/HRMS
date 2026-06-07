@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -68,6 +68,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   Table,
   TableBody,
@@ -212,9 +213,9 @@ interface HighScoreNotification {
 
 const STAGE_CONFIG: Record<PipelineStage, { label: string; color: string; bgColor: string; dotColor: string }> = {
   sourced: { label: "Sourced", color: "#8b5cf6", bgColor: "#8b5cf615", dotColor: "#8b5cf6" },
-  screening: { label: "Screening", color: "#FF9900", bgColor: "#FF990015", dotColor: "#FF9900" },
+  screening: { label: "Screening", color: "var(--saptta-accent)", bgColor: "var(--saptta-accent)15", dotColor: "var(--saptta-accent)" },
   interview: { label: "Interview", color: "#f59e0b", bgColor: "#f59e0b15", dotColor: "#f59e0b" },
-  assessment: { label: "Assessment", color: "#0066CC", bgColor: "#0066CC20", dotColor: "#0066CC" },
+  assessment: { label: "Assessment", color: "var(--saptta-accent-2)", bgColor: "var(--saptta-accent-2)20", dotColor: "var(--saptta-accent-2)" },
   offer: { label: "Offer", color: "#22c55e", bgColor: "#22c55e15", dotColor: "#22c55e" },
   hired: { label: "Hired", color: "#3b82f6", bgColor: "#3b82f615", dotColor: "#3b82f6" },
   rejected: { label: "Rejected", color: "#ef4444", bgColor: "#ef444415", dotColor: "#ef4444" },
@@ -528,14 +529,14 @@ GCP Professional Machine Learning Engineer`,
 
 function getScoreColor(score: number): string {
   if (score >= 85) return "#22c55e";
-  if (score >= 70) return "#0066CC";
+  if (score >= 70) return "var(--saptta-accent-2)";
   if (score >= 50) return "#f59e0b";
   return "#ef4444";
 }
 
 function getScoreBgColor(score: number): string {
   if (score >= 85) return "#22c55e15";
-  if (score >= 70) return "#0066CC20";
+  if (score >= 70) return "var(--saptta-accent-2)20";
   if (score >= 50) return "#f59e0b15";
   return "#ef444415";
 }
@@ -577,10 +578,11 @@ function CandidateDetailDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
+        <VisuallyHidden.Root><DialogTitle>Candidate Details</DialogTitle></VisuallyHidden.Root>
         <div className="bg-gradient-to-r from-[#0a0a0b] to-[#1a1a1c] p-6 rounded-t-[24px]">
           <div className="flex items-start gap-4">
             <Avatar className="size-14 rounded-2xl border-2 border-white/20">
-              <AvatarFallback className="rounded-2xl bg-[#FF9900] text-white text-lg font-bold">{candidate.avatar}</AvatarFallback>
+              <AvatarFallback className="rounded-2xl bg-[var(--saptta-accent)] text-white text-lg font-bold">{candidate.avatar}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <h2 className="text-xl font-bold text-white">{candidate.name}</h2>
@@ -610,7 +612,7 @@ function CandidateDetailDialog({
           {analysis ? (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Brain className="size-4 text-[#FF9900]" />
+                <Brain className="size-4 text-[var(--saptta-accent)]" />
                 <h3 className="text-sm font-semibold text-[var(--saptta-ink)]">HireMind AI Analysis</h3>
                 <Badge className="rounded-full text-[9px] border-0 px-2 py-0.5" style={{ backgroundColor: analysis.shortlistDecision ? "#22c55e15" : "#ef444415", color: analysis.shortlistDecision ? "#22c55e" : "#ef4444" }}>
                   {analysis.shortlistDecision ? "✓ Shortlisted" : "✗ Not Shortlisted"}
@@ -638,7 +640,7 @@ function CandidateDetailDialog({
                   <p className="text-xs font-semibold text-[var(--saptta-ink)] mb-2">Skill Expansion</p>
                   <div className="flex flex-wrap gap-1.5">
                     {analysis.skillExpansion.expanded.filter(e => e.fullForms?.length > 0).map((exp, i) => (
-                      <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0.5 bg-[#0066CC15] text-[#0066CC]">
+                      <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0.5 bg-[var(--saptta-accent-2)15] text-[var(--saptta-accent-2)]">
                         {exp.abbreviation} → {exp.fullForms[0]}
                       </Badge>
                     ))}
@@ -672,14 +674,14 @@ function CandidateDetailDialog({
                 <div>
                   <p className="text-xs font-semibold text-[var(--saptta-ink)] mb-1">Interview Likelihood: {analysis.interviewPrediction.likelihood}%</p>
                   {analysis.interviewPrediction.expectedRounds?.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1">{analysis.interviewPrediction.expectedRounds.map((r, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-[#FF990015] text-[#FF9900]">{r}</Badge>)}</div>
+                    <div className="flex flex-wrap gap-1 mt-1">{analysis.interviewPrediction.expectedRounds.map((r, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-[var(--saptta-accent)15] text-[var(--saptta-accent)]">{r}</Badge>)}</div>
                   )}
                 </div>
               )}
             </div>
           ) : (
             <div className="flex items-center justify-center py-4">
-              <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-9 text-xs px-5" onClick={() => { onRunAIAnalysis(candidate); onOpenChange(false); }}>
+              <Button className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 h-9 text-xs px-5" onClick={() => { onRunAIAnalysis(candidate); onOpenChange(false); }}>
                 <Brain className="size-4 mr-2" />Run HireMind AI Analysis
               </Button>
             </div>
@@ -707,7 +709,7 @@ function CandidateDetailDialog({
                 return (
                   <div key={i} className="flex gap-3">
                     <div className="flex flex-col items-center">
-                      <div className="size-2.5 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: isLast ? "#FF9900" : "#d4d4d4" }} />
+                      <div className="size-2.5 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: isLast ? "var(--saptta-accent)" : "#d4d4d4" }} />
                       {!isLast && <div className="w-px flex-1 bg-[#e8e8e8] dark:bg-[#2a2a2c] my-1" />}
                     </div>
                     <div className="pb-4">
@@ -751,6 +753,7 @@ function JobDetailDialog({ job, open, onOpenChange, candidates, onPublish, onEdi
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
+        <VisuallyHidden.Root><DialogTitle>Job Details</DialogTitle></VisuallyHidden.Root>
         <div className="p-6 space-y-5">
           <div className="flex items-start justify-between">
             <div>
@@ -771,7 +774,7 @@ function JobDetailDialog({ job, open, onOpenChange, candidates, onPublish, onEdi
                 </Button>
               )}
               {job.status === "open" && (
-                <Button size="sm" className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-7 text-[10px] px-3" onClick={() => onPublish(job)}>
+                <Button size="sm" className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 h-7 text-[10px] px-3" onClick={() => onPublish(job)}>
                   <Globe className="size-3 mr-1" />Publish
                 </Button>
               )}
@@ -799,7 +802,7 @@ function JobDetailDialog({ job, open, onOpenChange, candidates, onPublish, onEdi
           </div>
           <Separator />
           <div><h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2">Job Description</h3><p className="text-sm text-[var(--saptta-ink-2)] leading-relaxed">{job.description}</p></div>
-          <div><h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2">Requirements</h3><ul className="space-y-1.5">{job.requirements.map((req, i) => (<li key={i} className="flex items-start gap-2 text-sm text-[var(--saptta-ink-2)]"><CheckCircle2 className="size-3.5 text-[#0066CC] mt-0.5 shrink-0" />{req}</li>))}</ul></div>
+          <div><h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2">Requirements</h3><ul className="space-y-1.5">{job.requirements.map((req, i) => (<li key={i} className="flex items-start gap-2 text-sm text-[var(--saptta-ink-2)]"><CheckCircle2 className="size-3.5 text-[var(--saptta-accent-2)] mt-0.5 shrink-0" />{req}</li>))}</ul></div>
           <div><h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2">Responsibilities</h3><ul className="space-y-1.5">{job.responsibilities.map((resp, i) => (<li key={i} className="flex items-start gap-2 text-sm text-[var(--saptta-ink-2)]"><ArrowRight className="size-3.5 text-[var(--saptta-accent)] mt-0.5 shrink-0" />{resp}</li>))}</ul></div>
         </div>
       </DialogContent>
@@ -829,7 +832,7 @@ function JDPublishDialog({ job, open, onOpenChange }: { job: JobPosting | null; 
     { icon: Globe, title: "Career Page", description: "Publish on your company career page", color: "#22c55e", content: (
       <div className="space-y-3">
         <div className="flex items-center justify-between"><span className="text-sm text-[var(--saptta-ink-2)]">Publish on career page</span><Switch checked={careerPageEnabled} onCheckedChange={setCareerPageEnabled} /></div>
-        {careerPageEnabled && <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3"><p className="text-xs text-[var(--saptta-mute)] mb-1">Preview URL</p><p className="text-sm text-[#FF9900] font-medium truncate">{jobUrl}</p></div>}
+        {careerPageEnabled && <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3"><p className="text-xs text-[var(--saptta-mute)] mb-1">Preview URL</p><p className="text-sm text-[var(--saptta-accent)] font-medium truncate">{jobUrl}</p></div>}
       </div>
     )},
     { icon: Linkedin, title: "LinkedIn", description: "Share on LinkedIn with pre-filled post", color: "#0077b5", content: (
@@ -850,20 +853,20 @@ function JDPublishDialog({ job, open, onOpenChange }: { job: JobPosting | null; 
         <Facebook className="size-4 mr-2" />Share on Facebook
       </Button>
     )},
-    { icon: Link2, title: "Direct Link", description: "Copy shareable URL for the job posting", color: "#FF9900", content: (
+    { icon: Link2, title: "Direct Link", description: "Copy shareable URL for the job posting", color: "var(--saptta-accent)", content: (
       <div className="space-y-3">
         <div className="flex items-center gap-2"><Input value={jobUrl} readOnly className="rounded-xl text-xs h-9 flex-1" /><Button variant="outline" size="sm" className="rounded-full h-9 px-3" onClick={() => handleCopy(jobUrl, "link")}>{copiedLink ? <Check className="size-3.5 text-green-500" /> : <Copy className="size-3.5" />}</Button></div>
       </div>
     )},
-    { icon: Mail, title: "Email Template", description: "Pre-filled email with JD summary", color: "#0066CC", content: (
+    { icon: Mail, title: "Email Template", description: "Pre-filled email with JD summary", color: "var(--saptta-accent-2)", content: (
       <div className="space-y-3">
         <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3 max-h-40 overflow-y-auto"><p className="text-xs text-[var(--saptta-ink-2)] whitespace-pre-line">{emailBody}</p></div>
-        <Button className="w-full rounded-full bg-[#0066CC] text-[var(--saptta-ink)] hover:bg-[#0066CC]/90 h-9 text-xs" onClick={() => handleCopy(emailBody, "link")}>
+        <Button className="w-full rounded-full bg-[var(--saptta-accent-2)] text-[var(--saptta-ink)] hover:bg-[var(--saptta-accent-2)]/90 h-9 text-xs" onClick={() => handleCopy(emailBody, "link")}>
           <Copy className="size-4 mr-2" />Copy Email Template
         </Button>
       </div>
     )},
-    { icon: QrCode, title: "QR Code", description: "Generate QR code linking to job page", color: "#003d7a", content: (
+    { icon: QrCode, title: "QR Code", description: "Generate QR code linking to job page", color: "var(--saptta-accent-3)", content: (
       <div className="flex flex-col items-center gap-3">
         <div className="w-32 h-32 bg-[var(--saptta-bg-2)] rounded-xl flex items-center justify-center border-2 border-dashed border-[var(--saptta-line)]">
           <div className="grid grid-cols-5 gap-0.5">
@@ -884,6 +887,7 @@ function JDPublishDialog({ job, open, onOpenChange }: { job: JobPosting | null; 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
+        <VisuallyHidden.Root><DialogTitle>Interview Schedule</DialogTitle></VisuallyHidden.Root>
         <div className="bg-gradient-to-r from-[#0a0a0b] to-[#1a1a1c] p-6 rounded-t-[24px]">
           <div className="flex items-center gap-3">
             <div className="size-10 rounded-[16px] bg-white/10 flex items-center justify-center"><Globe className="size-5 text-white" /></div>
@@ -930,7 +934,8 @@ function EmailCandidateDialog({ open, onOpenChange, candidateName, candidateEmai
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg rounded-[24px] p-0">
-        <div className="bg-gradient-to-r from-[#FF9900] to-[#ff8f5c] p-5 rounded-t-[24px]">
+        <VisuallyHidden.Root><DialogTitle>Email Candidate</DialogTitle></VisuallyHidden.Root>
+        <div className="bg-gradient-to-r from-[var(--saptta-accent)] to-[#ff8f5c] p-5 rounded-t-[24px]">
           <div className="flex items-center gap-3">
             <div className="size-10 rounded-[16px] bg-white/20 flex items-center justify-center"><Mail className="size-5 text-white" /></div>
             <div><h2 className="text-base font-bold text-white">Email Candidate</h2><p className="text-xs text-white/70">Send shortlist notification</p></div>
@@ -948,7 +953,7 @@ function EmailCandidateDialog({ open, onOpenChange, candidateName, candidateEmai
               <div><label className="text-xs font-medium text-[var(--saptta-mute)] mb-1 block">To</label><Input value={candidateEmail} readOnly className="rounded-xl text-xs h-9 bg-[var(--saptta-bg-2)]" /></div>
               <div><label className="text-xs font-medium text-[var(--saptta-mute)] mb-1 block">Subject</label><Input value={subject} readOnly className="rounded-xl text-xs h-9 bg-[var(--saptta-bg-2)]" /></div>
               <div><label className="text-xs font-medium text-[var(--saptta-mute)] mb-1 block">Body</label><Textarea value={body} readOnly className="rounded-xl text-xs min-h-[180px] bg-[var(--saptta-bg-2)]" /></div>
-              <Button className="w-full rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-10" onClick={handleSend} disabled={sending}>
+              <Button className="w-full rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 h-10" onClick={handleSend} disabled={sending}>
                 {sending ? <><Loader2 className="size-4 mr-2 animate-spin" />Sending...</> : <><Send className="size-4 mr-2" />Send Email</>}
               </Button>
             </>
@@ -1094,7 +1099,7 @@ function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
         {/* Left: Resume Input */}
         <motion.div variants={fadeUp} initial="hidden" animate="show">
           <Card className="border-[var(--saptta-line)] rounded-[24px] overflow-hidden">
-            <div className="bg-[#FF9900] p-4">
+            <div className="bg-[var(--saptta-accent)] p-4">
               <div className="flex items-center gap-3">
                 <div className="size-9 rounded-[14px] bg-white/20 flex items-center justify-center"><Brain className="size-4 text-white" /></div>
                 <div><h3 className="text-sm font-bold text-white">Resume Analyzer</h3><p className="text-[10px] text-white/70">AI-powered resume matching</p></div>
@@ -1103,7 +1108,7 @@ function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
             <CardContent className="p-4 space-y-4">
               {/* Upload Area */}
               <div
-                className={`border-2 border-dashed rounded-[16px] p-6 text-center transition-all cursor-pointer ${dragOver ? "border-[#FF9900] bg-[#FF990008]" : "border-[var(--saptta-line)] hover:border-[var(--saptta-accent)]/40"}`}
+                className={`border-2 border-dashed rounded-[16px] p-6 text-center transition-all cursor-pointer ${dragOver ? "border-[var(--saptta-accent)] bg-[var(--saptta-accent)08]" : "border-[var(--saptta-line)] hover:border-[var(--saptta-accent)]/40"}`}
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
@@ -1112,7 +1117,7 @@ function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
                 <input ref={fileInputRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.txt" onChange={handleFileUpload} />
                 {fileParsing ? (
                   <>
-                    <Loader2 className="size-7 text-[#FF9900] mx-auto mb-2 animate-spin" />
+                    <Loader2 className="size-7 text-[var(--saptta-accent)] mx-auto mb-2 animate-spin" />
                     <p className="text-sm font-medium text-[var(--saptta-ink)]">Parsing {uploadedFileName}...</p>
                     <p className="text-[10px] text-[var(--saptta-mute)] mt-1">Extracting text from document</p>
                   </>
@@ -1174,7 +1179,7 @@ function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
         {/* Right: JD Selection + Analyze */}
         <motion.div variants={fadeUp} initial="hidden" animate="show">
           <Card className="border-[var(--saptta-line)] rounded-[24px] overflow-hidden h-full">
-            <div className="bg-[#0066CC] p-4">
+            <div className="bg-[var(--saptta-accent-2)] p-4">
               <div className="flex items-center gap-3">
                 <div className="size-9 rounded-[14px] bg-white/20 flex items-center justify-center"><Target className="size-4 text-white" /></div>
                 <div><h3 className="text-sm font-bold text-white">Match Against Job</h3><p className="text-[10px] text-white/70">Select JD for comparison</p></div>
@@ -1220,7 +1225,7 @@ function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
               )}
 
               <Button
-                className="w-full rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-10 saptta-btn-fill"
+                className="w-full rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 h-10 saptta-btn-fill"
                 onClick={handleAnalyze}
                 disabled={!resumeText.trim() || !selectedJD || analyzing}
               >
@@ -1230,15 +1235,15 @@ function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
               {/* Stats Preview */}
               <div className="grid grid-cols-3 gap-2 pt-2">
                 <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3 text-center">
-                  <p className="text-lg font-bold text-[#FF9900]">{jobs.filter((j) => j.status === "open").length}</p>
+                  <p className="text-lg font-bold text-[var(--saptta-accent)]">{jobs.filter((j) => j.status === "open").length}</p>
                   <p className="text-[9px] text-[var(--saptta-mute)]">Open Jobs</p>
                 </div>
                 <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3 text-center">
-                  <p className="text-lg font-bold text-[#0066CC]">{MOCK_RESUME_TEXTS.length}</p>
+                  <p className="text-lg font-bold text-[var(--saptta-accent-2)]">{MOCK_RESUME_TEXTS.length}</p>
                   <p className="text-[9px] text-[var(--saptta-mute)]">Sample Resumes</p>
                 </div>
                 <div className="bg-[var(--saptta-bg-2)] rounded-xl p-3 text-center">
-                  <p className="text-lg font-bold text-[#003d7a]">75%</p>
+                  <p className="text-lg font-bold text-[var(--saptta-accent-3)]">75%</p>
                   <p className="text-[9px] text-[var(--saptta-mute)]">Threshold</p>
                 </div>
               </div>
@@ -1295,7 +1300,7 @@ function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
                           <p className="text-sm text-[var(--saptta-ink-2)] leading-relaxed">{result.shortlistReason}</p>
                           {result.shortlisted && (
                             <div className="flex gap-2 mt-4">
-                              <Button size="sm" className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-8 text-xs px-4" onClick={() => alert("HR notification sent!")}>
+                              <Button size="sm" className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 h-8 text-xs px-4" onClick={() => alert("HR notification sent!")}>
                                 <Send className="size-3 mr-1.5" />Send to HR
                               </Button>
                               <Button size="sm" variant="outline" className="rounded-full h-8 text-xs px-4" onClick={() => setEmailDialogOpen(true)}>
@@ -1315,7 +1320,7 @@ function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
                 {/* Keyword Match Section */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show">
                   <Card className="border-[var(--saptta-line)] rounded-[24px]">
-                    <CardHeader className="pb-3 pt-5 px-5"><CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2"><Target className="size-4 text-[#FF9900]" />Keyword Match</CardTitle></CardHeader>
+                    <CardHeader className="pb-3 pt-5 px-5"><CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2"><Target className="size-4 text-[var(--saptta-accent)]" />Keyword Match</CardTitle></CardHeader>
                     <CardContent className="px-5 pb-5 space-y-4">
                       <div className="flex items-center gap-4">
                         <div className="text-center"><p className="text-2xl font-bold" style={{ color: getScoreColor(result.keywordMatch.matchPercentage) }}>{result.keywordMatch.matchPercentage}%</p><p className="text-[9px] text-[var(--saptta-mute)]">Match Rate</p></div>
@@ -1344,7 +1349,7 @@ function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
                 {/* Cosine Similarity Section */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show">
                   <Card className="border-[var(--saptta-line)] rounded-[24px]">
-                    <CardHeader className="pb-3 pt-5 px-5"><CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2"><BarChart3 className="size-4 text-[#0066CC]" />Cosine Similarity</CardTitle></CardHeader>
+                    <CardHeader className="pb-3 pt-5 px-5"><CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2"><BarChart3 className="size-4 text-[var(--saptta-accent-2)]" />Cosine Similarity</CardTitle></CardHeader>
                     <CardContent className="px-5 pb-5 space-y-4">
                       <div className="flex items-center gap-4">
                         <div className="text-center"><p className="text-2xl font-bold" style={{ color: getScoreColor(Math.round(result.cosineSimilarity.score * 100)) }}>{Math.round(result.cosineSimilarity.score * 100)}%</p><p className="text-[9px] text-[var(--saptta-mute)]">Cosine Score</p></div>
@@ -1363,7 +1368,7 @@ function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
                                 <span className="text-[10px] text-[var(--saptta-mute)] w-4 text-right">{i + 1}</span>
                                 <span className="text-[10px] font-medium text-[var(--saptta-ink)] min-w-[80px] truncate">{term.term}</span>
                                 <div className="flex-1 h-1.5 bg-[var(--saptta-bg-2)] rounded-full overflow-hidden">
-                                  <motion.div className="h-full rounded-full bg-[#0066CC]" initial={{ width: 0 }} animate={{ width: `${(term.weight / maxWeight) * 100}%` }} transition={{ duration: 0.5, delay: i * 0.03 }} />
+                                  <motion.div className="h-full rounded-full bg-[var(--saptta-accent-2)]" initial={{ width: 0 }} animate={{ width: `${(term.weight / maxWeight) * 100}%` }} transition={{ duration: 0.5, delay: i * 0.03 }} />
                                 </div>
                                 <span className="text-[9px] text-[var(--saptta-mute)] min-w-[30px] text-right">{term.weight.toFixed(1)}</span>
                               </div>
@@ -1381,7 +1386,7 @@ function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
                 {/* Dimension Scores */}
                 <motion.div variants={fadeUp} initial="hidden" animate="show">
                   <Card className="border-[var(--saptta-line)] rounded-[24px]">
-                    <CardHeader className="pb-3 pt-5 px-5"><CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2"><TrendingUp className="size-4 text-[#003d7a]" />Dimension Scores</CardTitle></CardHeader>
+                    <CardHeader className="pb-3 pt-5 px-5"><CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2"><TrendingUp className="size-4 text-[var(--saptta-accent-3)]" />Dimension Scores</CardTitle></CardHeader>
                     <CardContent className="px-5 pb-5 space-y-3">
                       {result.dimensionScores.map((dim) => (
                         <div key={dim.dimension} className="space-y-1">
@@ -1441,12 +1446,12 @@ function ResumeAnalyzerTab({ jobs }: { jobs: JobPosting[] }) {
               {result.recommendations.length > 0 && (
                 <motion.div variants={fadeUp} initial="hidden" animate="show">
                   <Card className="border-[var(--saptta-line)] rounded-[24px]">
-                    <CardHeader className="pb-3 pt-5 px-5"><CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2"><Sparkles className="size-4 text-[#FF9900]" />Recommendations</CardTitle></CardHeader>
+                    <CardHeader className="pb-3 pt-5 px-5"><CardTitle className="text-sm font-semibold text-[var(--saptta-ink)] flex items-center gap-2"><Sparkles className="size-4 text-[var(--saptta-accent)]" />Recommendations</CardTitle></CardHeader>
                     <CardContent className="px-5 pb-5">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {result.recommendations.map((rec, i) => (
                           <div key={i} className="flex items-start gap-2 bg-[var(--saptta-bg-2)] rounded-xl p-3">
-                            <div className="size-5 rounded-full bg-[#FF990015] flex items-center justify-center shrink-0 mt-0.5"><span className="text-[9px] font-bold text-[#FF9900]">{i + 1}</span></div>
+                            <div className="size-5 rounded-full bg-[var(--saptta-accent)15] flex items-center justify-center shrink-0 mt-0.5"><span className="text-[9px] font-bold text-[var(--saptta-accent)]">{i + 1}</span></div>
                             <p className="text-xs text-[var(--saptta-ink-2)] leading-relaxed">{rec}</p>
                           </div>
                         ))}
@@ -1539,7 +1544,7 @@ function BatchAnalysisTab({ onHighScore, jobs }: { onHighScore: (n: HighScoreNot
           <SelectTrigger className="h-9 text-xs rounded-full w-[240px]"><SelectValue placeholder="Select Job Description" /></SelectTrigger>
           <SelectContent>{jobs.filter((j) => j.status === "open").map((j) => (<SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>))}</SelectContent>
         </Select>
-        <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-9 text-xs px-4" onClick={runBatchAnalysis} disabled={!selectedJD || running}>
+        <Button className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 h-9 text-xs px-4" onClick={runBatchAnalysis} disabled={!selectedJD || running}>
           {running ? <><Loader2 className="size-3.5 mr-1.5 animate-spin" />Analyzing...</> : <><Files className="size-3.5 mr-1.5" />Analyze All Resumes</>}
         </Button>
         {results.length > 0 && (
@@ -1606,7 +1611,7 @@ function BatchAnalysisTab({ onHighScore, jobs }: { onHighScore: (n: HighScoreNot
                       <div className="flex gap-1">
                         <Button variant="ghost" size="sm" className="size-7 rounded-full p-0" title="View Details"><Eye className="size-3.5 text-[var(--saptta-mute)]" /></Button>
                         {r.result.shortlisted && (
-                          <Button variant="ghost" size="sm" className="size-7 rounded-full p-0" title="Email Candidate" onClick={() => handleEmailCandidate(r.name, r.email)}><Mail className="size-3.5 text-[#FF9900]" /></Button>
+                          <Button variant="ghost" size="sm" className="size-7 rounded-full p-0" title="Email Candidate" onClick={() => handleEmailCandidate(r.name, r.email)}><Mail className="size-3.5 text-[var(--saptta-accent)]" /></Button>
                         )}
                       </div>
                     </TableCell>
@@ -1631,7 +1636,7 @@ function BatchAnalysisTab({ onHighScore, jobs }: { onHighScore: (n: HighScoreNot
       {running && (
         <Card className="border-[var(--saptta-line)] rounded-[24px]">
           <CardContent className="p-12 text-center">
-            <Loader2 className="size-12 text-[#FF9900] mx-auto mb-4 animate-spin" />
+            <Loader2 className="size-12 text-[var(--saptta-accent)] mx-auto mb-4 animate-spin" />
             <p className="text-sm font-medium text-[var(--saptta-ink)]">Analyzing {MOCK_RESUME_TEXTS.length} resumes...</p>
             <p className="text-xs text-[var(--saptta-mute)] mt-1">Running keyword matching, cosine similarity, and anti-hallucination checks</p>
           </CardContent>
@@ -1965,13 +1970,13 @@ const AI_JOB_TEMPLATES: { label: string; data: Omit<JobPosting, "id" | "applican
 const EXPERIENCE_LEVEL_CONFIG: Record<string, { label: string; color: string; bgColor: string }> = {
   fresher: { label: "Fresher", color: "#22c55e", bgColor: "#22c55e15" },
   "0-1": { label: "0-1 Years", color: "#22c55e", bgColor: "#22c55e15" },
-  "1-3": { label: "1-3 Years", color: "#0066CC", bgColor: "#0066CC20" },
-  "2-5": { label: "2-5 Years", color: "#0066CC", bgColor: "#0066CC20" },
-  "3-5": { label: "3-5 Years", color: "#FF9900", bgColor: "#FF990015" },
-  "5-10": { label: "5-10 Years", color: "#FF9900", bgColor: "#FF990015" },
+  "1-3": { label: "1-3 Years", color: "var(--saptta-accent-2)", bgColor: "var(--saptta-accent-2)20" },
+  "2-5": { label: "2-5 Years", color: "var(--saptta-accent-2)", bgColor: "var(--saptta-accent-2)20" },
+  "3-5": { label: "3-5 Years", color: "var(--saptta-accent)", bgColor: "var(--saptta-accent)15" },
+  "5-10": { label: "5-10 Years", color: "var(--saptta-accent)", bgColor: "var(--saptta-accent)15" },
   "10+": { label: "10+ Years", color: "#ef4444", bgColor: "#ef444415" },
-  mid: { label: "Mid-Level", color: "#0066CC", bgColor: "#0066CC20" },
-  senior: { label: "Senior", color: "#FF9900", bgColor: "#FF990015" },
+  mid: { label: "Mid-Level", color: "var(--saptta-accent-2)", bgColor: "var(--saptta-accent-2)20" },
+  senior: { label: "Senior", color: "var(--saptta-accent)", bgColor: "var(--saptta-accent)15" },
   lead: { label: "Lead", color: "#8b5cf6", bgColor: "#8b5cf615" },
   executive: { label: "Executive", color: "#ef4444", bgColor: "#ef444415" },
 };
@@ -2145,8 +2150,9 @@ function CreateEditJobDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto rounded-[24px] p-0">
+        <VisuallyHidden.Root><DialogTitle>Job Requisition</DialogTitle></VisuallyHidden.Root>
         {/* Header */}
-        <div className="bg-[#FF9900] p-5 rounded-t-[24px]">
+        <div className="bg-[var(--saptta-accent)] p-5 rounded-t-[24px]">
           <div className="flex items-center gap-3">
             <div className="size-10 rounded-[16px] bg-white/20 flex items-center justify-center">
               {isEdit ? <Files className="size-5 text-white" /> : <Plus className="size-5 text-white" />}
@@ -2188,7 +2194,7 @@ function CreateEditJobDialog({
                       transition={{ duration: 0.25 }}
                     >
                       <Card
-                        className={`border-2 cursor-pointer transition-all hover:shadow-md rounded-[16px] ${selectedTemplate === template.label ? "border-[#FF9900] bg-[#FF990008]" : "border-[var(--saptta-line)] hover:border-[#FF9900]/40"}`}
+                        className={`border-2 cursor-pointer transition-all hover:shadow-md rounded-[16px] ${selectedTemplate === template.label ? "border-[var(--saptta-accent)] bg-[var(--saptta-accent)08]" : "border-[var(--saptta-line)] hover:border-[var(--saptta-accent)]/40"}`}
                         onClick={() => applyTemplate(template.label)}
                       >
                         <CardContent className="p-4 space-y-2">
@@ -2387,7 +2393,7 @@ function CreateEditJobDialog({
                 {/* Selected skills as tags */}
                 <div className="flex flex-wrap gap-1.5">
                   {(formData.skills || []).map((skill, i) => (
-                    <Badge key={i} className="rounded-full text-[10px] font-medium border-0 px-2.5 py-0.5 bg-[#FF990015] text-[#FF9900] hover:bg-[#FF990025] cursor-pointer" onClick={() => removeSkill(skill)}>
+                    <Badge key={i} className="rounded-full text-[10px] font-medium border-0 px-2.5 py-0.5 bg-[var(--saptta-accent)15] text-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)25] cursor-pointer" onClick={() => removeSkill(skill)}>
                       {skill}
                       <X className="size-2.5 ml-1" />
                     </Badge>
@@ -2448,7 +2454,7 @@ function CreateEditJobDialog({
             {/* Actions */}
             <DialogFooter className="pt-2 gap-2">
               <Button variant="outline" className="rounded-full" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90" disabled={!isValid} onClick={handleSave}>
+              <Button className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" disabled={!isValid} onClick={handleSave}>
                 {isEdit ? <><Check className="size-4 mr-1.5" />Update Job</> : <><Plus className="size-4 mr-1.5" />Create Job</>}
               </Button>
             </DialogFooter>
@@ -2523,7 +2529,7 @@ function JobsTab({ candidates, onPublish, jobs, onCreateJob, onEditJob, onDelete
             </SelectContent>
           </Select>
         </div>
-        <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-8 text-xs px-4" onClick={onCreateJob}>
+        <Button className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 h-8 text-xs px-4" onClick={onCreateJob}>
           <Plus className="size-3.5 mr-1.5" />Create Job
         </Button>
       </div>
@@ -2592,6 +2598,7 @@ function JobsTab({ candidates, onPublish, jobs, onCreateJob, onEditJob, onDelete
       {/* Delete Confirmation */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <DialogContent className="sm:max-w-md rounded-[24px] p-0">
+          <VisuallyHidden.Root><DialogTitle>Confirm Delete</DialogTitle></VisuallyHidden.Root>
           <div className="p-6 text-center space-y-4">
             <div className="size-14 rounded-full bg-red-50 flex items-center justify-center mx-auto">
               <AlertTriangle className="size-7 text-red-500" />
@@ -2659,7 +2666,7 @@ function CandidatesTab({ candidates, onMoveStage, onRunAIAnalysis }: { candidate
                     <TableCell><span className="text-xs text-[var(--saptta-mute)]">{c.lastActivity}</span></TableCell>
                     <TableCell><div className="flex items-center gap-1">
                       <Button variant="ghost" size="sm" className="size-7 rounded-full" onClick={(e) => { e.stopPropagation(); onRunAIAnalysis(c); }} title="Run AI Analysis">
-                        <Brain className="size-3.5 text-[#FF9900]" />
+                        <Brain className="size-3.5 text-[var(--saptta-accent)]" />
                       </Button>
                       <ChevronRight className="size-4 text-[var(--saptta-mute)]" />
                     </div></TableCell>
@@ -2686,7 +2693,7 @@ function HighScoreBanner({ notification, onDismiss, onViewProfile, onEmail }: {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
       transition={{ duration: 0.4, ease: [0.22, 0.8, 0.22, 1] }}
-      className="bg-gradient-to-r from-[#FF9900] to-[#ff8f5c] rounded-[20px] p-4 shadow-lg"
+      className="bg-gradient-to-r from-[var(--saptta-accent)] to-[#ff8f5c] rounded-[20px] p-4 shadow-lg"
     >
       <div className="flex items-center gap-4">
         <div className="size-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
@@ -2697,7 +2704,7 @@ function HighScoreBanner({ notification, onDismiss, onViewProfile, onEmail }: {
           <p className="text-xs text-white/80">{notification.candidateName} scored <span className="font-bold">{notification.score}%</span> for {notification.jobTitle}</p>
         </div>
         <div className="flex gap-2 shrink-0">
-          <Button size="sm" className="rounded-full bg-white text-[#FF9900] hover:bg-white/90 h-7 text-[10px] px-3" onClick={onViewProfile}>
+          <Button size="sm" className="rounded-full bg-white text-[var(--saptta-accent)] hover:bg-white/90 h-7 text-[10px] px-3" onClick={onViewProfile}>
             <Eye className="size-3 mr-1" />View Profile
           </Button>
           <Button size="sm" className="rounded-full bg-white/20 text-white hover:bg-white/30 h-7 text-[10px] px-3" onClick={onEmail}>
@@ -2960,10 +2967,10 @@ export function EnhancedRecruitmentView() {
             <Button variant="outline" size="sm" className="rounded-full text-xs h-8 relative">
               <Bell className="size-3.5 mr-1.5" />
               Notifications
-              <span className="absolute -top-1 -right-1 size-4 rounded-full bg-[#FF9900] text-white text-[8px] flex items-center justify-center">{notifications.length}</span>
+              <span className="absolute -top-1 -right-1 size-4 rounded-full bg-[var(--saptta-accent)] text-white text-[8px] flex items-center justify-center">{notifications.length}</span>
             </Button>
           )}
-          <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-9 text-xs px-4 saptta-btn-fill" onClick={handleCreateJob}>
+          <Button className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 h-9 text-xs px-4 saptta-btn-fill" onClick={handleCreateJob}>
             <Plus className="size-3.5 mr-1.5" />New Job
           </Button>
         </div>
@@ -2972,9 +2979,9 @@ export function EnhancedRecruitmentView() {
       {/* Stats */}
       <motion.div className="grid grid-cols-2 md:grid-cols-4 gap-3" variants={stagger} initial="hidden" animate="show">
         {[
-          { label: "Open Positions", value: openJobs, icon: Briefcase, color: "#FF9900", bg: "#FF990015" },
-          { label: "Total Applicants", value: totalApplicants, icon: Users, color: "#0066CC", bg: "#0066CC20" },
-          { label: "Avg Time to Hire", value: `${avgTimeToHire}d`, icon: Clock, color: "#003d7a", bg: "#003d7a15" },
+          { label: "Open Positions", value: openJobs, icon: Briefcase, color: "var(--saptta-accent)", bg: "var(--saptta-accent)15" },
+          { label: "Total Applicants", value: totalApplicants, icon: Users, color: "var(--saptta-accent-2)", bg: "var(--saptta-accent-2)20" },
+          { label: "Avg Time to Hire", value: `${avgTimeToHire}d`, icon: Clock, color: "var(--saptta-accent-3)", bg: "var(--saptta-accent-3)15" },
           { label: "Offer Rate", value: `${offerRate}%`, icon: Target, color: "#22c55e", bg: "#22c55e15" },
         ].map((stat) => (
           <motion.div key={stat.label} variants={fadeUp}>
@@ -3026,7 +3033,8 @@ export function EnhancedRecruitmentView() {
       {/* HireMind AI Analysis Dialog */}
       <Dialog open={aiAnalysisOpen} onOpenChange={setAiAnalysisOpen}>
         <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto rounded-[24px] p-0">
-          <div className="bg-[#FF9900] p-5 rounded-t-[24px]">
+          <VisuallyHidden.Root><DialogTitle>AI Analysis</DialogTitle></VisuallyHidden.Root>
+          <div className="bg-[var(--saptta-accent)] p-5 rounded-t-[24px]">
             <div className="flex items-center gap-3">
               <div className="size-10 rounded-[16px] bg-white/20 flex items-center justify-center">
                 <Brain className="size-5 text-white" />
@@ -3042,7 +3050,7 @@ export function EnhancedRecruitmentView() {
           <div className="p-5">
             {aiAnalysisLoading ? (
               <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                <Loader2 className="size-10 text-[#FF9900] animate-spin" />
+                <Loader2 className="size-10 text-[var(--saptta-accent)] animate-spin" />
                 <div className="text-center">
                   <p className="text-sm font-semibold text-[var(--saptta-ink)]">Running 12-Agent Analysis...</p>
                   <p className="text-xs text-[var(--saptta-mute)] mt-1">This may take 30-60 seconds</p>
@@ -3050,7 +3058,7 @@ export function EnhancedRecruitmentView() {
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 w-full max-w-md mt-2">
                   {["Resume Parser", "Domain Detector", "Seniority", "Skill Expansion", "JD Parser", "Job Matcher", "Achievements", "ATS Scoring", "Gap Analysis", "Improvements", "Interview Pred.", "Recruiter AI"].map((agent, i) => (
                     <div key={agent} className="flex items-center gap-1.5 text-[9px] text-[var(--saptta-mute)]">
-                      <Loader2 className="size-2.5 animate-spin text-[#FF9900]" />
+                      <Loader2 className="size-2.5 animate-spin text-[var(--saptta-accent)]" />
                       {agent}
                     </div>
                   ))}
@@ -3088,15 +3096,15 @@ export function EnhancedRecruitmentView() {
                 {/* Skill Expansion */}
                 {aiAnalysisResult.skillExpansion?.expanded?.filter(e => e.fullForms?.length > 0).length > 0 && (
                   <div>
-                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><Zap className="size-4 text-[#FF9900]" /> Skill Expansion</h3>
+                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><Zap className="size-4 text-[var(--saptta-accent)]" /> Skill Expansion</h3>
                     <div className="flex flex-wrap gap-2">
                       {aiAnalysisResult.skillExpansion.expanded.filter(e => e.fullForms?.length > 0).map((exp, i) => (
                         <div key={i} className="bg-[var(--saptta-bg-2)] rounded-lg px-3 py-1.5">
-                          <span className="text-xs font-medium text-[#0066CC]">{exp.abbreviation}</span>
+                          <span className="text-xs font-medium text-[var(--saptta-accent-2)]">{exp.abbreviation}</span>
                           <span className="text-xs text-[var(--saptta-mute)] mx-1">→</span>
                           <span className="text-xs text-[var(--saptta-ink)]">{exp.fullForms[0]}</span>
                           {exp.relatedSkills?.length > 0 && (
-                            <div className="flex flex-wrap gap-0.5 mt-0.5">{exp.relatedSkills.slice(0, 3).map((rs, j) => <Badge key={j} className="text-[8px] rounded-full border-0 px-1.5 py-0 bg-[#0066CC10] text-[#0066CC]">{rs}</Badge>)}</div>
+                            <div className="flex flex-wrap gap-0.5 mt-0.5">{exp.relatedSkills.slice(0, 3).map((rs, j) => <Badge key={j} className="text-[8px] rounded-full border-0 px-1.5 py-0 bg-[var(--saptta-accent-2)10] text-[var(--saptta-accent-2)]">{rs}</Badge>)}</div>
                           )}
                         </div>
                       ))}
@@ -3121,7 +3129,7 @@ export function EnhancedRecruitmentView() {
                 {/* Recruiter Insights */}
                 {aiAnalysisResult.recruiterInsights && (
                   <div>
-                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><Eye className="size-4 text-[#0066CC]" /> Recruiter Insights</h3>
+                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><Eye className="size-4 text-[var(--saptta-accent-2)]" /> Recruiter Insights</h3>
                     <div className="bg-[var(--saptta-bg-2)] rounded-xl p-4 space-y-3">
                       <p className="text-sm text-[var(--saptta-ink)]">{aiAnalysisResult.recruiterInsights.oneLineSummary}</p>
                       <div className="grid grid-cols-2 gap-3">
@@ -3143,13 +3151,13 @@ export function EnhancedRecruitmentView() {
                 {/* Gap Analysis */}
                 {aiAnalysisResult.gapAnalysis && (
                   <div>
-                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><AlertTriangle className="size-4 text-[#FF9900]" /> Gap Analysis</h3>
+                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><AlertTriangle className="size-4 text-[var(--saptta-accent)]" /> Gap Analysis</h3>
                     {aiAnalysisResult.gapAnalysis.criticalGaps?.length > 0 && (
                       <div className="mb-2"><p className="text-[10px] font-semibold text-red-600 mb-1">Critical Gaps</p>
                       <div className="flex flex-wrap gap-1">{aiAnalysisResult.gapAnalysis.criticalGaps.map((g, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-red-50 text-red-700">{g}</Badge>)}</div></div>
                     )}
                     {aiAnalysisResult.gapAnalysis.bridgingSteps?.length > 0 && (
-                      <div><p className="text-[10px] font-semibold text-[#0066CC] mb-1">Bridging Steps</p>
+                      <div><p className="text-[10px] font-semibold text-[var(--saptta-accent-2)] mb-1">Bridging Steps</p>
                       <ul className="space-y-0.5">{aiAnalysisResult.gapAnalysis.bridgingSteps.slice(0, 4).map((s, i) => <li key={i} className="text-[10px] text-[var(--saptta-ink-2)]">→ {s}</li>)}</ul></div>
                     )}
                   </div>
@@ -3166,7 +3174,7 @@ export function EnhancedRecruitmentView() {
                       </div>
                       <div>
                         <p className="text-[10px] text-[var(--saptta-mute)]">Expected Rounds</p>
-                        <div className="flex flex-wrap gap-1 mt-0.5">{aiAnalysisResult.interviewPrediction.expectedRounds?.map((r, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-[#FF990015] text-[#FF9900]">{r}</Badge>)}</div>
+                        <div className="flex flex-wrap gap-1 mt-0.5">{aiAnalysisResult.interviewPrediction.expectedRounds?.map((r, i) => <Badge key={i} className="text-[9px] rounded-full border-0 px-2 py-0 bg-[var(--saptta-accent)15] text-[var(--saptta-accent)]">{r}</Badge>)}</div>
                       </div>
                     </div>
                   </div>
@@ -3175,7 +3183,7 @@ export function EnhancedRecruitmentView() {
                 {/* ATS Score */}
                 {aiAnalysisResult.atsScore && (
                   <div>
-                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><ShieldCheck className="size-4 text-[#0066CC]" /> ATS Compatibility: {aiAnalysisResult.atsScore.overall}%</h3>
+                    <h3 className="text-sm font-semibold text-[var(--saptta-ink)] mb-2 flex items-center gap-2"><ShieldCheck className="size-4 text-[var(--saptta-accent-2)]" /> ATS Compatibility: {aiAnalysisResult.atsScore.overall}%</h3>
                     {aiAnalysisResult.atsScore.recommendations?.length > 0 && (
                       <div className="space-y-0.5">{aiAnalysisResult.atsScore.recommendations.slice(0, 3).map((r, i) => <p key={i} className="text-[10px] text-[var(--saptta-ink-2)]">→ {r}</p>)}</div>
                     )}

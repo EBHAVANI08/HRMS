@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -128,7 +128,7 @@ const policyAutoSuggest = [
 
 // ─── CONTENT GENERATION DATA ───
 const contentTemplates = [
-  { id: "t1", name: "Job Description", icon: ClipboardList, color: "#FF9900", description: "Generate a complete JD with roles, requirements, and qualifications", params: ["Job Title", "Department", "Level", "Location", "Employment Type"] },
+  { id: "t1", name: "Job Description", icon: ClipboardList, color: "var(--saptta-accent)", description: "Generate a complete JD with roles, requirements, and qualifications", params: ["Job Title", "Department", "Level", "Location", "Employment Type"] },
   { id: "t2", name: "Offer Letter", icon: FileBadge, color: "#22c55e", description: "Create a formal offer letter with compensation details", params: ["Candidate Name", "Position", "Start Date", "Salary", "Department"] },
   { id: "t3", name: "Performance Review", icon: Users, color: "#8b5cf6", description: "Generate performance review feedback and evaluation", params: ["Employee Name", "Review Period", "Rating", "Department", "Manager"] },
   { id: "t4", name: "Policy Document", icon: Shield, color: "#f59e0b", description: "Draft a new policy document from template", params: ["Policy Name", "Category", "Effective Date", "Applicable To"] },
@@ -395,11 +395,11 @@ export function AIAssistantView() {
                     const Icon = icons[i % icons.length];
                     return (
                       <button
-                        key={s.label}
-                        onClick={() => setInput(s.label)}
+                        key={`${s}-${i}`}
+                        onClick={() => setInput(s)}
                         className="saptta-tag hover:bg-[var(--saptta-accent)]/10 hover:text-[var(--saptta-accent)] transition-colors cursor-pointer gap-1.5"
                       >
-                        <Icon className="size-3" />{s.label}
+                        <Icon className="size-3" />{s}
                       </button>
                     );
                   })}
@@ -798,7 +798,7 @@ export function AIAssistantView() {
                           <XAxis type="number" tick={{ fontSize: 11, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} domain={[0, 15]} />
                           <YAxis type="category" dataKey="department" tick={{ fontSize: 11, fill: "var(--saptta-ink-2)" }} axisLine={false} tickLine={false} width={90} />
                           <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--saptta-line)", fontSize: 12 }} formatter={(value: number) => [`${value}%`, "Attrition Rate"]} />
-                          <Bar dataKey="attrition" fill="#FF9900" radius={[0, 6, 6, 0]} />
+                          <Bar dataKey="attrition" fill="var(--saptta-accent)" radius={[0, 6, 6, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>

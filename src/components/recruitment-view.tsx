@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -140,9 +140,9 @@ interface JobPosting {
 
 const STAGE_CONFIG: Record<PipelineStage, { label: string; color: string; bgColor: string; dotColor: string }> = {
   sourced: { label: "Sourced", color: "#8b5cf6", bgColor: "#8b5cf615", dotColor: "#8b5cf6" },
-  screening: { label: "Screening", color: "#FF9900", bgColor: "#FF990015", dotColor: "#FF9900" },
+  screening: { label: "Screening", color: "var(--saptta-accent)", bgColor: "var(--saptta-accent)15", dotColor: "var(--saptta-accent)" },
   interview: { label: "Interview", color: "#f59e0b", bgColor: "#f59e0b15", dotColor: "#f59e0b" },
-  assessment: { label: "Assessment", color: "#0066CC", bgColor: "#0066CC20", dotColor: "#0066CC" },
+  assessment: { label: "Assessment", color: "var(--saptta-accent-2)", bgColor: "var(--saptta-accent-2)20", dotColor: "var(--saptta-accent-2)" },
   offer: { label: "Offer", color: "#22c55e", bgColor: "#22c55e15", dotColor: "#22c55e" },
   hired: { label: "Hired", color: "#3b82f6", bgColor: "#3b82f615", dotColor: "#3b82f6" },
   rejected: { label: "Rejected", color: "#ef4444", bgColor: "#ef444415", dotColor: "#ef4444" },
@@ -569,14 +569,14 @@ const MOCK_JOBS: JobPosting[] = [
 
 function getScoreColor(score: number): string {
   if (score >= 85) return "#22c55e";
-  if (score >= 70) return "#0066CC";
+  if (score >= 70) return "var(--saptta-accent-2)";
   if (score >= 50) return "#f59e0b";
   return "#ef4444";
 }
 
 function getScoreBgColor(score: number): string {
   if (score >= 85) return "#22c55e15";
-  if (score >= 70) return "#0066CC20";
+  if (score >= 70) return "var(--saptta-accent-2)20";
   if (score >= 50) return "#f59e0b15";
   return "#ef444415";
 }
@@ -628,7 +628,7 @@ function CandidateDetailDialog({
         <div className="bg-gradient-to-r from-[#0a0a0b] to-[#1a1a1c] p-6 rounded-t-[24px]">
           <div className="flex items-start gap-4">
             <Avatar className="size-14 rounded-2xl border-2 border-white/20">
-              <AvatarFallback className="rounded-2xl bg-[#FF9900] text-white text-lg font-bold">
+              <AvatarFallback className="rounded-2xl bg-[var(--saptta-accent)] text-white text-lg font-bold">
                 {candidate.avatar}
               </AvatarFallback>
             </Avatar>
@@ -718,7 +718,7 @@ function CandidateDetailDialog({
                     <div className="flex flex-col items-center">
                       <div
                         className="size-2.5 rounded-full mt-1.5 shrink-0"
-                        style={{ backgroundColor: isLast ? "#FF9900" : "#d4d4d4" }}
+                        style={{ backgroundColor: isLast ? "var(--saptta-accent)" : "#d4d4d4" }}
                       />
                       {!isLast && <div className="w-px flex-1 bg-[#e8e8e8] dark:bg-[#2a2a2c] my-1" />}
                     </div>
@@ -856,7 +856,7 @@ function JobDetailDialog({
             <ul className="space-y-1.5">
               {job.requirements.map((req, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-[var(--saptta-ink-2)]">
-                  <CheckCircle2 className="size-3.5 text-[#0066CC] mt-0.5 shrink-0" />
+                  <CheckCircle2 className="size-3.5 text-[var(--saptta-accent-2)] mt-0.5 shrink-0" />
                   {req}
                 </li>
               ))}
@@ -1083,7 +1083,7 @@ function JobsTab({ candidates }: { candidates: Candidate[] }) {
         <div>
           <p className="text-sm text-[var(--saptta-mute)]">{MOCK_JOBS.filter((j) => j.status === "open").length} active positions</p>
         </div>
-        <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-8 text-xs px-4">
+        <Button className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 h-8 text-xs px-4">
           <Plus className="size-3.5 mr-1.5" />
           Create Job
         </Button>
@@ -1397,7 +1397,7 @@ We are seeking an experienced ${jdInput.title || "Senior Software Engineer"} to 
       <motion.div variants={fadeUp} initial="hidden" animate="show">
         <Card className="border-[var(--saptta-line)] rounded-[24px] overflow-hidden">
           {/* Orange gradient header */}
-          <div className="bg-gradient-to-r from-[#FF9900] to-[#ff8f5c] p-5">
+          <div className="bg-gradient-to-r from-[var(--saptta-accent)] to-[#ff8f5c] p-5">
             <div className="flex items-center gap-3">
               <div className="size-10 rounded-[16px] bg-white/20 flex items-center justify-center">
                 <Brain className="size-5 text-white" />
@@ -1423,8 +1423,8 @@ We are seeking an experienced ${jdInput.title || "Senior Software Engineer"} to 
               <div className="space-y-4">
                 {/* File uploaded */}
                 <div className="flex items-center gap-3 bg-[var(--saptta-bg-2)] rounded-xl p-3">
-                  <div className="size-10 rounded-lg bg-[#FF990015] flex items-center justify-center">
-                    <FileText className="size-5 text-[#FF9900]" />
+                  <div className="size-10 rounded-lg bg-[var(--saptta-accent)15] flex items-center justify-center">
+                    <FileText className="size-5 text-[var(--saptta-accent)]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[var(--saptta-ink)] truncate">{resumeFile}</p>
@@ -1462,12 +1462,12 @@ We are seeking an experienced ${jdInput.title || "Senior Software Engineer"} to 
                               className="h-full rounded-full"
                               style={{
                                 width: `${field.confidence}%`,
-                                backgroundColor: field.confidence >= 90 ? "#22c55e" : field.confidence >= 80 ? "#0066CC" : "#f59e0b",
+                                backgroundColor: field.confidence >= 90 ? "#22c55e" : field.confidence >= 80 ? "var(--saptta-accent-2)" : "#f59e0b",
                               }}
                             />
                           </div>
                           <span className="text-[10px] font-semibold min-w-[24px] text-right" style={{
-                            color: field.confidence >= 90 ? "#22c55e" : field.confidence >= 80 ? "#0066CC" : "#f59e0b"
+                            color: field.confidence >= 90 ? "#22c55e" : field.confidence >= 80 ? "var(--saptta-accent-2)" : "#f59e0b"
                           }}>
                             {field.confidence}%
                           </span>
@@ -1491,7 +1491,7 @@ We are seeking an experienced ${jdInput.title || "Senior Software Engineer"} to 
       <motion.div variants={fadeUp} initial="hidden" animate="show">
         <Card className="border-[var(--saptta-line)] rounded-[24px] overflow-hidden">
           {/* Orange gradient header */}
-          <div className="bg-gradient-to-r from-[#0066CC] to-[#d4e87a] p-5">
+          <div className="bg-gradient-to-r from-[var(--saptta-accent-2)] to-[#d4e87a] p-5">
             <div className="flex items-center gap-3">
               <div className="size-10 rounded-[16px] bg-white/20 flex items-center justify-center">
                 <Target className="size-5 text-[#0a0a0a]" />
@@ -1563,8 +1563,8 @@ We are seeking an experienced ${jdInput.title || "Senior Software Engineer"} to 
           {/* Orange gradient header */}
           <div className="bg-gradient-to-r from-[#0a0a0b] to-[#2b2b2b] p-5">
             <div className="flex items-center gap-3">
-              <div className="size-10 rounded-[16px] bg-[#FF9900]/20 flex items-center justify-center">
-                <Zap className="size-5 text-[#FF9900]" />
+              <div className="size-10 rounded-[16px] bg-[var(--saptta-accent)]/20 flex items-center justify-center">
+                <Zap className="size-5 text-[var(--saptta-accent)]" />
               </div>
               <div>
                 <h3 className="text-base font-bold text-white">AI JD Generator</h3>
@@ -1619,7 +1619,7 @@ We are seeking an experienced ${jdInput.title || "Senior Software Engineer"} to 
                   />
                 </div>
                 <Button
-                  className="w-full rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90 h-9 text-xs"
+                  className="w-full rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 h-9 text-xs"
                   onClick={handleJDGenerate}
                   disabled={jdGenerating}
                 >
@@ -1724,8 +1724,8 @@ export function RecruitmentView() {
       {/* Summary Stats Row */}
       <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { icon: Users, label: "Active Candidates", value: stats.activeCandidates, color: "#FF9900" },
-          { icon: Briefcase, label: "Open Positions", value: stats.openJobs, color: "#0066CC" },
+          { icon: Users, label: "Active Candidates", value: stats.activeCandidates, color: "var(--saptta-accent)" },
+          { icon: Briefcase, label: "Open Positions", value: stats.openJobs, color: "var(--saptta-accent-2)" },
           { icon: Target, label: "Avg Match Score", value: `${stats.avgScore}%`, color: "#f59e0b" },
           { icon: Calendar, label: "Interviews This Week", value: stats.interviewCount, color: "#8b5cf6" },
         ].map((stat) => (

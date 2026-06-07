@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -408,7 +408,7 @@ function MatchTypeBadge({ type }: { type: string }) {
 
 function ScoreBar({ score, max = 5 }: { score: number; max?: number }) {
   const pct = (score / max) * 100;
-  const color = score >= 4 ? '#22c55e' : score >= 3 ? '#0066CC' : score >= 2 ? '#f59e0b' : '#ef4444';
+  const color = score >= 4 ? '#22c55e' : score >= 3 ? 'var(--saptta-accent-2)' : score >= 2 ? '#f59e0b' : '#ef4444';
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-2 rounded-full bg-[var(--saptta-bg-2)] overflow-hidden">
@@ -427,7 +427,7 @@ function ScoreBar({ score, max = 5 }: { score: number; max?: number }) {
 
 function ConfidenceBar({ value }: { value: number }) {
   const pct = value * 100;
-  const color = value >= 0.85 ? '#22c55e' : value >= 0.7 ? '#0066CC' : value >= 0.5 ? '#f59e0b' : '#ef4444';
+  const color = value >= 0.85 ? '#22c55e' : value >= 0.7 ? 'var(--saptta-accent-2)' : value >= 0.5 ? '#f59e0b' : '#ef4444';
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-1.5 rounded-full bg-[var(--saptta-bg-2)] overflow-hidden">
@@ -551,7 +551,7 @@ function GlassBoxTab() {
     setOverrideDialogOpen(true);
   };
 
-  const overallColor = data.overall >= 4 ? '#22c55e' : data.overall >= 3 ? '#0066CC' : '#f59e0b';
+  const overallColor = data.overall >= 4 ? '#22c55e' : data.overall >= 3 ? 'var(--saptta-accent-2)' : '#f59e0b';
 
   return (
     <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-6">
@@ -632,10 +632,10 @@ function GlassBoxTab() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="size-8 rounded-[12px] flex items-center justify-center" style={{
-                  backgroundColor: dimIdx === 0 ? '#FF990015' : dimIdx === 1 ? '#0066CC15' : dimIdx === 2 ? '#3b82f615' : '#8b5cf615',
+                  backgroundColor: dimIdx === 0 ? 'var(--saptta-accent)15' : dimIdx === 1 ? 'var(--saptta-accent-2)15' : dimIdx === 2 ? '#3b82f615' : '#8b5cf615',
                 }}>
-                  {dimIdx === 0 ? <Zap className="size-4 text-[#FF9900]" /> :
-                   dimIdx === 1 ? <Briefcase className="size-4 text-[#0066CC]" /> :
+                  {dimIdx === 0 ? <Zap className="size-4 text-[var(--saptta-accent)]" /> :
+                   dimIdx === 1 ? <Briefcase className="size-4 text-[var(--saptta-accent-2)]" /> :
                    dimIdx === 2 ? <BookOpen className="size-4 text-[#3b82f6]" /> :
                    <Heart className="size-4 text-[#8b5cf6]" />}
                 </div>
@@ -646,7 +646,7 @@ function GlassBoxTab() {
               </div>
               <div className="text-right">
                 <div className="text-xl font-bold" style={{
-                  color: dim.score >= 4 ? '#22c55e' : dim.score >= 3 ? '#0066CC' : '#f59e0b'
+                  color: dim.score >= 4 ? '#22c55e' : dim.score >= 3 ? 'var(--saptta-accent-2)' : '#f59e0b'
                 }}>
                   {dim.score}
                 </div>
@@ -698,7 +698,7 @@ function GlassBoxTab() {
                     </div>
                     <div className="shrink-0 w-20">
                       <div className="text-sm font-bold text-right" style={{
-                        color: item.score >= 4 ? '#22c55e' : item.score >= 3 ? '#0066CC' : item.score >= 2 ? '#f59e0b' : '#ef4444'
+                        color: item.score >= 4 ? '#22c55e' : item.score >= 3 ? 'var(--saptta-accent-2)' : item.score >= 2 ? '#f59e0b' : '#ef4444'
                       }}>
                         {item.score}/5
                       </div>
@@ -935,8 +935,8 @@ function PIIBlindTab() {
                   contentStyle={{ borderRadius: 12, border: '1px solid var(--saptta-line)', fontSize: 12 }}
                 />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="withPII" name="With PII" fill="#FF9900" radius={[4, 4, 0, 0]} barSize={16} />
-                <Bar dataKey="withoutPII" name="Without PII" fill="#0066CC" radius={[4, 4, 0, 0]} barSize={16} />
+                <Bar dataKey="withPII" name="With PII" fill="var(--saptta-accent)" radius={[4, 4, 0, 0]} barSize={16} />
+                <Bar dataKey="withoutPII" name="Without PII" fill="var(--saptta-accent-2)" radius={[4, 4, 0, 0]} barSize={16} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -1095,8 +1095,8 @@ function BiasAuditTab() {
                 <RechartsTooltip contentStyle={{ borderRadius: 12, border: '1px solid var(--saptta-line)', fontSize: 12 }} formatter={(v: number) => `${Math.round(v * 100)}%`} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <ReferenceLine y={0.8} stroke="#ef4444" strokeDasharray="5 5" label={{ value: '4/5ths threshold', position: 'right', fontSize: 10, fill: '#ef4444' }} />
-                <Line type="monotone" dataKey="gender" name="Gender" stroke="#FF9900" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="age" name="Age" stroke="#0066CC" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="gender" name="Gender" stroke="var(--saptta-accent)" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="age" name="Age" stroke="var(--saptta-accent-2)" strokeWidth={2} dot={{ r: 3 }} />
                 <Line type="monotone" dataKey="caste" name="Caste" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} />
                 <Line type="monotone" dataKey="location" name="Location" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
@@ -1176,10 +1176,10 @@ function BiasAuditTab() {
                 <YAxis type="number" dataKey="humanScore" name="Human Score" domain={[2, 5]} tick={{ fontSize: 10, fill: 'var(--saptta-mute)' }} label={{ value: 'Human Score', angle: -90, position: 'insideLeft', fontSize: 10, fill: 'var(--saptta-mute)' }} />
                 <ZAxis range={[80]} />
                 <RechartsTooltip contentStyle={{ borderRadius: 12, border: '1px solid var(--saptta-line)', fontSize: 12 }} cursor={{ strokeDasharray: '3 3' }} />
-                <ReferenceLine segment={[{ x: 2, y: 2 }, { x: 5, y: 5 }]} stroke="#FF9900" strokeDasharray="5 5" />
-                <Scatter data={GROUND_TRUTH_DATA} fill="#FF9900">
+                <ReferenceLine segment={[{ x: 2, y: 2 }, { x: 5, y: 5 }]} stroke="var(--saptta-accent)" strokeDasharray="5 5" />
+                <Scatter data={GROUND_TRUTH_DATA} fill="var(--saptta-accent)">
                   {GROUND_TRUTH_DATA.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={Math.abs(entry.aiScore - entry.humanScore) > 0.3 ? '#ef4444' : '#FF9900'} />
+                    <Cell key={`cell-${index}`} fill={Math.abs(entry.aiScore - entry.humanScore) > 0.3 ? '#ef4444' : 'var(--saptta-accent)'} />
                   ))}
                 </Scatter>
               </ScatterChart>
@@ -1230,8 +1230,8 @@ function BiasAuditTab() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {([
-                { key: 'skills' as const, label: 'Skills Weight', color: '#FF9900' },
-                { key: 'experience' as const, label: 'Experience Weight', color: '#0066CC' },
+                { key: 'skills' as const, label: 'Skills Weight', color: 'var(--saptta-accent)' },
+                { key: 'experience' as const, label: 'Experience Weight', color: 'var(--saptta-accent-2)' },
                 { key: 'education' as const, label: 'Education Weight', color: '#3b82f6' },
                 { key: 'culture' as const, label: 'Culture Weight', color: '#8b5cf6' },
               ]).map(w => (
@@ -1374,7 +1374,7 @@ function AuditTrailTab() {
             <Activity className="size-4 text-[var(--saptta-accent)]" />
             <h3 className="text-sm font-bold text-[var(--saptta-ink)]">System Action Log</h3>
           </div>
-          <ScrollArea className="max-h-96">
+          <ScrollArea className="h-96">
             <div className="space-y-2">
               {SYSTEM_ACTION_LOG.map((entry, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-[var(--saptta-bg-2)] border border-[var(--saptta-line)]">

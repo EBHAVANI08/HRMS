@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -548,7 +548,7 @@ function EmployeeDetailView({ employee, onBack }: { employee: Employee; onBack: 
               </h4>
               <div className="relative">
                 {employee.timeline.map((event, i) => {
-                  const dotColor = event.type === "hire" ? "#0066CC" : event.type === "promotion" ? "#FF9900" : event.type === "notice" ? "#ef4444" : "#4d94db";
+                  const dotColor = event.type === "hire" ? "var(--saptta-accent-2)" : event.type === "promotion" ? "var(--saptta-accent)" : event.type === "notice" ? "#ef4444" : "#4d94db";
                   return (
                     <div key={i} className="flex gap-4 pb-6 last:pb-0">
                       <div className="flex flex-col items-center">

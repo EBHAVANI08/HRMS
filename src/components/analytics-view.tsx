@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -9,13 +9,16 @@ import {
   Briefcase, Target, ChevronRight, Layout, Share2, Plus,
   ArrowUpRight, ArrowDownRight, Brain, Layers, Settings,
   Eye, ClipboardList, BadgeDollarSign, ShieldCheck, UsersRound,
-  Timer, CheckCircle2, Globe, BarChart2
+  Timer, CheckCircle2, Globe, BarChart2, Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend
@@ -30,12 +33,12 @@ const fadeUp = {
 // ─── OVERVIEW DATA ───
 const kpiTiles = [
   { label: "Employee Growth", value: "+9.8%", description: "YoY headcount increase", trend: "up", icon: TrendingUp, color: "#22c55e" },
-  { label: "Attrition Rate", value: "7.4%", description: "Down from 8.1% last quarter", trend: "down", icon: UserX, color: "#FF9900" },
+  { label: "Attrition Rate", value: "7.4%", description: "Down from 8.1% last quarter", trend: "down", icon: UserX, color: "var(--saptta-accent)" },
   { label: "Time to Hire", value: "23 days", description: "Down from 28 days", trend: "down", icon: Clock, color: "#8b5cf6" },
   { label: "Offer Acceptance", value: "87%", description: "Improved by 4% this month", trend: "up", icon: UserCheck, color: "#3b82f6" },
   { label: "Revenue / Employee", value: "₹28.5L", description: "Annualized metric", trend: "up", icon: DollarSign, color: "#f59e0b" },
   { label: "Avg Tenure", value: "3.8 yrs", description: "Stable over last year", trend: "neutral", icon: CalendarDays, color: "#ec4899" },
-  { label: "Diversity Ratio", value: "38:62", description: "Female:Male (target 40:60)", trend: "up", icon: Users, color: "#0066CC" },
+  { label: "Diversity Ratio", value: "38:62", description: "Female:Male (target 40:60)", trend: "up", icon: Users, color: "var(--saptta-accent-2)" },
   { label: "Training Hours", value: "24.5 hrs", description: "Per employee per quarter", trend: "up", icon: GraduationCap, color: "#06b6d4" },
 ];
 
@@ -55,8 +58,8 @@ const workforceTrendData = [
 ];
 
 const deptHeadcountData = [
-  { department: "Engineering", count: 248, color: "#FF9900" },
-  { department: "Sales", count: 156, color: "#0066CC" },
+  { department: "Engineering", count: 248, color: "var(--saptta-accent)" },
+  { department: "Sales", count: 156, color: "var(--saptta-accent-2)" },
   { department: "Marketing", count: 89, color: "#8b5cf6" },
   { department: "Analytics", count: 112, color: "#3b82f6" },
   { department: "Operations", count: 134, color: "#f59e0b" },
@@ -103,7 +106,7 @@ interface Report {
 const reportCategories = [
   {
     name: "HR Reports",
-    color: "#FF9900",
+    color: "var(--saptta-accent)",
     reports: [
       { name: "Employee Master", description: "Complete employee database with all personal and professional details", icon: Users, frequency: "On-demand" },
       { name: "New Joiners Report", description: "List of employees who joined in a selected period with onboarding status", icon: UserCheck, frequency: "Monthly" },
@@ -181,7 +184,7 @@ const reportCategories = [
 
 // ─── CUSTOM DASHBOARDS DATA ───
 const dashboardTemplates = [
-  { name: "CEO Dashboard", description: "High-level KPIs, workforce metrics, and financial indicators", icon: Briefcase, widgets: 8, color: "#FF9900" },
+  { name: "CEO Dashboard", description: "High-level KPIs, workforce metrics, and financial indicators", icon: Briefcase, widgets: 8, color: "var(--saptta-accent)" },
   { name: "HR Operations", description: "Attendance, leave, hiring, and onboarding metrics", icon: Users, widgets: 6, color: "#8b5cf6" },
   { name: "Recruitment Hub", description: "Pipeline, source analytics, and hiring funnel", icon: Target, widgets: 5, color: "#3b82f6" },
   { name: "Finance Overview", description: "Payroll, cost analysis, and budget tracking", icon: DollarSign, widgets: 7, color: "#22c55e" },
@@ -198,12 +201,17 @@ const customDashboardWidgets = [
   { id: "w6", title: "Engagement Score", type: "kpi", span: "col-span-1" },
 ];
 
-const pieColors = ["#FF9900", "#0066CC", "#8b5cf6", "#3b82f6", "#f59e0b", "#ec4899", "#06b6d4", "#22c55e"];
+const pieColors = ["var(--saptta-accent)", "var(--saptta-accent-2)", "#8b5cf6", "#3b82f6", "#f59e0b", "#ec4899", "#06b6d4", "#22c55e"];
 
 export function AnalyticsView() {
   const [reportSearch, setReportSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [dashboardSearch, setDashboardSearch] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filterDept, setFilterDept] = useState("all");
+  const [filterPeriod, setFilterPeriod] = useState("all");
+  const [templateEditOpen, setTemplateEditOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<{ name: string; widgets: number; description: string } | null>(null);
 
   // Flatten all reports for search
   const allReports = reportCategories.flatMap(cat =>
@@ -225,10 +233,10 @@ export function AnalyticsView() {
           <p className="text-[var(--saptta-mute)] mt-1 text-sm">Deep-dive into workforce data, trends, and predictive insights.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="rounded-xl border-[var(--saptta-line)] text-xs">
+          <Button variant="outline" size="sm" onClick={() => setFilterOpen(true)} className="rounded-xl border-[var(--saptta-line)] text-xs">
             <Filter className="size-3.5 mr-1.5" />Filter
           </Button>
-          <Button variant="outline" size="sm" className="rounded-xl border-[var(--saptta-line)] text-xs">
+          <Button variant="outline" size="sm" onClick={() => toast.success("Exporting analytics report as Excel…")} className="rounded-xl border-[var(--saptta-line)] text-xs">
             <Download className="size-3.5 mr-1.5" />Export
           </Button>
         </div>
@@ -293,15 +301,15 @@ export function AnalyticsView() {
                       <AreaChart data={workforceTrendData}>
                         <defs>
                           <linearGradient id="colorHeadcount" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#FF9900" stopOpacity={0.15} />
-                            <stop offset="95%" stopColor="#FF9900" stopOpacity={0} />
+                            <stop offset="5%" stopColor="var(--saptta-accent)" stopOpacity={0.15} />
+                            <stop offset="95%" stopColor="var(--saptta-accent)" stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--saptta-line)" />
                         <XAxis dataKey="month" tick={{ fontSize: 10, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                         <YAxis domain={[780, 930]} tick={{ fontSize: 10, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--saptta-line)", fontSize: 12 }} />
-                        <Area type="monotone" dataKey="headcount" stroke="#FF9900" strokeWidth={2} fill="url(#colorHeadcount)" />
+                        <Area type="monotone" dataKey="headcount" stroke="var(--saptta-accent)" strokeWidth={2} fill="url(#colorHeadcount)" />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
@@ -381,7 +389,7 @@ export function AnalyticsView() {
                         <XAxis dataKey="range" tick={{ fontSize: 10, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fontSize: 10, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--saptta-line)", fontSize: 12 }} formatter={(value: number) => [`${value} employees`]} />
-                        <Bar dataKey="count" fill="#0066CC" radius={[6, 6, 0, 0]} />
+                        <Bar dataKey="count" fill="var(--saptta-accent-2)" radius={[6, 6, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -462,7 +470,7 @@ export function AnalyticsView() {
                       <p className="text-[10px] text-[var(--saptta-mute)] leading-relaxed flex-1">{report.description}</p>
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-[var(--saptta-line)]">
                         <span className="text-[9px] text-[var(--saptta-mute)]">{report.frequency}</span>
-                        <Button size="sm" className="rounded-lg bg-[var(--saptta-accent)] text-white text-[10px] h-7 hover:bg-[var(--saptta-accent)]/90 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button size="sm" onClick={() => toast.success(`Generating ${report.name}…`)} className="rounded-lg bg-[var(--saptta-accent)] text-white text-[10px] h-7 hover:bg-[var(--saptta-accent)]/90 opacity-0 group-hover:opacity-100 transition-opacity">
                           Generate
                         </Button>
                       </div>
@@ -501,10 +509,10 @@ export function AnalyticsView() {
                         </div>
                         <p className="text-[10px] text-[var(--saptta-mute)] leading-relaxed">{template.description}</p>
                         <div className="flex gap-2 mt-3">
-                          <Button size="sm" className="flex-1 rounded-lg bg-[var(--saptta-accent)] text-white text-[10px] h-7 hover:bg-[var(--saptta-accent)]/90">
+                          <Button size="sm" onClick={() => { setSelectedTemplate(template); setTemplateEditOpen(true); }} className="flex-1 rounded-lg bg-[var(--saptta-accent)] text-white text-[10px] h-7 hover:bg-[var(--saptta-accent)]/90">
                             Use Template
                           </Button>
-                          <Button variant="outline" size="sm" className="rounded-lg text-[10px] h-7">
+                          <Button variant="outline" size="sm" onClick={() => toast.info(`Preview: ${template.name} — ${template.widgets} widgets`)} className="rounded-lg text-[10px] h-7">
                             <Eye className="size-3 mr-1" />Preview
                           </Button>
                         </div>
@@ -521,13 +529,13 @@ export function AnalyticsView() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base font-semibold text-[var(--saptta-ink)]">My Dashboard — HR Operations</CardTitle>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="rounded-lg text-[10px] h-7">
+                    <Button variant="outline" size="sm" onClick={() => toast.success("Dashboard link copied to clipboard!")} className="rounded-lg text-[10px] h-7">
                       <Share2 className="size-3 mr-1" />Share
                     </Button>
-                    <Button variant="outline" size="sm" className="rounded-lg text-[10px] h-7">
+                    <Button variant="outline" size="sm" onClick={() => toast.success("Exporting dashboard as PDF…")} className="rounded-lg text-[10px] h-7">
                       <Download className="size-3 mr-1" />Export PDF
                     </Button>
-                    <Button variant="outline" size="sm" className="rounded-lg text-[10px] h-7">
+                    <Button variant="outline" size="sm" onClick={() => toast.info("Dashboard configuration coming soon")} className="rounded-lg text-[10px] h-7">
                       <Settings className="size-3 mr-1" />Configure
                     </Button>
                   </div>
@@ -546,15 +554,15 @@ export function AnalyticsView() {
                           <AreaChart data={workforceTrendData.slice(-6)}>
                             <defs>
                               <linearGradient id="dashGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#FF9900" stopOpacity={0.15} />
-                                <stop offset="95%" stopColor="#FF9900" stopOpacity={0} />
+                                <stop offset="5%" stopColor="var(--saptta-accent)" stopOpacity={0.15} />
+                                <stop offset="95%" stopColor="var(--saptta-accent)" stopOpacity={0} />
                               </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="var(--saptta-line)" />
                             <XAxis dataKey="month" tick={{ fontSize: 9, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                             <YAxis tick={{ fontSize: 9, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                             <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--saptta-line)", fontSize: 11 }} />
-                            <Area type="monotone" dataKey="headcount" stroke="#FF9900" strokeWidth={2} fill="url(#dashGrad)" />
+                            <Area type="monotone" dataKey="headcount" stroke="var(--saptta-accent)" strokeWidth={2} fill="url(#dashGrad)" />
                           </AreaChart>
                         </ResponsiveContainer>
                       </div>
@@ -595,8 +603,8 @@ export function AnalyticsView() {
                             <XAxis dataKey="month" tick={{ fontSize: 9, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                             <YAxis tick={{ fontSize: 9, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                             <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--saptta-line)", fontSize: 11 }} />
-                            <Bar dataKey="hires" fill="#FF9900" radius={[4, 4, 0, 0]} name="Hires" />
-                            <Bar dataKey="exits" fill="#0066CC" radius={[4, 4, 0, 0]} name="Exits" />
+                            <Bar dataKey="hires" fill="var(--saptta-accent)" radius={[4, 4, 0, 0]} name="Hires" />
+                            <Bar dataKey="exits" fill="var(--saptta-accent-2)" radius={[4, 4, 0, 0]} name="Exits" />
                           </BarChart>
                         </ResponsiveContainer>
                       </div>
@@ -642,6 +650,83 @@ export function AnalyticsView() {
           </TabsContent>
         </Tabs>
       </motion.div>
+
+      {/* ── Filter Dialog ── */}
+      <Dialog open={filterOpen} onOpenChange={setFilterOpen}>
+        <DialogContent className="sm:max-w-sm rounded-[24px] p-0">
+          <DialogHeader className="p-6 pb-3">
+            <DialogTitle className="text-base font-bold text-[var(--saptta-ink)]">Filter Analytics</DialogTitle>
+          </DialogHeader>
+          <div className="px-6 pb-6 space-y-4">
+            <div>
+              <label className="text-xs font-semibold text-[var(--saptta-ink-2)] mb-1.5 block">Department</label>
+              <Select value={filterDept} onValueChange={setFilterDept}>
+                <SelectTrigger className="rounded-xl border-[var(--saptta-line)] h-9 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Departments</SelectItem>
+                  <SelectItem value="engineering">Engineering</SelectItem>
+                  <SelectItem value="sales">Sales</SelectItem>
+                  <SelectItem value="hr">HR</SelectItem>
+                  <SelectItem value="marketing">Marketing</SelectItem>
+                  <SelectItem value="finance">Finance</SelectItem>
+                  <SelectItem value="operations">Operations</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-[var(--saptta-ink-2)] mb-1.5 block">Time Period</label>
+              <Select value={filterPeriod} onValueChange={setFilterPeriod}>
+                <SelectTrigger className="rounded-xl border-[var(--saptta-line)] h-9 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Time</SelectItem>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="week">This Week</SelectItem>
+                  <SelectItem value="month">This Month</SelectItem>
+                  <SelectItem value="quarter">This Quarter</SelectItem>
+                  <SelectItem value="year">This Year</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 pt-1">
+              <Button variant="outline" className="flex-1 rounded-xl text-xs border-[var(--saptta-line)]" onClick={() => { setFilterDept("all"); setFilterPeriod("all"); }}>Reset</Button>
+              <Button className="flex-1 rounded-xl text-xs bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => { setFilterOpen(false); toast.success(`Filter applied: ${filterDept === "all" ? "All Depts" : filterDept} · ${filterPeriod === "all" ? "All Time" : filterPeriod}`); }}>
+                Apply Filter
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Template Edit/Use Dialog ── */}
+      <Dialog open={templateEditOpen} onOpenChange={setTemplateEditOpen}>
+        <DialogContent className="sm:max-w-md rounded-[24px] p-0">
+          <DialogHeader className="p-6 pb-3 border-b border-[var(--saptta-line)]">
+            <DialogTitle className="text-base font-bold text-[var(--saptta-ink)]">{selectedTemplate?.name}</DialogTitle>
+            <p className="text-xs text-[var(--saptta-mute)] mt-1">{selectedTemplate?.description}</p>
+          </DialogHeader>
+          <div className="p-6 space-y-3">
+            <p className="text-xs text-[var(--saptta-mute)]">This template includes <strong className="text-[var(--saptta-ink)]">{selectedTemplate?.widgets} widgets</strong>. Choose an action:</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button className="rounded-xl bg-[var(--saptta-accent)] text-white text-xs hover:bg-[var(--saptta-accent)]/90 h-10" onClick={() => { setTemplateEditOpen(false); toast.success(`Dashboard created from "${selectedTemplate?.name}"!`); }}>
+                <CheckCircle2 className="size-3.5 mr-1.5" />Use Template
+              </Button>
+              <Button variant="outline" className="rounded-xl border-[var(--saptta-line)] text-xs h-10" onClick={() => { toast.info(`Previewing "${selectedTemplate?.name}" template`); }}>
+                <Eye className="size-3.5 mr-1.5" />Preview
+              </Button>
+              <Button variant="outline" className="rounded-xl border-[var(--saptta-line)] text-xs h-10" onClick={() => { setTemplateEditOpen(false); toast.info(`Editing "${selectedTemplate?.name}" template`); }}>
+                <Settings className="size-3.5 mr-1.5" />Edit Template
+              </Button>
+              <Button variant="outline" className="rounded-xl border-red-200 text-red-500 text-xs h-10 hover:bg-red-50" onClick={() => { setTemplateEditOpen(false); toast.error(`Template "${selectedTemplate?.name}" deleted`); }}>
+                <Trash2 className="size-3.5 mr-1.5" />Delete
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }

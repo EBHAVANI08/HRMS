@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -105,14 +106,14 @@ const tenants = [
 
 function getScoreColor(score: number): string {
   if (score >= 85) return "#22c55e";
-  if (score >= 70) return "#0066CC";
-  if (score >= 50) return "#f59e0b";
+  if (score >= 70) return "#00509d";
+  if (score >= 50) return "#fdc500";
   return "#ef4444";
 }
 
 function getNotifIcon(type: string) {
   switch (type) {
-    case "high_score_candidate": return <Star className="size-3.5 text-[#FF9900]" />;
+    case "high_score_candidate": return <Star className="size-3.5 text-[#fdc500]" />;
     case "interview_reminder": return <Calendar className="size-3.5 text-[#8b5cf6]" />;
     case "interview_scheduled": return <Calendar className="size-3.5 text-[#8b5cf6]" />;
     case "offer_update": return <CheckCircle2 className="size-3.5 text-[#22c55e]" />;
@@ -125,22 +126,43 @@ function getNotifIcon(type: string) {
 
 function KamLogo({ collapsed }: { collapsed: boolean }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-1">
-      <div className="relative flex size-9 shrink-0 items-center justify-center rounded-[16px] bg-[#FF9900] text-white font-bold text-lg shadow-md">
-        <span className="relative z-10 text-white font-bold text-lg">K</span>
-      </div>
-      <AnimatePresence mode="wait">
-        {!collapsed && (
+    <div className="flex items-center px-3 py-1">
+      <AnimatePresence mode="wait" initial={false}>
+        {collapsed ? (
           <motion.div
-            initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: "auto" }}
-            exit={{ opacity: 0, width: 0 }}
-            transition={{ duration: 0.2, ease: [0.22, 0.8, 0.22, 1] }}
-            className="overflow-hidden whitespace-nowrap"
+            key="icon"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="flex size-9 shrink-0 items-center justify-center"
           >
-            <span className="text-xl font-bold tracking-tight text-[var(--saptta-ink)]">
-              <span style={{ color: "#FF9900" }}>K</span><span style={{ color: "#0066CC" }}>am</span>
-            </span>
+            <Image
+              src="/kam-logo.png"
+              alt="Kam"
+              width={36}
+              height={36}
+              className="object-contain"
+              style={{ filter: "drop-shadow(0 1px 3px rgba(0,41,107,0.18))" }}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <Image
+              src="/kam-logo.png"
+              alt="Kam Global for Digital AI Media Solutions Pvt. Ltd."
+              width={160}
+              height={52}
+              className="object-contain"
+              style={{ filter: "drop-shadow(0 1px 3px rgba(0,41,107,0.12))" }}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -292,6 +314,25 @@ function NotificationPanel({
   onOpenChange: (open: boolean) => void;
 }) {
   const { notificationList, markNotificationRead, markAllNotificationsRead, setCurrentView } = useAppStore();
+
+  const NOTIF_ROUTES: Record<string, string> = {
+    high_score_candidate: "recruitment",
+    interview_reminder: "recruitment",
+    interview_scheduled: "recruitment",
+    offer_update: "recruitment",
+    candidate_applied: "recruitment",
+    application_status: "recruitment",
+    leave_request: "attendance",
+  };
+
+  function handleNotifClick(notif: typeof notificationList[0]) {
+    markNotificationRead(notif.id);
+    const route = NOTIF_ROUTES[notif.type];
+    if (route) {
+      setCurrentView(route);
+      onOpenChange(false);
+    }
+  }
   const [emailDialogOpen, setEmailDialogOpen] = React.useState(false);
   const [selectedNotif, setSelectedNotif] = React.useState<typeof notificationList[0] | null>(null);
 
@@ -337,7 +378,7 @@ function NotificationPanel({
                       rounded-xl p-3.5 transition-colors cursor-pointer
                       ${!notif.read ? 'bg-[var(--saptta-accent)]/5 border border-[var(--saptta-accent)]/10' : 'bg-[var(--saptta-bg-2)] border border-transparent'}
                     `}
-                    onClick={() => markNotificationRead(notif.id)}
+                    onClick={() => handleNotifClick(notif)}
                   >
                     <div className="flex items-start gap-3">
                       <div className="mt-0.5 shrink-0">

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
@@ -42,6 +42,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useAppStore, type JobApplication } from "@/lib/store";
+import { toast } from "sonner";
 
 /* ──────────────── Animation Config ──────────────── */
 
@@ -106,7 +107,7 @@ function CircularProgress({
   value,
   size = 80,
   strokeWidth = 6,
-  strokeColor = "#FF9900",
+  strokeColor = "var(--saptta-accent)",
 }: {
   value: number;
   size?: number;
@@ -180,8 +181,8 @@ function KpiCard({
           <div
             className="flex size-10 items-center justify-center rounded-[16px] module-icon"
             style={{
-              backgroundColor: `${accentColor || "#FF9900"}10`,
-              color: accentColor || "#FF9900",
+              backgroundColor: `${accentColor || "var(--saptta-accent)"}10`,
+              color: accentColor || "var(--saptta-accent)",
             }}
           >
             <Icon className="size-5" />
@@ -354,7 +355,7 @@ const profileChecklist = [
    ══════════════════════════════════════════════════════════════ */
 
 export function ApplicantDashboard() {
-  const { user, jobApplications, updateApplicationStatus } = useAppStore();
+  const { user, jobApplications, updateApplicationStatus, setCurrentView } = useAppStore();
   const [applicationFilter, setApplicationFilter] = useState("all");
 
   // Derived KPIs from store data
@@ -496,7 +497,7 @@ export function ApplicantDashboard() {
           displayValue={String(activeApplications)}
           trend="up"
           trendLabel="+1 this week"
-          accentColor="#FF9900"
+          accentColor="var(--saptta-accent)"
         />
         <KpiCard
           icon={Video}
@@ -522,7 +523,7 @@ export function ApplicantDashboard() {
               <div className="flex items-start justify-between">
                 <div
                   className="flex size-10 items-center justify-center rounded-[16px] module-icon"
-                  style={{ backgroundColor: "#0066CC10", color: "#0066CC" }}
+                  style={{ backgroundColor: "var(--saptta-accent-2)10", color: "var(--saptta-accent-2)" }}
                 >
                   <Target className="size-5" />
                 </div>
@@ -546,7 +547,7 @@ export function ApplicantDashboard() {
                     value={avgMatchScore}
                     size={52}
                     strokeWidth={5}
-                    strokeColor="#0066CC"
+                    strokeColor="var(--saptta-accent-2)"
                   />
                 </div>
               </div>
@@ -888,6 +889,7 @@ export function ApplicantDashboard() {
                       variant="outline"
                       size="sm"
                       className="h-7 rounded-lg text-[11px] px-3 border-[var(--saptta-line)]"
+                      onClick={() => { setCurrentView("ai-assistant"); toast.info("Opening AI Interview Prep..."); }}
                     >
                       <FileText className="size-3 mr-1" />
                       Prepare
@@ -896,6 +898,7 @@ export function ApplicantDashboard() {
                       <Button
                         size="sm"
                         className="h-7 rounded-lg text-[11px] px-3 bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90"
+                        onClick={() => { toast.success("Joining meeting room..."); window.open(interview.meetingLink, "_blank"); }}
                       >
                         <Video className="size-3 mr-1" />
                         Join Meeting
@@ -922,7 +925,7 @@ export function ApplicantDashboard() {
                   value={profileCompleteness}
                   size={72}
                   strokeWidth={7}
-                  strokeColor="#FF9900"
+                  strokeColor="var(--saptta-accent)"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-sm font-bold text-[var(--saptta-ink)]">
@@ -1055,7 +1058,7 @@ export function ApplicantDashboard() {
                               ? "#22c55e"
                               : job.matchScore >= 70
                                 ? "#f59e0b"
-                                : "#FF9900",
+                                : "var(--saptta-accent)",
                         }}
                       />
                     </div>
@@ -1067,7 +1070,7 @@ export function ApplicantDashboard() {
                             ? "#22c55e"
                             : job.matchScore >= 70
                               ? "#f59e0b"
-                              : "#FF9900",
+                              : "var(--saptta-accent)",
                       }}
                     >
                       {job.matchScore}%
@@ -1137,21 +1140,21 @@ export function ApplicantDashboard() {
 
       {/* Quick Actions */}
       <motion.div variants={fadeUp} className="flex flex-wrap gap-3">
-        <Button className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto">
-          <Briefcase className="size-4 mr-2" />
-          Browse Jobs
+        <Button className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto"
+          onClick={() => setCurrentView("recruitment")}>
+          <Briefcase className="size-4 mr-2" />Browse Jobs
         </Button>
-        <Button className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto">
-          <FileText className="size-4 mr-2" />
-          Update Resume
+        <Button className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto"
+          onClick={() => setCurrentView("recruitment")}>
+          <FileText className="size-4 mr-2" />Update Resume
         </Button>
-        <Button className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto">
-          <Video className="size-4 mr-2" />
-          Prepare for Interview
+        <Button className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto"
+          onClick={() => setCurrentView("ai-assistant")}>
+          <Video className="size-4 mr-2" />Prepare for Interview
         </Button>
-        <Button className="rounded-[999px] bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 px-6 py-2.5 text-sm font-semibold h-auto">
-          <Sparkles className="size-4 mr-2" />
-          Ask AI
+        <Button className="rounded-[999px] bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 px-6 py-2.5 text-sm font-semibold h-auto"
+          onClick={() => setCurrentView("ai-assistant")}>
+          <Sparkles className="size-4 mr-2" />Ask AI
         </Button>
       </motion.div>
     </motion.div>

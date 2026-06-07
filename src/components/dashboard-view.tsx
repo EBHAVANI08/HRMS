@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -41,6 +41,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useAppStore } from "@/lib/store";
+import { toast } from "sonner";
 
 /* ──────────────── Animation Config ──────────────── */
 
@@ -89,10 +93,10 @@ const headcountData = [
 ];
 
 const deptData = [
-  { name: "Engineering", value: 420, color: "#FF9900" },
-  { name: "Sales", value: 210, color: "#0066CC" },
+  { name: "Engineering", value: 420, color: "var(--saptta-accent)" },
+  { name: "Sales", value: 210, color: "var(--saptta-accent-2)" },
   { name: "Marketing", value: 135, color: "#4d94db" },
-  { name: "HR", value: 82, color: "#003d7a" },
+  { name: "HR", value: 82, color: "var(--saptta-accent-3)" },
   { name: "Finance", value: 95, color: "#8a8680" },
   { name: "Operations", value: 180, color: "#d4a574" },
   { name: "Design", value: 125, color: "#e76f51" },
@@ -114,10 +118,10 @@ const attritionData = [
 ];
 
 const hiringFunnelData = [
-  { stage: "Applied", count: 1240, fill: "#FF9900" },
+  { stage: "Applied", count: 1240, fill: "var(--saptta-accent)" },
   { stage: "Screened", count: 680, fill: "#4d94db" },
-  { stage: "Interviewed", count: 320, fill: "#0066CC" },
-  { stage: "Offered", count: 85, fill: "#003d7a" },
+  { stage: "Interviewed", count: 320, fill: "var(--saptta-accent-2)" },
+  { stage: "Offered", count: 85, fill: "var(--saptta-accent-3)" },
   { stage: "Hired", count: 42, fill: "#8a8680" },
 ];
 
@@ -140,8 +144,8 @@ const upcomingEvents = [
 ];
 
 const typeColors: Record<string, string> = {
-  hire: "#0066CC",
-  leave: "#FF9900",
+  hire: "var(--saptta-accent-2)",
+  leave: "var(--saptta-accent)",
   promotion: "#4d94db",
   notice: "#ef4444",
 };
@@ -167,7 +171,7 @@ function CircularProgress({ value, size = 80, strokeWidth = 6 }: { value: number
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="#FF9900"
+        stroke="var(--saptta-accent)"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeDasharray={circumference}
@@ -222,7 +226,7 @@ function KpiCard({
         <div className="flex items-start justify-between">
           <div
             className="flex size-10 items-center justify-center rounded-[16px] module-icon"
-            style={{ backgroundColor: `${accentColor || "#FF9900"}10`, color: accentColor || "#FF9900" }}
+            style={{ backgroundColor: `${accentColor || "var(--saptta-accent)"}10`, color: accentColor || "var(--saptta-accent)" }}
           >
             <Icon className="size-5" />
           </div>
@@ -253,6 +257,19 @@ function KpiCard({
 /* ──────────────── Main Dashboard ──────────────── */
 
 export function DashboardView() {
+  const { setCurrentView } = useAppStore();
+  const [aiSummaryOpen, setAiSummaryOpen] = useState(false);
+  const [dateRange, setDateRange] = useState("30days");
+
+  const aiSummaryPoints = [
+    "Total headcount: 1,247 employees · 12 new hires · 3 exits this month.",
+    "Attendance today: 94.2% present · 8 late check-ins · 4 absent.",
+    "Payroll: ₹42.5L scheduled for Jun 28 · 0 anomalies detected.",
+    "Recruitment: 34 open positions · 148 candidates · 23 interviews this week.",
+    "Top candidate: Ananya Krishnan — 92% match for Sr. Frontend Dev.",
+    "Action needed: 3 pending leave approvals · 2 performance reviews overdue.",
+  ];
+
   return (
     <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
       {/* Page Header */}
@@ -266,15 +283,70 @@ export function DashboardView() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="rounded-xl border-[var(--saptta-line)] text-xs">
-            <Calendar className="size-3.5 mr-1.5" />
-            Last 30 days
-          </Button>
-          <Button size="sm" className="rounded-xl bg-[var(--saptta-accent)] text-white text-xs hover:bg-[var(--saptta-accent)]/90">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="rounded-xl border-[var(--saptta-line)] text-xs">
+                <Calendar className="size-3.5 mr-1.5" />
+                {dateRange === "today" ? "Today" : dateRange === "week" ? "This Week" : dateRange === "month" ? "This Month" : "Last 30 Days"}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-xl w-40">
+              <DropdownMenuLabel className="text-xs text-[var(--saptta-mute)]">Date Range</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {[
+                { value: "today", label: "Today" },
+                { value: "week", label: "This Week" },
+                { value: "month", label: "This Month" },
+                { value: "30days", label: "Last 30 Days" },
+              ].map((opt) => (
+                <DropdownMenuItem key={opt.value} onClick={() => setDateRange(opt.value)}
+                  className={dateRange === opt.value ? "bg-[var(--saptta-accent)]/5 text-[var(--saptta-accent)]" : ""}>
+                  {opt.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button size="sm" className="rounded-xl bg-[var(--saptta-accent)] text-white text-xs hover:bg-[var(--saptta-accent)]/90"
+            onClick={() => setAiSummaryOpen(true)}>
             <Sparkles className="size-3.5 mr-1.5" />
             AI Summary
           </Button>
         </div>
+
+        {/* AI Summary Dialog */}
+        <Dialog open={aiSummaryOpen} onOpenChange={setAiSummaryOpen}>
+          <DialogContent className="rounded-[24px] max-w-lg">
+            <DialogHeader>
+              <div className="flex items-center gap-3 mb-1">
+                <div className="size-10 rounded-2xl bg-[var(--saptta-accent)]/10 flex items-center justify-center">
+                  <Sparkles className="size-5 text-[var(--saptta-accent)]" />
+                </div>
+                <div>
+                  <DialogTitle className="text-base font-bold text-[var(--saptta-ink)]">HR Dashboard — AI Summary</DialogTitle>
+                  <p className="text-xs text-[var(--saptta-mute)]">{new Date().toLocaleDateString("en-IN", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
+                </div>
+              </div>
+            </DialogHeader>
+            <div className="space-y-3 mt-1">
+              {aiSummaryPoints.map((point, i) => (
+                <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-[var(--saptta-bg-2)]">
+                  <div className="size-5 rounded-full bg-[var(--saptta-accent)]/15 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-[10px] font-bold text-[var(--saptta-accent)]">{i + 1}</span>
+                  </div>
+                  <p className="text-sm text-[var(--saptta-ink-2)] leading-relaxed">{point}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Button className="flex-1 rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 text-sm"
+                onClick={() => { setAiSummaryOpen(false); setCurrentView("ai-assistant"); }}>
+                <Sparkles className="size-4 mr-1.5" />Ask Follow-up
+              </Button>
+              <Button variant="outline" className="rounded-full border-[var(--saptta-line)] text-sm"
+                onClick={() => setAiSummaryOpen(false)}>Close</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </motion.div>
 
       {/* KPI Tiles Row */}
@@ -286,7 +358,7 @@ export function DashboardView() {
           displayValue="1,247"
           trend="up"
           trendLabel="+12 this month"
-          accentColor="#FF9900"
+          accentColor="var(--saptta-accent)"
         />
         <KpiCard
           icon={Briefcase}
@@ -295,7 +367,7 @@ export function DashboardView() {
           displayValue="34"
           trend="up"
           trendLabel="8 urgent"
-          accentColor="#0066CC"
+          accentColor="var(--saptta-accent-2)"
         />
         {/* Attendance KPI with ring */}
         <motion.div variants={fadeUp}>
@@ -331,7 +403,7 @@ export function DashboardView() {
           displayValue="₹1.2Cr"
           trend="up"
           trendLabel="+3.5% vs last"
-          accentColor="#0066CC"
+          accentColor="var(--saptta-accent-2)"
         />
       </motion.div>
 
@@ -349,7 +421,7 @@ export function DashboardView() {
                 <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#8a8680" }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 12, fill: "#8a8680" }} axisLine={false} tickLine={false} domain={[1100, 1280]} />
                 <Tooltip content={<ChartTooltip />} />
-                <Line type="monotone" dataKey="count" name="Headcount" stroke="#FF9900" strokeWidth={3} dot={{ r: 4, fill: "#FF9900", strokeWidth: 0 }} activeDot={{ r: 6, fill: "#FF9900", stroke: "#fff", strokeWidth: 2 }} />
+                <Line type="monotone" dataKey="count" name="Headcount" stroke="var(--saptta-accent)" strokeWidth={3} dot={{ r: 4, fill: "var(--saptta-accent)", strokeWidth: 0 }} activeDot={{ r: 6, fill: "var(--saptta-accent)", stroke: "#fff", strokeWidth: 2 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -400,11 +472,11 @@ export function DashboardView() {
                 <Tooltip content={<ChartTooltip />} />
                 <defs>
                   <linearGradient id="attritionGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#FF9900" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#FF9900" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--saptta-accent)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--saptta-accent)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <Area type="monotone" dataKey="rate" name="Attrition %" stroke="#FF9900" strokeWidth={2} fill="url(#attritionGrad)" />
+                <Area type="monotone" dataKey="rate" name="Attrition %" stroke="var(--saptta-accent)" strokeWidth={2} fill="url(#attritionGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -435,19 +507,19 @@ export function DashboardView() {
 
       {/* Quick Actions Row */}
       <motion.div variants={fadeUp} className="flex flex-wrap gap-3">
-        <Button className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto">
+        <Button onClick={() => { setCurrentView("payroll"); toast.success("Opening Payroll…"); }} className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto">
           <IndianRupee className="size-4 mr-2" />
           Run Payroll
         </Button>
-        <Button className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto">
+        <Button onClick={() => { setCurrentView("recruitment"); toast.success("Opening Job Requisitions…"); }} className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto">
           <Briefcase className="size-4 mr-2" />
           Create Job Requisition
         </Button>
-        <Button className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto">
+        <Button onClick={() => { setCurrentView("analytics"); toast.success("Opening Reports…"); }} className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto">
           <FileText className="size-4 mr-2" />
           Generate Report
         </Button>
-        <Button className="rounded-[999px] bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 px-6 py-2.5 text-sm font-semibold h-auto">
+        <Button onClick={() => { setCurrentView("ai-assistant"); toast.info("Opening AI Assistant…"); }} className="rounded-[999px] bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 px-6 py-2.5 text-sm font-semibold h-auto">
           <Sparkles className="size-4 mr-2" />
           Ask AI
         </Button>

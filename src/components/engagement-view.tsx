@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -82,9 +83,9 @@ const leaderboard = [
 ];
 
 const awardTypes = [
-  { type: "Kudos", icon: "🌟", color: "#FF9900", description: "Quick peer-to-peer appreciation" },
+  { type: "Kudos", icon: "🌟", color: "var(--saptta-accent)", description: "Quick peer-to-peer appreciation" },
   { type: "Star Performer", icon: "⭐", color: "#f59e0b", description: "Outstanding individual achievement" },
-  { type: "Team Award", icon: "🏆", color: "#0066CC", description: "Exceptional team collaboration" },
+  { type: "Team Award", icon: "🏆", color: "var(--saptta-accent-2)", description: "Exceptional team collaboration" },
   { type: "Values Champion", icon: "💎", color: "#8b5cf6", description: "Living company values" },
 ];
 
@@ -132,7 +133,7 @@ const activityData = [
 ];
 
 const wellnessChallenges = [
-  { name: "10K Steps Daily", participants: 234, duration: "30 days", progress: 65, leader: "Arjun Reddy", icon: Footprints, color: "#FF9900" },
+  { name: "10K Steps Daily", participants: 234, duration: "30 days", progress: 65, leader: "Arjun Reddy", icon: Footprints, color: "var(--saptta-accent)" },
   { name: "Mindful Minutes", participants: 156, duration: "21 days", progress: 42, leader: "Kavya Nair", icon: Brain, color: "#8b5cf6" },
   { name: "Hydration Hero", participants: 312, duration: "14 days", progress: 78, leader: "Priya Verma", icon: Apple, color: "#22c55e" },
   { name: "Fitness First", participants: 189, duration: "28 days", progress: 55, leader: "Rahul Mehta", icon: Dumbbell, color: "#f59e0b" },
@@ -157,7 +158,7 @@ export function EngagementView() {
     : announcements.filter(a => a.category === announcementFilter);
 
   const participationData = [
-    { name: "Responded", value: activeSurvey.responded, color: "#FF9900" },
+    { name: "Responded", value: activeSurvey.responded, color: "var(--saptta-accent)" },
     { name: "Pending", value: activeSurvey.totalEmployees - activeSurvey.responded, color: "#e8e8e8" },
   ];
 
@@ -255,7 +256,7 @@ export function EngagementView() {
                       </div>
                     </div>
                     <p className="text-xs text-[var(--saptta-mute)] mt-2">{activeSurvey.responded} of {activeSurvey.totalEmployees} responded</p>
-                    <Button size="sm" className="mt-3 rounded-xl bg-[var(--saptta-accent)] text-white text-xs h-8 hover:bg-[var(--saptta-accent)]/90">
+                    <Button size="sm" onClick={() => toast.success("Reminder sent to all pending respondents!")} className="mt-3 rounded-xl bg-[var(--saptta-accent)] text-white text-xs h-8 hover:bg-[var(--saptta-accent)]/90">
                       <Send className="size-3 mr-1" />Send Reminder
                     </Button>
                   </CardContent>
@@ -283,7 +284,7 @@ export function EngagementView() {
                         <Badge variant="outline" className="rounded-[999px] text-[10px] cursor-pointer hover:bg-[var(--saptta-accent)]/10">Engineering</Badge>
                         <Badge variant="outline" className="rounded-[999px] text-[10px] cursor-pointer hover:bg-[var(--saptta-accent)]/10">+ Add Group</Badge>
                       </div>
-                      <Button className="w-full rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90">Create & Send</Button>
+                      <Button className="w-full rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => { setShowCreateSurvey(false); toast.success("Survey created and sent to employees!"); }}>Create & Send</Button>
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -306,8 +307,8 @@ export function EngagementView() {
                         contentStyle={{ borderRadius: 12, border: "1px solid var(--saptta-line)", fontSize: 12 }}
                         formatter={(value: number, name: string) => [name === "score" ? `${value}/10` : `${value}%`, name === "score" ? "Engagement Score" : "Participation"]}
                       />
-                      <Line type="monotone" dataKey="score" stroke="#FF9900" strokeWidth={2.5} dot={{ fill: "#FF9900", strokeWidth: 0, r: 4 }} activeDot={{ r: 6 }} />
-                      <Line type="monotone" dataKey="participation" stroke="#0066CC" strokeWidth={2} strokeDasharray="5 5" dot={{ fill: "#0066CC", strokeWidth: 0, r: 3 }} />
+                      <Line type="monotone" dataKey="score" stroke="var(--saptta-accent)" strokeWidth={2.5} dot={{ fill: "var(--saptta-accent)", strokeWidth: 0, r: 4 }} activeDot={{ r: 6 }} />
+                      <Line type="monotone" dataKey="participation" stroke="var(--saptta-accent-2)" strokeWidth={2} strokeDasharray="5 5" dot={{ fill: "var(--saptta-accent-2)", strokeWidth: 0, r: 3 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -360,7 +361,7 @@ export function EngagementView() {
                         </div>
                         <Input placeholder="Search employee..." className="rounded-xl" />
                         <Textarea placeholder="Write your recognition message..." className="rounded-xl min-h-[80px]" />
-                        <Button className="w-full rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90">
+                        <Button className="w-full rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => { setShowCreateRecognition(false); toast.success("Recognition sent successfully!"); }}>
                           <Award className="size-4 mr-1.5" />Send Recognition
                         </Button>
                       </div>
@@ -487,7 +488,7 @@ export function EngagementView() {
                       <input type="checkbox" id="pin-ann" className="rounded" />
                       <label htmlFor="pin-ann" className="text-xs text-[var(--saptta-ink-2)]">Pin this announcement</label>
                     </div>
-                    <Button className="w-full rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90">Publish</Button>
+                    <Button className="w-full rounded-xl bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => { setShowCreateAnnouncement(false); toast.success("Announcement published to all employees!"); }}>Publish</Button>
                   </div>
                 </DialogContent>
               </Dialog>
@@ -558,12 +559,12 @@ export function EngagementView() {
                       <PieChart>
                         <Pie
                           data={[
-                            { name: "Score", value: wellnessScore.overall, color: "#FF9900" },
+                            { name: "Score", value: wellnessScore.overall, color: "var(--saptta-accent)" },
                             { name: "Gap", value: 100 - wellnessScore.overall, color: "#e8e8e8" },
                           ]}
                           dataKey="value" cx="50%" cy="50%" innerRadius={35} outerRadius={48} strokeWidth={0}
                         >
-                          <Cell fill="#FF9900" />
+                          <Cell fill="var(--saptta-accent)" />
                           <Cell fill="#e8e8e8" />
                         </Pie>
                       </PieChart>
@@ -579,7 +580,7 @@ export function EngagementView() {
                     {[
                       { label: "Physical", value: wellnessScore.physical, color: "#22c55e" },
                       { label: "Mental", value: wellnessScore.mental, color: "#8b5cf6" },
-                      { label: "Social", value: wellnessScore.social, color: "#FF9900" },
+                      { label: "Social", value: wellnessScore.social, color: "var(--saptta-accent)" },
                       { label: "Financial", value: wellnessScore.financial, color: "#f59e0b" },
                     ].map((item) => (
                       <div key={item.label} className="rounded-lg bg-[var(--saptta-bg-2)] px-2.5 py-2">
@@ -609,13 +610,13 @@ export function EngagementView() {
                         <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fontSize: 11, fill: "var(--saptta-mute)" }} axisLine={false} tickLine={false} />
                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--saptta-line)", fontSize: 12 }} />
-                        <Bar dataKey="steps" fill="#FF9900" radius={[6, 6, 0, 0]} name="Steps" />
+                        <Bar dataKey="steps" fill="var(--saptta-accent)" radius={[6, 6, 0, 0]} name="Steps" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
                   <div className="grid grid-cols-4 gap-3 mt-4">
                     {[
-                      { label: "Avg Steps", value: "7,343", icon: Footprints, color: "#FF9900" },
+                      { label: "Avg Steps", value: "7,343", icon: Footprints, color: "var(--saptta-accent)" },
                       { label: "Meditation", value: "19 min/day", icon: Brain, color: "#8b5cf6" },
                       { label: "Water Intake", value: "6.4 glasses", icon: Apple, color: "#22c55e" },
                       { label: "Sleep", value: "7.7 hrs", icon: Moon, color: "#3b82f6" },
@@ -641,7 +642,7 @@ export function EngagementView() {
                       <Flame className="size-4 text-[var(--saptta-accent)]" />
                       Wellness Challenges
                     </CardTitle>
-                    <Button variant="outline" size="sm" className="rounded-lg text-[10px] h-7">
+                    <Button variant="outline" size="sm" onClick={() => toast.info("Create a new wellness challenge")} className="rounded-lg text-[10px] h-7">
                       <Plus className="size-3 mr-1" />Create
                     </Button>
                   </div>

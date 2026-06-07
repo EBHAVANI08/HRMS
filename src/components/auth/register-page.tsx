@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -74,12 +74,12 @@ function KamRegisterLogo() {
     <div className="flex items-center gap-3">
       <div
         className="relative flex size-12 shrink-0 items-center justify-center rounded-[16px] text-white font-bold shadow-lg text-xl"
-        style={{ background: "#FF9900" }}
+        style={{ background: "var(--saptta-accent)" }}
       >
         <span className="relative z-10">K</span>
       </div>
       <span className="font-bold tracking-tight text-white text-3xl">
-        <span style={{ color: "#FF9900" }}>K</span><span style={{ color: "#0066CC" }}>am</span>
+        <span style={{ color: "var(--saptta-accent)" }}>K</span><span style={{ color: "var(--saptta-accent-2)" }}>am</span>
       </span>
     </div>
   );
@@ -428,7 +428,7 @@ export function RegistrationPage({ onSwitchToLogin }: { onSwitchToLogin: () => v
                     disabled={isLoading}
                     className="relative h-11 w-full rounded-[999px] text-sm font-semibold text-white shadow-lg overflow-hidden group"
                     style={{
-                      background: "#FF9900",
+                      background: "var(--saptta-accent)",
                       boxShadow: "0 4px 20px rgba(255, 153, 0, 0.3)",
                     }}
                   >

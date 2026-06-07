@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -86,6 +86,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAppStore, type UserRole } from "@/lib/store";
 import { ApplicantDashboard } from "@/components/applicant-dashboard";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 /* ──────────────── Animation Config ──────────────── */
 
@@ -153,7 +155,7 @@ function CircularProgress({ value, size = 80, strokeWidth = 6 }: { value: number
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="#FF9900"
+        stroke="var(--saptta-accent)"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeDasharray={circumference}
@@ -194,7 +196,7 @@ function KpiCard({
         <div className="flex items-start justify-between">
           <div
             className="flex size-10 items-center justify-center rounded-[16px] module-icon"
-            style={{ backgroundColor: `${accentColor || "#FF9900"}10`, color: accentColor || "#FF9900" }}
+            style={{ backgroundColor: `${accentColor || "#fdc500"}10`, color: accentColor || "#fdc500" }}
           >
             <Icon className="size-5" />
           </div>
@@ -230,59 +232,69 @@ function KpiCard({
   );
 }
 
-/* ──────────────── Role Switcher ──────────────── */
-
-const roleConfig: Record<UserRole, { label: string; icon: React.ElementType; color: string }> = {
-  hr_admin: { label: "HR Admin", icon: Shield, color: "#FF9900" },
-  manager: { label: "Manager", icon: Users, color: "#0066CC" },
-  employee: { label: "Employee", icon: UserCheck, color: "#FF9900" },
-  recruiter: { label: "Recruiter", icon: UserPlus, color: "#0066CC" },
-  applicant: { label: "Applicant", icon: Briefcase, color: "#003d7a" },
-};
-
-function RoleSwitcher() {
-  const { userRole, setUserRole } = useAppStore();
-  const current = roleConfig[userRole];
-  const CurrentIcon = current.icon;
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-[999px] border-[var(--saptta-line)] bg-white hover:bg-[var(--saptta-bg-2)] text-sm font-medium gap-2 px-4 h-9"
-        >
-          <CurrentIcon className="size-4" style={{ color: current.color }} />
-          <span className="text-[var(--saptta-ink)]">{current.label}</span>
-          <ChevronDown className="size-3 text-[var(--saptta-mute)]" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[180px] rounded-xl">
-        <DropdownMenuLabel className="text-xs text-[var(--saptta-mute)]">Switch Role</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {(Object.entries(roleConfig) as [UserRole, typeof roleConfig[UserRole]][]).map(([role, config]) => {
-          const Icon = config.icon;
-          return (
-            <DropdownMenuItem
-              key={role}
-              onClick={() => setUserRole(role)}
-              className={`gap-2 cursor-pointer ${role === userRole ? "bg-[var(--saptta-accent)]/5" : ""}`}
-            >
-              <Icon className="size-4" style={{ color: config.color }} />
-              <span className="text-sm">{config.label}</span>
-              {role === userRole && <span className="ml-auto size-2 rounded-full bg-[var(--saptta-accent)]" />}
-            </DropdownMenuItem>
-          );
-        })}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
 
 /* ──────────────── Greeting Header ──────────────── */
 
+const AI_SUMMARIES: Record<string, { title: string; points: string[] }> = {
+  hr_admin: {
+    title: "HR Admin — Today's AI Summary",
+    points: [
+      "1,247 employees active · 4 new joiners this week · 1 exit pending offboarding.",
+      "Attendance today: 94.2% present · 8 late · 4 absent · 6 WFH.",
+      "3 leave requests pending your approval (Priya, Anita, Ravi).",
+      "Payroll for June is on track — scheduled to run on the 28th (₹42.5L).",
+      "12 open positions · 148 candidates in pipeline · 23 interviews this week.",
+      "Top alert: Ananya Krishnan scored 92% match for Sr. Frontend Dev — recommend shortlisting.",
+    ],
+  },
+  manager: {
+    title: "Manager — Today's AI Summary",
+    points: [
+      "Your team: 18 members · 15 present · 2 on leave · 1 WFH today.",
+      "2 interviews scheduled today — Ananya K. at 10:00 AM, Vikram S. at 2:30 PM.",
+      "1 pending leave request from Priya Sharma (Jun 10–11) awaiting your approval.",
+      "Team performance avg: 3.8/5 · Q2 review deadline in 24 days.",
+      "3 open goals behind schedule — Rohan's backlog target needs attention.",
+    ],
+  },
+  employee: {
+    title: "Employee — Today's AI Summary",
+    points: [
+      "You've checked in at 9:15 AM today — attendance marked Present.",
+      "Leave balance: 4 Casual · 8 Sick · 10 Earned days remaining.",
+      "Next payslip: June 28 · Estimated net ₹1,81,800.",
+      "Goal progress: Q2 Features at 72% · Backlog reduction at 55%.",
+      "Upcoming: Bakrid holiday on Jun 10 · Company Offsite Jun 20–22.",
+    ],
+  },
+  recruiter: {
+    title: "Recruiter — Today's AI Summary",
+    points: [
+      "4 interviews today · 2 completed · Ananya K. (2 PM) and Neha G. (4 PM) upcoming.",
+      "Pipeline: 156 candidates · 42 screened · 18 in interview · 6 offers pending.",
+      "High-priority: Ananya Krishnan 92% match — share profile with hiring manager.",
+      "Top source this week: LinkedIn (45) · Naukri (38) · Referrals (28).",
+      "Action needed: 3 candidates haven't heard back in 5+ days.",
+    ],
+  },
+  applicant: {
+    title: "Applicant — Today's AI Summary",
+    points: [
+      "Interview scheduled: Technical round at 10:00 AM — Preparation tips available.",
+      "Application status: 2 active · 1 offer stage · 1 under review.",
+      "Profile completeness: 78% — add certifications to improve match scores.",
+      "Tip: Practise system design questions; your interviewer focuses on architecture.",
+      "Next step: Confirm your availability for the HR round by EOD.",
+    ],
+  },
+};
+
 function GreetingHeader({ name, role, subtitle }: { name: string; role: string; subtitle: string }) {
+  const { setCurrentView, userRole } = useAppStore();
+  const [aiOpen, setAiOpen] = useState(false);
+  const [dateRange, setDateRange] = useState("today");
+  const summary = AI_SUMMARIES[userRole] ?? AI_SUMMARIES.hr_admin;
+
   return (
     <motion.div variants={fadeUp} className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
@@ -294,36 +306,122 @@ function GreetingHeader({ name, role, subtitle }: { name: string; role: string; 
         </p>
       </div>
       <div className="flex items-center gap-2">
-        <RoleSwitcher />
-        <Button variant="outline" size="sm" className="rounded-xl border-[var(--saptta-line)] text-xs">
-          <Calendar className="size-3.5 mr-1.5" />
-          Today
-        </Button>
-        <Button size="sm" className="rounded-xl bg-[var(--saptta-accent)] text-white text-xs hover:bg-[var(--saptta-accent)]/90">
+        {/* Today / Date Range */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="rounded-xl border-[var(--saptta-line)] text-xs">
+              <Calendar className="size-3.5 mr-1.5" />
+              {dateRange === "today" ? "Today" : dateRange === "week" ? "This Week" : dateRange === "month" ? "This Month" : "Last 30 Days"}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="rounded-xl w-40">
+            <DropdownMenuLabel className="text-xs text-[var(--saptta-mute)]">Date Range</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {[
+              { value: "today", label: "Today" },
+              { value: "week", label: "This Week" },
+              { value: "month", label: "This Month" },
+              { value: "30days", label: "Last 30 Days" },
+            ].map((opt) => (
+              <DropdownMenuItem key={opt.value} onClick={() => setDateRange(opt.value)}
+                className={dateRange === opt.value ? "bg-[var(--saptta-accent)]/5 text-[var(--saptta-accent)]" : ""}>
+                {opt.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* AI Summary */}
+        <Button size="sm" className="rounded-xl bg-[var(--saptta-accent)] text-white text-xs hover:bg-[var(--saptta-accent)]/90"
+          onClick={() => setAiOpen(true)}>
           <Sparkles className="size-3.5 mr-1.5" />
           AI Summary
         </Button>
       </div>
+
+      {/* AI Summary Dialog */}
+      <Dialog open={aiOpen} onOpenChange={setAiOpen}>
+        <DialogContent className="rounded-[24px] max-w-lg">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="size-10 rounded-2xl bg-[var(--saptta-accent)]/10 flex items-center justify-center">
+                <Sparkles className="size-5 text-[var(--saptta-accent)]" />
+              </div>
+              <div>
+                <DialogTitle className="text-base font-bold text-[var(--saptta-ink)]">{summary.title}</DialogTitle>
+                <p className="text-xs text-[var(--saptta-mute)]">{new Date().toLocaleDateString("en-IN", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
+              </div>
+            </div>
+          </DialogHeader>
+          <div className="space-y-3 mt-1">
+            {summary.points.map((point, i) => (
+              <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-[var(--saptta-bg-2)]">
+                <div className="size-5 rounded-full bg-[var(--saptta-accent)]/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-[10px] font-bold text-[var(--saptta-accent)]">{i + 1}</span>
+                </div>
+                <p className="text-sm text-[var(--saptta-ink-2)] leading-relaxed">{point}</p>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2 mt-2">
+            <Button className="flex-1 rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 text-sm"
+              onClick={() => { setAiOpen(false); setCurrentView("ai-assistant"); }}>
+              <Sparkles className="size-4 mr-1.5" />Ask Follow-up
+            </Button>
+            <Button variant="outline" className="rounded-full border-[var(--saptta-line)] text-sm"
+              onClick={() => setAiOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
 
 /* ──────────────── Quick Actions Row ──────────────── */
 
+const QUICK_ACTION_ROUTES: Record<string, string> = {
+  "Ask AI": "ai-assistant",
+  "AI Career Coach": "ai-assistant",
+  "Raise Requisition": "recruitment",
+  "Approve Leave": "attendance",
+  "Review Performance": "performance",
+  "Run Payroll": "payroll",
+  "View Analytics": "analytics",
+  "My Payslips": "payroll",
+  "Apply for Leave": "attendance",
+  "Apply Leave": "attendance",
+  "View Payslip": "payroll",
+  "Update Profile": "core-hr",
+  "My Goals": "performance",
+  "Update Resume": "recruitment",
+  "Browse Jobs": "recruitment",
+  "Prepare for Interview": "ai-assistant",
+  "Interview Prep": "ai-assistant",
+  "Post a Job": "recruitment",
+  "Schedule Interview": "attendance",
+  "View Reports": "analytics",
+};
+
 function QuickActions({ actions }: { actions: Array<{ icon: React.ElementType; label: string; accent?: boolean }> }) {
+  const { setCurrentView } = useAppStore();
   return (
     <motion.div variants={fadeUp} className="flex flex-wrap gap-3">
       {actions.map((action, i) => {
         const Icon = action.icon;
+        const route = QUICK_ACTION_ROUTES[action.label];
+        const handleClick = () => {
+          if (route) setCurrentView(route);
+          else toast.info(`${action.label} — opening...`);
+        };
         return action.accent ? (
-          <Button key={i} className="rounded-[999px] bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 px-6 py-2.5 text-sm font-semibold h-auto">
-            <Icon className="size-4 mr-2" />
-            {action.label}
+          <Button key={i} onClick={handleClick} className="rounded-[999px] bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90 px-6 py-2.5 text-sm font-semibold h-auto">
+            <Icon className="size-4 mr-2" />{action.label}
           </Button>
         ) : (
-          <Button key={i} className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto">
-            <Icon className="size-4 mr-2" />
-            {action.label}
+          <Button key={i} onClick={handleClick} className="saptta-btn-fill rounded-[999px] bg-[var(--saptta-ink)] text-white hover:text-white px-6 py-2.5 text-sm font-semibold h-auto">
+            <Icon className="size-4 mr-2" />{action.label}
           </Button>
         );
       })}
@@ -351,10 +449,10 @@ const headcountData = [
 ];
 
 const deptData = [
-  { name: "Engineering", value: 420, color: "#FF9900" },
-  { name: "Sales", value: 210, color: "#0066CC" },
+  { name: "Engineering", value: 420, color: "var(--saptta-accent)" },
+  { name: "Sales", value: 210, color: "var(--saptta-accent-2)" },
   { name: "Marketing", value: 135, color: "#4d94db" },
-  { name: "HR", value: 82, color: "#003d7a" },
+  { name: "HR", value: 82, color: "var(--saptta-accent-3)" },
   { name: "Finance", value: 95, color: "#8a8680" },
   { name: "Operations", value: 180, color: "#d4a574" },
   { name: "Design", value: 125, color: "#e76f51" },
@@ -376,10 +474,10 @@ const attritionData = [
 ];
 
 const hiringFunnelData = [
-  { stage: "Applied", count: 1240, fill: "#FF9900" },
+  { stage: "Applied", count: 1240, fill: "var(--saptta-accent)" },
   { stage: "Screened", count: 680, fill: "#4d94db" },
-  { stage: "Interviewed", count: 320, fill: "#0066CC" },
-  { stage: "Offered", count: 85, fill: "#003d7a" },
+  { stage: "Interviewed", count: 320, fill: "var(--saptta-accent-2)" },
+  { stage: "Offered", count: 85, fill: "var(--saptta-accent-3)" },
   { stage: "Hired", count: 42, fill: "#8a8680" },
 ];
 
@@ -402,8 +500,8 @@ const upcomingEventsHR = [
 ];
 
 const typeColors: Record<string, string> = {
-  hire: "#0066CC",
-  leave: "#FF9900",
+  hire: "var(--saptta-accent-2)",
+  leave: "var(--saptta-accent)",
   promotion: "#4d94db",
   notice: "#ef4444",
 };
@@ -415,8 +513,8 @@ function HRAdminDashboard() {
 
       {/* KPI Cards */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={Users} label="Total Employees" value={1247} displayValue="1,247" trend="up" trendLabel="+12 this month" accentColor="#FF9900" />
-        <KpiCard icon={Briefcase} label="Open Positions" value={34} displayValue="34" trend="up" trendLabel="8 urgent" accentColor="#0066CC" />
+        <KpiCard icon={Users} label="Total Employees" value={1247} displayValue="1,247" trend="up" trendLabel="+12 this month" accentColor="#fdc500" />
+        <KpiCard icon={Briefcase} label="Open Positions" value={34} displayValue="34" trend="up" trendLabel="8 urgent" accentColor="#00509d" />
         <motion.div variants={fadeUp}>
           <Card className="saptta-module-card border-[var(--saptta-line)] bg-white hover:shadow-lg transition-shadow duration-300 rounded-[20px]">
             <CardContent className="p-5">
@@ -440,7 +538,7 @@ function HRAdminDashboard() {
             </CardContent>
           </Card>
         </motion.div>
-        <KpiCard icon={IndianRupee} label="Monthly Payroll" value={120} displayValue="₹1.2Cr" trend="up" trendLabel="+3.5% vs last" accentColor="#0066CC" />
+        <KpiCard icon={IndianRupee} label="Monthly Payroll" value={120} displayValue="₹1.2Cr" trend="up" trendLabel="+3.5% vs last" accentColor="#00509d" />
       </motion.div>
 
       {/* Charts 2x2 */}
@@ -457,7 +555,7 @@ function HRAdminDashboard() {
                 <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#8a8680" }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 12, fill: "#8a8680" }} axisLine={false} tickLine={false} domain={[1100, 1280]} />
                 <Tooltip content={<ChartTooltip />} />
-                <Line type="monotone" dataKey="count" name="Headcount" stroke="#FF9900" strokeWidth={3} dot={{ r: 4, fill: "#FF9900", strokeWidth: 0 }} activeDot={{ r: 6, fill: "#FF9900", stroke: "#fff", strokeWidth: 2 }} />
+                <Line type="monotone" dataKey="count" name="Headcount" stroke="var(--saptta-accent)" strokeWidth={3} dot={{ r: 4, fill: "var(--saptta-accent)", strokeWidth: 0 }} activeDot={{ r: 6, fill: "var(--saptta-accent)", stroke: "#fff", strokeWidth: 2 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -508,11 +606,11 @@ function HRAdminDashboard() {
                 <Tooltip content={<ChartTooltip />} />
                 <defs>
                   <linearGradient id="attritionGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#FF9900" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#FF9900" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--saptta-accent)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--saptta-accent)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <Area type="monotone" dataKey="rate" name="Attrition %" stroke="#FF9900" strokeWidth={2} fill="url(#attritionGrad)" />
+                <Area type="monotone" dataKey="rate" name="Attrition %" stroke="var(--saptta-accent)" strokeWidth={2} fill="url(#attritionGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -656,10 +754,10 @@ const teamPerformanceData = [
 ];
 
 const pipelineStages = [
-  { stage: "Open", count: 8, color: "#FF9900" },
+  { stage: "Open", count: 8, color: "var(--saptta-accent)" },
   { stage: "Screening", count: 12, color: "#4d94db" },
-  { stage: "Interview", count: 6, color: "#0066CC" },
-  { stage: "Assessment", count: 4, color: "#003d7a" },
+  { stage: "Interview", count: 6, color: "var(--saptta-accent-2)" },
+  { stage: "Assessment", count: 4, color: "var(--saptta-accent-3)" },
   { stage: "Offer", count: 2, color: "#8a8680" },
 ];
 
@@ -689,8 +787,8 @@ function ManagerDashboard() {
 
       {/* KPI Cards */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={Users} label="Team Size" value={42} displayValue="42" trend="up" trendLabel="+2 this month" accentColor="#FF9900" />
-        <KpiCard icon={Briefcase} label="Open Requisitions" value={5} displayValue="5" trend="up" trendLabel="3 urgent" accentColor="#0066CC" />
+        <KpiCard icon={Users} label="Team Size" value={42} displayValue="42" trend="up" trendLabel="+2 this month" accentColor="#fdc500" />
+        <KpiCard icon={Briefcase} label="Open Requisitions" value={5} displayValue="5" trend="up" trendLabel="3 urgent" accentColor="#00509d" />
         <motion.div variants={fadeUp}>
           <Card className="saptta-module-card border-[var(--saptta-line)] bg-white hover:shadow-lg transition-shadow duration-300 rounded-[20px]">
             <CardContent className="p-5">
@@ -714,7 +812,7 @@ function ManagerDashboard() {
             </CardContent>
           </Card>
         </motion.div>
-        <KpiCard icon={ClipboardList} label="Pending Reviews" value={8} displayValue="8" trend="neutral" trendLabel="Due this week" accentColor="#003d7a" />
+        <KpiCard icon={ClipboardList} label="Pending Reviews" value={8} displayValue="8" trend="neutral" trendLabel="Due this week" accentColor="#003f88" />
       </motion.div>
 
       {/* Hiring Pipeline + Team Performance */}
@@ -758,7 +856,7 @@ function ManagerDashboard() {
                 <Tooltip content={<ChartTooltip />} />
                 <Bar dataKey="rating" name="Q Rating" radius={[8, 8, 0, 0]} barSize={32}>
                   {teamPerformanceData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#FF9900" : "#0066CC"} />
+                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "var(--saptta-accent)" : "var(--saptta-accent-2)"} />
                   ))}
                 </Bar>
               </BarChart>
@@ -857,7 +955,8 @@ function ManagerDashboard() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-[var(--saptta-mute)]">With: {interview.interviewer}</span>
-                  <Button size="sm" className="h-6 rounded-lg bg-[var(--saptta-accent)] text-white text-[10px] px-3 hover:bg-[var(--saptta-accent)]/90">
+                  <Button size="sm" className="h-6 rounded-lg bg-[var(--saptta-accent)] text-white text-[10px] px-3 hover:bg-[var(--saptta-accent)]/90"
+                    onClick={() => { toast.success("Opening meeting room…"); window.open("https://meet.google.com/new", "_blank"); }}>
                     <Video className="size-3 mr-1" />Join
                   </Button>
                 </div>
@@ -959,7 +1058,7 @@ function EmployeeDashboard() {
 
       {/* KPI Cards */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={Palmtree} label="Leave Balance" value={18} displayValue="18 days" trend="neutral" trendLabel="CL: 10, SL: 5, PL: 3" accentColor="#FF9900" />
+        <KpiCard icon={Palmtree} label="Leave Balance" value={18} displayValue="18 days" trend="neutral" trendLabel="CL: 10, SL: 5, PL: 3" accentColor="#fdc500" />
         <motion.div variants={fadeUp}>
           <Card className="saptta-module-card border-[var(--saptta-line)] bg-white hover:shadow-lg transition-shadow duration-300 rounded-[20px]">
             <CardContent className="p-5">
@@ -983,12 +1082,12 @@ function EmployeeDashboard() {
             </CardContent>
           </Card>
         </motion.div>
-        <KpiCard icon={IndianRupee} label="Pay Slip (Net)" value={180} displayValue="₹1.8L" trend="up" trendLabel="+2.1% vs last" accentColor="#0066CC" />
+        <KpiCard icon={IndianRupee} label="Pay Slip (Net)" value={180} displayValue="₹1.8L" trend="up" trendLabel="+2.1% vs last" accentColor="#00509d" />
         <motion.div variants={fadeUp}>
           <Card className="saptta-module-card border-[var(--saptta-line)] bg-white hover:shadow-lg transition-shadow duration-300 rounded-[20px]">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
-                <div className="flex size-10 items-center justify-center rounded-[16px] module-icon" style={{ backgroundColor: "#003d7a10", color: "#003d7a" }}>
+                <div className="flex size-10 items-center justify-center rounded-[16px] module-icon" style={{ backgroundColor: "var(--saptta-accent-3)10", color: "var(--saptta-accent-3)" }}>
                   <Goal className="size-5" />
                 </div>
                 <Badge variant="secondary" className="text-[10px] font-semibold rounded-full bg-amber-50 text-amber-600">
@@ -1149,7 +1248,7 @@ function EmployeeDashboard() {
                     animate={{ width: `${goal.progress}%` }}
                     transition={{ duration: 1, ease: [0.22, 0.8, 0.22, 1] }}
                     className="h-full rounded-full"
-                    style={{ backgroundColor: goal.progress >= 70 ? "#0066CC" : goal.progress >= 40 ? "#4d94db" : "#FF9900" }}
+                    style={{ backgroundColor: goal.progress >= 70 ? "var(--saptta-accent-2)" : goal.progress >= 40 ? "#4d94db" : "var(--saptta-accent)" }}
                   />
                 </div>
               </div>
@@ -1197,11 +1296,11 @@ function EmployeeDashboard() {
    ══════════════════════════════════════════════════════════════ */
 
 const recruiterFunnelData = [
-  { stage: "Sourced", count: 68, fill: "#FF9900" },
-  { stage: "Screened", count: 42, fill: "#4d94db" },
-  { stage: "Interview", count: 18, fill: "#0066CC" },
-  { stage: "Assessment", count: 12, fill: "#003d7a" },
-  { stage: "Offer", count: 6, fill: "#8a8680" },
+  { stage: "Sourced", count: 68, fill: "#fdc500" },
+  { stage: "Screened", count: 42, fill: "#4d8bc9" },
+  { stage: "Interview", count: 18, fill: "#00509d" },
+  { stage: "Assessment", count: 12, fill: "#003f88" },
+  { stage: "Offer", count: 6, fill: "#6b82a8" },
   { stage: "Hired", count: 3, fill: "#22c55e" },
 ];
 
@@ -1219,12 +1318,12 @@ const recruiterInterviews = [
 ];
 
 const sourceAnalytics = [
-  { source: "LinkedIn", count: 45, fill: "#FF9900" },
-  { source: "Naukri", count: 38, fill: "#0066CC" },
-  { source: "Referral", count: 28, fill: "#4d94db" },
-  { source: "Website", count: 25, fill: "#003d7a" },
-  { source: "Campus", count: 12, fill: "#8a8680" },
-  { source: "Agency", count: 8, fill: "#d4a574" },
+  { source: "LinkedIn", count: 45, fill: "#fdc500" },
+  { source: "Naukri", count: 38, fill: "#00509d" },
+  { source: "Referral", count: 28, fill: "#4d8bc9" },
+  { source: "Website", count: 25, fill: "#003f88" },
+  { source: "Campus", count: 12, fill: "#6b82a8" },
+  { source: "Agency", count: 8, fill: "#ffd500" },
 ];
 
 const jobWiseData = [
@@ -1243,10 +1342,10 @@ function RecruiterDashboard() {
 
       {/* KPI Cards */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={Briefcase} label="Active Jobs" value={12} displayValue="12" trend="up" trendLabel="3 urgent" accentColor="#FF9900" />
-        <KpiCard icon={Users} label="Total Candidates" value={156} displayValue="156" trend="up" trendLabel="+24 this week" accentColor="#0066CC" />
+        <KpiCard icon={Briefcase} label="Active Jobs" value={12} displayValue="12" trend="up" trendLabel="3 urgent" accentColor="#fdc500" />
+        <KpiCard icon={Users} label="Total Candidates" value={156} displayValue="156" trend="up" trendLabel="+24 this week" accentColor="#00509d" />
         <KpiCard icon={Video} label="Interviews Today" value={4} displayValue="4" trend="neutral" trendLabel="2 completed" accentColor="#4d94db" />
-        <KpiCard icon={BadgeCheck} label="Offers Pending" value={6} displayValue="6" trend="up" trendLabel="+2 this week" accentColor="#003d7a" />
+        <KpiCard icon={BadgeCheck} label="Offers Pending" value={6} displayValue="6" trend="up" trendLabel="+2 this week" accentColor="#003f88" />
       </motion.div>
 
       {/* Recruiting Pipeline Funnel */}
@@ -1364,7 +1463,8 @@ function RecruiterDashboard() {
                     <Users className="size-3" />
                     {interview.interviewer}
                   </div>
-                  <Button size="sm" className="w-full h-8 rounded-lg bg-[var(--saptta-accent)] text-white text-xs hover:bg-[var(--saptta-accent)]/90">
+                  <Button size="sm" className="w-full h-8 rounded-lg bg-[var(--saptta-accent)] text-white text-xs hover:bg-[var(--saptta-accent)]/90"
+                    onClick={() => { toast.success(`Joining interview with ${interview.candidate}…`); window.open("https://meet.google.com/new", "_blank"); }}>
                     <Video className="size-3 mr-1" />Join Interview
                   </Button>
                 </div>
@@ -1410,10 +1510,10 @@ function RecruiterDashboard() {
                 <XAxis dataKey="job" tick={{ fontSize: 10, fill: "#8a8680" }} axisLine={false} tickLine={false} angle={-15} textAnchor="end" height={50} />
                 <YAxis tick={{ fontSize: 12, fill: "#8a8680" }} axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltip />} />
-                <Bar dataKey="sourced" name="Sourced" stackId="a" fill="#FF9900" radius={[0, 0, 0, 0]} barSize={28} />
+                <Bar dataKey="sourced" name="Sourced" stackId="a" fill="var(--saptta-accent)" radius={[0, 0, 0, 0]} barSize={28} />
                 <Bar dataKey="screened" name="Screened" stackId="a" fill="#4d94db" radius={[0, 0, 0, 0]} barSize={28} />
-                <Bar dataKey="interview" name="Interview" stackId="a" fill="#0066CC" radius={[0, 0, 0, 0]} barSize={28} />
-                <Bar dataKey="offer" name="Offer" stackId="a" fill="#003d7a" radius={[8, 8, 0, 0]} barSize={28} />
+                <Bar dataKey="interview" name="Interview" stackId="a" fill="var(--saptta-accent-2)" radius={[0, 0, 0, 0]} barSize={28} />
+                <Bar dataKey="offer" name="Offer" stackId="a" fill="var(--saptta-accent-3)" radius={[8, 8, 0, 0]} barSize={28} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
               </BarChart>
             </ResponsiveContainer>

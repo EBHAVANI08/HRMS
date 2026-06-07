@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -290,7 +290,7 @@ function RatingScale({ value, onChange, label }: { value: number; onChange: (v: 
             key={n}
             className={`size-7 rounded-full text-[10px] font-bold transition-all ${
               n <= value
-                ? "bg-[#FF9900] text-white"
+                ? "bg-[var(--saptta-accent)] text-white"
                 : "bg-[var(--saptta-bg-2)] text-[var(--saptta-mute)] hover:bg-[var(--saptta-bg-2)]/80"
             }`}
             onClick={() => onChange(n)}
@@ -309,9 +309,9 @@ function statusColor(status: string) {
     case "On Track": return "bg-emerald-50 text-emerald-700 border-emerald-200";
     case "At Risk": return "bg-amber-50 text-amber-700 border-amber-200";
     case "Behind": return "bg-red-50 text-red-700 border-red-200";
-    case "Completed": return "bg-[#0066CC]/15 text-[#6b7a1e] border-[#0066CC]/30";
+    case "Completed": return "bg-[var(--saptta-accent-2)]/15 text-[#6b7a1e] border-[var(--saptta-accent-2)]/30";
     case "Not Started": return "bg-gray-50 text-gray-600 border-gray-200";
-    case "In Progress": return "bg-[#FF9900]/10 text-[#FF9900] border-[#FF9900]/20";
+    case "In Progress": return "bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)] border-[var(--saptta-accent)]/20";
     case "Overdue": return "bg-red-50 text-red-700 border-red-200";
     case "Pending": return "bg-amber-50 text-amber-700 border-amber-200";
     case "Declined": return "bg-gray-50 text-gray-500 border-gray-200";
@@ -321,14 +321,14 @@ function statusColor(status: string) {
 
 function progressColor(progress: number) {
   if (progress >= 80) return "#22c55e";
-  if (progress >= 50) return "#FF9900";
+  if (progress >= 50) return "var(--saptta-accent)";
   if (progress >= 30) return "#f59e0b";
   return "#ef4444";
 }
 
 function ratingDisplay(rating: number | null) {
   if (rating === null) return <span className="text-[var(--saptta-mute)]">—</span>;
-  const color = rating >= 4.5 ? "#22c55e" : rating >= 3.5 ? "#FF9900" : rating >= 2.5 ? "#f59e0b" : "#ef4444";
+  const color = rating >= 4.5 ? "#22c55e" : rating >= 3.5 ? "var(--saptta-accent)" : rating >= 2.5 ? "#f59e0b" : "#ef4444";
   return <span className="font-semibold" style={{ color }}>{rating.toFixed(1)}</span>;
 }
 
@@ -377,7 +377,7 @@ function GoalsOKRTab() {
       <motion.div variants={fadeUp}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-[var(--saptta-ink)]">Company OKRs</h2>
-          <Badge className="rounded-full bg-[#FF9900]/10 text-[#FF9900] hover:bg-[#FF9900]/15 text-xs">
+          <Badge className="rounded-full bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)]/15 text-xs">
             {companyOKRs.length} Objectives
           </Badge>
         </div>
@@ -390,8 +390,8 @@ function GoalsOKRTab() {
                     className="w-full text-left p-4 flex items-start gap-3 hover:bg-[var(--saptta-bg-2)]/50 transition-colors"
                     onClick={() => setExpandedOKR(expandedOKR === okr.id ? null : okr.id)}
                   >
-                    <div className="mt-0.5 flex size-8 items-center justify-center rounded-[12px] bg-[#FF9900]/10 shrink-0">
-                      <Target className="size-4 text-[#FF9900]" />
+                    <div className="mt-0.5 flex size-8 items-center justify-center rounded-[12px] bg-[var(--saptta-accent)]/10 shrink-0">
+                      <Target className="size-4 text-[var(--saptta-accent)]" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
@@ -461,7 +461,7 @@ function GoalsOKRTab() {
                               <div className="space-y-2">
                                 {okr.departmentOKRs.map((dokr) => (
                                   <div key={dokr.id} className="rounded-xl border border-[var(--saptta-line)] px-3 py-2.5 flex items-center gap-3">
-                                    <div className="flex size-6 items-center justify-center rounded-[10px] bg-[#0066CC]/15 shrink-0">
+                                    <div className="flex size-6 items-center justify-center rounded-[10px] bg-[var(--saptta-accent-2)]/15 shrink-0">
                                       <GitBranch className="size-3 text-[#6b7a1e]" />
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -503,7 +503,7 @@ function GoalsOKRTab() {
             </div>
             <Dialog open={createGoalOpen} onOpenChange={setCreateGoalOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="rounded-full bg-[#FF9900] text-white text-xs hover:bg-[#FF9900]/90 h-8">
+                <Button size="sm" className="rounded-full bg-[var(--saptta-accent)] text-white text-xs hover:bg-[var(--saptta-accent)]/90 h-8">
                   <Plus className="size-3.5 mr-1" /> Create Goal
                 </Button>
               </DialogTrigger>
@@ -556,7 +556,7 @@ function GoalsOKRTab() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" className="rounded-full border-[var(--saptta-line)]" onClick={() => setCreateGoalOpen(false)}>Cancel</Button>
-                  <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90" onClick={() => setCreateGoalOpen(false)}>
+                  <Button className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => setCreateGoalOpen(false)}>
                     Create Goal
                   </Button>
                 </DialogFooter>
@@ -574,7 +574,7 @@ function GoalsOKRTab() {
               onClick={() => setSelectedGoal(goal)}
             >
               <Avatar className="size-8 shrink-0">
-                <AvatarFallback className="bg-[#FF9900]/10 text-[#FF9900] text-[10px] font-semibold">
+                <AvatarFallback className="bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)] text-[10px] font-semibold">
                   {goal.employeeInitials}
                 </AvatarFallback>
               </Avatar>
@@ -691,7 +691,7 @@ function GoalsOKRTab() {
               </div>
               <DialogFooter>
                 <Button variant="outline" className="rounded-full border-[var(--saptta-line)]" onClick={() => setSelectedGoal(null)}>Close</Button>
-                <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90">Edit Goal</Button>
+                <Button className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90">Edit Goal</Button>
               </DialogFooter>
             </>
           )}
@@ -723,8 +723,8 @@ function AppraisalCyclesTab() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <div className="flex size-10 items-center justify-center rounded-[16px] bg-[#FF9900]/10">
-                    <Gauge className="size-5 text-[#FF9900]" />
+                  <div className="flex size-10 items-center justify-center rounded-[16px] bg-[var(--saptta-accent)]/10">
+                    <Gauge className="size-5 text-[var(--saptta-accent)]" />
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-[var(--saptta-ink)]">Q2 2026 Review</h3>
@@ -734,13 +734,13 @@ function AppraisalCyclesTab() {
                 <div className="mt-4 flex items-center gap-3">
                   <div className="flex-1 max-w-xs h-3 rounded-full bg-[var(--saptta-bg-2)] overflow-hidden">
                     <motion.div
-                      className="h-full rounded-full bg-[#FF9900]"
+                      className="h-full rounded-full bg-[var(--saptta-accent)]"
                       initial={{ width: 0 }}
                       animate={{ width: `${cycleProgress}%` }}
                       transition={{ duration: 1, ease: [0.22, 0.8, 0.22, 1] }}
                     />
                   </div>
-                  <span className="text-sm font-bold text-[#FF9900]">{cycleProgress}% completed</span>
+                  <span className="text-sm font-bold text-[var(--saptta-accent)]">{cycleProgress}% completed</span>
                 </div>
                 <div className="mt-2 flex items-center gap-4 text-xs text-[var(--saptta-mute)]">
                   <span><strong className="text-[var(--saptta-ink)]">{completedCount}</strong> / {totalCount} reviews done</span>
@@ -752,7 +752,7 @@ function AppraisalCyclesTab() {
               </div>
               <Dialog open={newCycleOpen} onOpenChange={setNewCycleOpen}>
                 <DialogTrigger asChild>
-                  <Button size="sm" className="rounded-full bg-[#FF9900] text-white text-xs hover:bg-[#FF9900]/90 h-8 shrink-0">
+                  <Button size="sm" className="rounded-full bg-[var(--saptta-accent)] text-white text-xs hover:bg-[var(--saptta-accent)]/90 h-8 shrink-0">
                     <Plus className="size-3.5 mr-1" /> Start New Cycle
                   </Button>
                 </DialogTrigger>
@@ -805,7 +805,7 @@ function AppraisalCyclesTab() {
                   </div>
                   <DialogFooter>
                     <Button variant="outline" className="rounded-full border-[var(--saptta-line)]" onClick={() => setNewCycleOpen(false)}>Cancel</Button>
-                    <Button className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90" onClick={() => setNewCycleOpen(false)}>
+                    <Button className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90" onClick={() => setNewCycleOpen(false)}>
                       Create Cycle
                     </Button>
                   </DialogFooter>
@@ -836,7 +836,7 @@ function AppraisalCyclesTab() {
                           isCompleted
                             ? "bg-[#22c55e] text-white"
                             : isCurrent
-                            ? "bg-[#FF9900] text-white ring-4 ring-[#FF9900]/20"
+                            ? "bg-[var(--saptta-accent)] text-white ring-4 ring-[var(--saptta-accent)]/20"
                             : "bg-[var(--saptta-bg-2)] text-[var(--saptta-mute)]"
                         }`}
                       >
@@ -847,12 +847,12 @@ function AppraisalCyclesTab() {
                         )}
                       </div>
                       <p className={`text-[10px] mt-1.5 font-medium text-center ${
-                        isCompleted ? "text-[#22c55e]" : isCurrent ? "text-[#FF9900]" : "text-[var(--saptta-mute)]"
+                        isCompleted ? "text-[#22c55e]" : isCurrent ? "text-[var(--saptta-accent)]" : "text-[var(--saptta-mute)]"
                       }`}>
                         {step.label}
                       </p>
                       {isCurrent && (
-                        <span className="text-[8px] text-[#FF9900] font-semibold mt-0.5">IN PROGRESS</span>
+                        <span className="text-[8px] text-[var(--saptta-accent)] font-semibold mt-0.5">IN PROGRESS</span>
                       )}
                     </div>
                     {idx < cycleSteps.length - 1 && (
@@ -892,42 +892,44 @@ function AppraisalCyclesTab() {
             </div>
           </CardHeader>
           <CardContent className="px-0 pb-0">
-            <ScrollArea className="max-h-[420px]">
-              <Table>
+            <ScrollArea className="h-[420px]">
+              <div className="overflow-x-auto">
+              <Table className="min-w-[600px]">
                 <TableHeader>
-                  <TableRow className="border-[var(--saptta-line)] hover:bg-transparent">
-                    <TableHead className="text-[10px] font-semibold text-[var(--saptta-mute)] pl-6">Employee</TableHead>
-                    <TableHead className="text-[10px] font-semibold text-[var(--saptta-mute)]">Department</TableHead>
-                    <TableHead className="text-[10px] font-semibold text-[var(--saptta-mute)] text-center">Self</TableHead>
-                    <TableHead className="text-[10px] font-semibold text-[var(--saptta-mute)] text-center">Manager</TableHead>
-                    <TableHead className="text-[10px] font-semibold text-[var(--saptta-mute)] text-center">Final</TableHead>
-                    <TableHead className="text-[10px] font-semibold text-[var(--saptta-mute)] text-center pr-6">Status</TableHead>
+                  <TableRow className="border-[var(--saptta-line)] hover:bg-transparent sticky top-0 bg-white z-10">
+                    <TableHead className="text-[10px] font-semibold text-[var(--saptta-mute)] pl-6 w-[200px]">Employee</TableHead>
+                    <TableHead className="text-[10px] font-semibold text-[var(--saptta-mute)] w-[140px]">Department</TableHead>
+                    <TableHead className="text-[10px] font-semibold text-[var(--saptta-mute)] text-center w-[80px]">Self</TableHead>
+                    <TableHead className="text-[10px] font-semibold text-[var(--saptta-mute)] text-center w-[80px]">Manager</TableHead>
+                    <TableHead className="text-[10px] font-semibold text-[var(--saptta-mute)] text-center w-[80px]">Final</TableHead>
+                    <TableHead className="text-[10px] font-semibold text-[var(--saptta-mute)] text-center pr-6 w-[120px]">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredAppraisals.map((emp) => (
-                    <TableRow key={emp.id} className="border-[var(--saptta-line)]">
-                      <TableCell className="pl-6">
+                    <TableRow key={emp.id} className="border-[var(--saptta-line)] hover:bg-[var(--saptta-bg-2)]">
+                      <TableCell className="pl-6 w-[200px]">
                         <div className="flex items-center gap-2">
-                          <Avatar className="size-7">
-                            <AvatarFallback className="bg-[#FF9900]/10 text-[#FF9900] text-[9px] font-semibold">
+                          <Avatar className="size-7 shrink-0">
+                            <AvatarFallback className="bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)] text-[9px] font-semibold">
                               {emp.initials}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-xs font-medium text-[var(--saptta-ink)]">{emp.name}</span>
+                          <span className="text-xs font-semibold text-[var(--saptta-ink)] truncate">{emp.name}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-xs text-[var(--saptta-mute)]">{emp.department}</TableCell>
-                      <TableCell className="text-center">{ratingDisplay(emp.selfRating)}</TableCell>
-                      <TableCell className="text-center">{ratingDisplay(emp.managerRating)}</TableCell>
-                      <TableCell className="text-center">{ratingDisplay(emp.finalRating)}</TableCell>
-                      <TableCell className="text-center pr-6">
+                      <TableCell className="text-xs text-[var(--saptta-mute)] w-[140px]">{emp.department}</TableCell>
+                      <TableCell className="text-center w-[80px]">{ratingDisplay(emp.selfRating)}</TableCell>
+                      <TableCell className="text-center w-[80px]">{ratingDisplay(emp.managerRating)}</TableCell>
+                      <TableCell className="text-center w-[80px]">{ratingDisplay(emp.finalRating)}</TableCell>
+                      <TableCell className="text-center pr-6 w-[120px]">
                         <StatusBadge status={emp.status} />
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
+              </div>
             </ScrollArea>
           </CardContent>
         </Card>
@@ -956,7 +958,7 @@ function Feedback360Tab() {
       <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Card className="border-[var(--saptta-line)] rounded-[16px]">
           <CardContent className="p-3 text-center">
-            <p className="text-lg font-bold text-[#FF9900]">{pendingCount}</p>
+            <p className="text-lg font-bold text-[var(--saptta-accent)]">{pendingCount}</p>
             <p className="text-[10px] text-[var(--saptta-mute)]">Pending Requests</p>
           </CardContent>
         </Card>
@@ -974,7 +976,7 @@ function Feedback360Tab() {
         </Card>
         <Card className="border-[var(--saptta-line)] rounded-[16px]">
           <CardContent className="p-3 text-center">
-            <p className="text-lg font-bold text-[#0066CC]">
+            <p className="text-lg font-bold text-[var(--saptta-accent-2)]">
               {feedbackReceived.length > 0
                 ? (feedbackReceived.reduce((sum, f) => sum + f.rating, 0) / feedbackReceived.length).toFixed(1)
                 : "—"}
@@ -995,7 +997,7 @@ function Feedback360Tab() {
             }`}
             onClick={() => setActiveSection("requests")}
           >
-            Requests {pendingCount > 0 && <span className="ml-1 inline-flex items-center justify-center size-4 rounded-full bg-[#FF9900] text-white text-[9px]">{pendingCount}</span>}
+            Requests {pendingCount > 0 && <span className="ml-1 inline-flex items-center justify-center size-4 rounded-full bg-[var(--saptta-accent)] text-white text-[9px]">{pendingCount}</span>}
           </button>
           <button
             className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
@@ -1027,7 +1029,7 @@ function Feedback360Tab() {
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <Avatar className="size-9 shrink-0">
-                        <AvatarFallback className="bg-[#0066CC]/20 text-[#6b7a1e] text-[10px] font-semibold">
+                        <AvatarFallback className="bg-[var(--saptta-accent-2)]/20 text-[#6b7a1e] text-[10px] font-semibold">
                           {req.targetInitials}
                         </AvatarFallback>
                       </Avatar>
@@ -1050,7 +1052,7 @@ function Feedback360Tab() {
                           {req.status === "Pending" && (
                             <Button
                               size="sm"
-                              className="rounded-full bg-[#FF9900] text-white text-[10px] h-6 hover:bg-[#FF9900]/90"
+                              className="rounded-full bg-[var(--saptta-accent)] text-white text-[10px] h-6 hover:bg-[var(--saptta-accent)]/90"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setSelectedFeedback(req);
@@ -1086,7 +1088,7 @@ function Feedback360Tab() {
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <Avatar className="size-9 shrink-0">
-                        <AvatarFallback className="bg-[#FF9900]/10 text-[#FF9900] text-[10px] font-semibold">
+                        <AvatarFallback className="bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)] text-[10px] font-semibold">
                           {fb.fromInitials}
                         </AvatarFallback>
                       </Avatar>
@@ -1096,7 +1098,7 @@ function Feedback360Tab() {
                             <p className="text-sm font-medium text-[var(--saptta-ink)]">{fb.from}</p>
                             <p className="text-[10px] text-[var(--saptta-mute)]">{fb.relationship} · {fb.date}</p>
                           </div>
-                          <div className="flex items-center gap-1 bg-[#0066CC]/15 rounded-full px-2 py-0.5">
+                          <div className="flex items-center gap-1 bg-[var(--saptta-accent-2)]/15 rounded-full px-2 py-0.5">
                             <Star className="size-3 text-[#6b7a1e] fill-[#6b7a1e]" />
                             <span className="text-xs font-bold text-[#6b7a1e]">{fb.rating}</span>
                           </div>
@@ -1198,7 +1200,7 @@ function Feedback360Tab() {
                   Cancel
                 </Button>
                 <Button
-                  className="rounded-full bg-[#FF9900] text-white hover:bg-[#FF9900]/90"
+                  className="rounded-full bg-[var(--saptta-accent)] text-white hover:bg-[var(--saptta-accent)]/90"
                   onClick={() => setGiveFeedbackOpen(false)}
                 >
                   <Send className="size-3.5 mr-1" /> Submit Feedback
@@ -1223,7 +1225,7 @@ function NineBoxTab() {
     if (perf === "High" && pot === "High") return { bg: "#22c55e", bgLight: "#22c55e12", text: "#166534", label: "Stars" };
     if (perf === "High" && pot === "Medium") return { bg: "#86efac", bgLight: "#86efac15", text: "#166534", label: "Core Performers" };
     if (perf === "High" && pot === "Low") return { bg: "#fbbf24", bgLight: "#fbbf2415", text: "#92400e", label: "Professionals" };
-    if (perf === "Medium" && pot === "High") return { bg: "#0066CC", bgLight: "#0066CC15", text: "#3d4f0d", label: "High Potentials" };
+    if (perf === "Medium" && pot === "High") return { bg: "var(--saptta-accent-2)", bgLight: "var(--saptta-accent-2)15", text: "#3d4f0d", label: "High Potentials" };
     if (perf === "Medium" && pot === "Medium") return { bg: "#f59e0b", bgLight: "#f59e0b12", text: "#92400e", label: "Key Contributors" };
     if (perf === "Medium" && pot === "Low") return { bg: "#fb923c", bgLight: "#fb923c12", text: "#9a3412", label: "Solid Citizens" };
     if (perf === "Low" && pot === "High") return { bg: "#a78bfa", bgLight: "#a78bfa15", text: "#4c1d95", label: "Rough Diamonds" };
@@ -1392,7 +1394,7 @@ function NineBoxTab() {
               <div className="space-y-2">
                 <p className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider">Developing</p>
                 {[
-                  { color: "#0066CC", label: "High Potentials", desc: "Medium performance, high potential" },
+                  { color: "var(--saptta-accent-2)", label: "High Potentials", desc: "Medium performance, high potential" },
                   { color: "#f59e0b", label: "Key Contributors", desc: "Medium performance, medium potential" },
                   { color: "#fb923c", label: "Solid Citizens", desc: "Medium performance, low potential" },
                 ].map((item) => (
@@ -1516,8 +1518,8 @@ export function PerformanceView() {
 
       {/* Stats Row */}
       <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard icon={Target} value="5" label="Company OKRs" color="#FF9900" />
-        <StatCard icon={Award} value="72%" label="Review Completion" color="#0066CC" />
+        <StatCard icon={Target} value="5" label="Company OKRs" color="var(--saptta-accent)" />
+        <StatCard icon={Award} value="72%" label="Review Completion" color="var(--saptta-accent-2)" />
         <StatCard icon={Star} value="4.2" label="Avg. Rating" color="#f59e0b" />
         <StatCard icon={MessageSquare} value={pendingFeedback} label="Pending Feedback" color="#8b5cf6" />
       </motion.div>
@@ -1528,30 +1530,30 @@ export function PerformanceView() {
           <TabsList className="bg-[var(--saptta-bg-2)] rounded-full p-1 h-auto gap-0">
             <TabsTrigger
               value="goals"
-              className="rounded-full text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#FF9900] px-4 py-1.5"
+              className="rounded-full text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[var(--saptta-accent)] px-4 py-1.5"
             >
               <Target className="size-3.5 mr-1.5" /> Goals / OKR
             </TabsTrigger>
             <TabsTrigger
               value="appraisals"
-              className="rounded-full text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#FF9900] px-4 py-1.5"
+              className="rounded-full text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[var(--saptta-accent)] px-4 py-1.5"
             >
               <BarChart3 className="size-3.5 mr-1.5" /> Appraisal Cycles
             </TabsTrigger>
             <TabsTrigger
               value="feedback"
-              className="rounded-full text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#FF9900] px-4 py-1.5 relative"
+              className="rounded-full text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[var(--saptta-accent)] px-4 py-1.5 relative"
             >
               <MessageSquare className="size-3.5 mr-1.5" /> 360 Feedback
               {pendingFeedback > 0 && (
-                <span className="ml-1 inline-flex items-center justify-center size-4 rounded-full bg-[#FF9900] text-white text-[8px] font-bold">
+                <span className="ml-1 inline-flex items-center justify-center size-4 rounded-full bg-[var(--saptta-accent)] text-white text-[8px] font-bold">
                   {pendingFeedback}
                 </span>
               )}
             </TabsTrigger>
             <TabsTrigger
               value="ninebox"
-              className="rounded-full text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#FF9900] px-4 py-1.5"
+              className="rounded-full text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[var(--saptta-accent)] px-4 py-1.5"
             >
               <Layers className="size-3.5 mr-1.5" /> 9-Box Matrix
             </TabsTrigger>
