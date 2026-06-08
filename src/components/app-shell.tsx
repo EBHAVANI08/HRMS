@@ -643,6 +643,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   } = useAppStore();
 
   const [notifPanelOpen, setNotifPanelOpen] = React.useState(false);
+  const [profileOpen, setProfileOpen] = React.useState(false);
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
 
   // Filter nav items based on role & apply role-specific labels
   const navItems = allNavItems
@@ -859,11 +861,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setProfileOpen(true)} className="cursor-pointer">
                     <User className="size-4 mr-2" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSettingsOpen(true)} className="cursor-pointer">
                     <Settings className="size-4 mr-2" />
                     Settings
                   </DropdownMenuItem>
@@ -901,6 +903,96 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* ── Notification Panel ── */}
       <NotificationPanel open={notifPanelOpen} onOpenChange={setNotifPanelOpen} />
+
+      {/* ── Profile Dialog ── */}
+      <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+        <DialogContent className="rounded-[24px] max-w-md">
+          <DialogHeader>
+            <DialogTitle>My Profile</DialogTitle>
+            <DialogDescription>Your account information</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-[var(--saptta-bg-2)]">
+              <div className="flex size-16 items-center justify-center rounded-2xl bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)] text-xl font-bold">
+                {user.name.split(" ").map((n) => n[0]).join("")}
+              </div>
+              <div>
+                <p className="text-base font-semibold text-[var(--saptta-ink)]">{user.name}</p>
+                <p className="text-sm text-[var(--saptta-mute)]">{user.email}</p>
+                <span className="mt-1 inline-block rounded-full bg-[var(--saptta-accent)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--saptta-accent)] capitalize">{user.role?.replace("_", " ")}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              {user.department && (
+                <div className="rounded-xl p-3 bg-[var(--saptta-bg-2)]">
+                  <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--saptta-mute)] mb-0.5">Department</p>
+                  <p className="font-medium text-[var(--saptta-ink)]">{user.department}</p>
+                </div>
+              )}
+              {user.designation && (
+                <div className="rounded-xl p-3 bg-[var(--saptta-bg-2)]">
+                  <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--saptta-mute)] mb-0.5">Designation</p>
+                  <p className="font-medium text-[var(--saptta-ink)]">{user.designation}</p>
+                </div>
+              )}
+              {user.phone && (
+                <div className="rounded-xl p-3 bg-[var(--saptta-bg-2)]">
+                  <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--saptta-mute)] mb-0.5">Phone</p>
+                  <p className="font-medium text-[var(--saptta-ink)]">{user.phone}</p>
+                </div>
+              )}
+              <div className="rounded-xl p-3 bg-[var(--saptta-bg-2)]">
+                <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--saptta-mute)] mb-0.5">Organization</p>
+                <p className="font-medium text-[var(--saptta-ink)]">{tenant}</p>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="rounded-full" onClick={() => setProfileOpen(false)}>Close</Button>
+            <Button className="rounded-full bg-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)]/90 text-white" onClick={() => { setCurrentView("core-hr"); setProfileOpen(false); }}>
+              <User className="size-4 mr-2" />Edit Profile
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Settings Dialog ── */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="rounded-[24px] max-w-md">
+          <DialogHeader>
+            <DialogTitle>Settings</DialogTitle>
+            <DialogDescription>Manage your account preferences</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            {[
+              { label: "Email Notifications", desc: "Receive alerts for leave, payroll, and tasks", defaultOn: true },
+              { label: "Push Notifications", desc: "In-app alerts for real-time updates", defaultOn: true },
+              { label: "Recruitment Alerts", desc: "Notify when new candidates apply", defaultOn: true },
+              { label: "Payroll Reminders", desc: "Remind before payroll cut-off dates", defaultOn: false },
+              { label: "System Updates", desc: "Platform maintenance and release notes", defaultOn: false },
+            ].map((setting) => (
+              <div key={setting.label} className="flex items-center justify-between rounded-2xl p-3.5 bg-[var(--saptta-bg-2)]">
+                <div>
+                  <p className="text-sm font-medium text-[var(--saptta-ink)]">{setting.label}</p>
+                  <p className="text-xs text-[var(--saptta-mute)]">{setting.desc}</p>
+                </div>
+                <div
+                  className={`relative h-5 w-9 cursor-pointer rounded-full transition-colors duration-200 ${setting.defaultOn ? "bg-[var(--saptta-accent)]" : "bg-gray-200"}`}
+                  onClick={() => {}}
+                >
+                  <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200 ${setting.defaultOn ? "translate-x-4" : "translate-x-0.5"}`} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="rounded-full" onClick={() => setSettingsOpen(false)}>Cancel</Button>
+            <Button className="rounded-full bg-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)]/90 text-white" onClick={() => { setSettingsOpen(false); }}>
+              Save Settings
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

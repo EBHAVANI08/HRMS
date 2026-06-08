@@ -116,6 +116,8 @@ const formatCurrency = (val: number) => { if (val >= 10000000) return `₹${(val
 const formatINR = (val: number) => `₹${val.toLocaleString("en-IN")}`;
 
 function OverviewTab() {
+  const [runViewOpen, setRunViewOpen] = useState(false);
+  const [selectedRun, setSelectedRun] = useState<typeof recentPayrollRuns[0] | null>(null);
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -131,7 +133,42 @@ function OverviewTab() {
         <motion.div variants={fadeUp} initial="hidden" animate="show"><Card className="rounded-[24px] border-0 shadow-lg"><CardHeader className="pb-2"><CardTitle className="text-lg font-semibold flex items-center gap-2"><TrendingUp className="w-5 h-5 text-[var(--saptta-accent)]" />Payroll Cost Trend (6 Months)</CardTitle></CardHeader><CardContent><ResponsiveContainer width="100%" height={260}><LineChart data={payrollTrend}><CartesianGrid strokeDasharray="3 3" stroke="var(--saptta-line)" /><XAxis dataKey="month" tick={{fontSize:12}} stroke="var(--saptta-mute)" /><YAxis tick={{fontSize:10}} stroke="var(--saptta-mute)" tickFormatter={(v:number)=>formatCurrency(v)} /><RechartsTooltip formatter={(value:number)=>formatINR(value)} contentStyle={{borderRadius:"16px",border:"1px solid var(--saptta-line)",fontSize:"12px"}} /><Line type="monotone" dataKey="gross" stroke="var(--saptta-accent)" strokeWidth={2.5} dot={{r:4,fill:"var(--saptta-accent)"}} name="Gross" /><Line type="monotone" dataKey="net" stroke="#10b981" strokeWidth={2.5} dot={{r:4,fill:"#10b981"}} name="Net" /><Line type="monotone" dataKey="deductions" stroke="#f59e0b" strokeWidth={2} dot={{r:3,fill:"#f59e0b"}} name="Deductions" /></LineChart></ResponsiveContainer></CardContent></Card></motion.div>
         <motion.div variants={fadeUp} initial="hidden" animate="show"><Card className="rounded-[24px] border-0 shadow-lg"><CardHeader className="pb-2"><CardTitle className="text-lg font-semibold flex items-center gap-2"><BarChart3 className="w-5 h-5 text-[var(--saptta-accent)]" />Department-wise Cost</CardTitle></CardHeader><CardContent><ResponsiveContainer width="100%" height={260}><BarChart data={departmentCost} layout="vertical"><CartesianGrid strokeDasharray="3 3" stroke="var(--saptta-line)" /><XAxis type="number" tick={{fontSize:10}} stroke="var(--saptta-mute)" tickFormatter={(v:number)=>formatCurrency(v)} /><YAxis type="category" dataKey="dept" tick={{fontSize:11}} stroke="var(--saptta-mute)" width={80} /><RechartsTooltip formatter={(value:number)=>formatINR(value)} contentStyle={{borderRadius:"16px",border:"1px solid var(--saptta-line)",fontSize:"12px"}} /><Bar dataKey="cost" fill="var(--saptta-accent)" radius={[0,8,8,0]} barSize={20} name="Cost" /></BarChart></ResponsiveContainer></CardContent></Card></motion.div>
       </div>
-      <motion.div variants={fadeUp} initial="hidden" animate="show"><Card className="rounded-[24px] border-0 shadow-lg"><CardHeader className="pb-2"><CardTitle className="text-lg font-semibold flex items-center gap-2"><Clock className="w-5 h-5 text-[var(--saptta-accent)]" />Recent Payroll Runs</CardTitle></CardHeader><CardContent><Table><TableHeader><TableRow><TableHead className="text-xs font-medium">Month</TableHead><TableHead className="text-xs font-medium">Status</TableHead><TableHead className="text-xs font-medium">Processed</TableHead><TableHead className="text-xs font-medium">Date</TableHead><TableHead className="text-xs font-medium">Action</TableHead></TableRow></TableHeader><TableBody>{recentPayrollRuns.map((run)=>(<TableRow key={run.id} className="hover:bg-[var(--saptta-bg-2)]"><TableCell className="font-medium text-sm">{run.month}</TableCell><TableCell><Badge variant="secondary" className={`rounded-full text-xs ${run.status==="Locked"?"bg-emerald-50 text-emerald-600":"bg-amber-50 text-amber-600"}`}>{run.status==="Locked"?<Lock className="w-3 h-3 mr-1" />:<RefreshCw className="w-3 h-3 mr-1 saptta-live-dot" />}{run.status}</Badge></TableCell><TableCell className="text-sm">{run.processed}/{run.total}</TableCell><TableCell className="text-sm text-[var(--saptta-mute)]">{new Date(run.date).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})}</TableCell><TableCell><Button variant="ghost" size="sm" onClick={() => toast.info("Opening details…")} className="text-xs text-[var(--saptta-accent)] h-7"><Eye className="w-3 h-3 mr-1" />View</Button></TableCell></TableRow>))}</TableBody></Table></CardContent></Card></motion.div>
+      <motion.div variants={fadeUp} initial="hidden" animate="show"><Card className="rounded-[24px] border-0 shadow-lg"><CardHeader className="pb-2"><CardTitle className="text-lg font-semibold flex items-center gap-2"><Clock className="w-5 h-5 text-[var(--saptta-accent)]" />Recent Payroll Runs</CardTitle></CardHeader><CardContent><Table><TableHeader><TableRow><TableHead className="text-xs font-medium">Month</TableHead><TableHead className="text-xs font-medium">Status</TableHead><TableHead className="text-xs font-medium">Processed</TableHead><TableHead className="text-xs font-medium">Date</TableHead><TableHead className="text-xs font-medium">Action</TableHead></TableRow></TableHeader><TableBody>{recentPayrollRuns.map((run)=>(<TableRow key={run.id} className="hover:bg-[var(--saptta-bg-2)]"><TableCell className="font-medium text-sm">{run.month}</TableCell><TableCell><Badge variant="secondary" className={`rounded-full text-xs ${run.status==="Locked"?"bg-emerald-50 text-emerald-600":"bg-amber-50 text-amber-600"}`}>{run.status==="Locked"?<Lock className="w-3 h-3 mr-1" />:<RefreshCw className="w-3 h-3 mr-1 saptta-live-dot" />}{run.status}</Badge></TableCell><TableCell className="text-sm">{run.processed}/{run.total}</TableCell><TableCell className="text-sm text-[var(--saptta-mute)]">{new Date(run.date).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})}</TableCell><TableCell><Button variant="ghost" size="sm" onClick={() => { setSelectedRun(run); setRunViewOpen(true); }} className="text-xs text-[var(--saptta-accent)] h-7"><Eye className="w-3 h-3 mr-1" />View</Button></TableCell></TableRow>))}</TableBody></Table></CardContent></Card></motion.div>
+      <Dialog open={runViewOpen} onOpenChange={setRunViewOpen}>
+        <DialogContent className="rounded-[24px] max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Payroll Run — {selectedRun?.month}</DialogTitle>
+            <DialogDescription>Processed on {selectedRun ? new Date(selectedRun.date).toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"}) : ""}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl p-4 bg-[var(--saptta-bg-2)]"><p className="text-xs text-[var(--saptta-mute)] mb-1">Status</p><Badge className={`rounded-full text-xs ${selectedRun?.status==="Locked"?"bg-emerald-50 text-emerald-600 border-emerald-200":"bg-amber-50 text-amber-600 border-amber-200"}`}>{selectedRun?.status}</Badge></div>
+              <div className="rounded-2xl p-4 bg-[var(--saptta-bg-2)]"><p className="text-xs text-[var(--saptta-mute)] mb-1">Processed</p><p className="text-sm font-semibold">{selectedRun?.processed} / {selectedRun?.total}</p></div>
+              <div className="rounded-2xl p-4 bg-[var(--saptta-bg-2)]"><p className="text-xs text-[var(--saptta-mute)] mb-1">Completion</p><p className="text-sm font-semibold text-[var(--saptta-accent)]">{selectedRun ? Math.round((selectedRun.processed/selectedRun.total)*100) : 0}%</p></div>
+              <div className="rounded-2xl p-4 bg-[var(--saptta-bg-2)]"><p className="text-xs text-[var(--saptta-mute)] mb-1">Pending</p><p className="text-sm font-semibold text-amber-600">{selectedRun ? selectedRun.total - selectedRun.processed : 0}</p></div>
+            </div>
+            {selectedRun?.status === "Processing" && (
+              <div className="rounded-2xl p-4 border border-amber-200 bg-amber-50">
+                <div className="flex items-center gap-2 mb-2"><RefreshCw className="w-4 h-4 text-amber-600" /><span className="text-sm font-medium text-amber-700">Run in Progress</span></div>
+                <Progress value={selectedRun ? Math.round((selectedRun.processed/selectedRun.total)*100) : 0} className="h-2 rounded-full" />
+                <p className="text-xs text-amber-600 mt-1">{selectedRun?.processed} of {selectedRun?.total} employees processed</p>
+              </div>
+            )}
+            {selectedRun?.status === "Locked" && (
+              <div className="rounded-2xl p-4 border border-emerald-200 bg-emerald-50">
+                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-600" /><span className="text-sm font-medium text-emerald-700">Payroll Locked &amp; Disbursed</span></div>
+                <p className="text-xs text-emerald-600 mt-1">All {selectedRun?.total} employees processed successfully</p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="rounded-full" onClick={() => toast.success(`Downloading ${selectedRun?.month} payroll report…`)}><Download className="w-4 h-4 mr-2" />Download Report</Button>
+            {selectedRun?.status === "Processing" && (
+              <Button className="rounded-full bg-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)]/90 text-white" onClick={() => { toast.success("Payroll run locked!"); setRunViewOpen(false); }}><Lock className="w-4 h-4 mr-2" />Lock Payroll</Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
