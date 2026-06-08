@@ -640,10 +640,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     notifications,
     notificationList,
     logout,
+    updateUser,
   } = useAppStore();
 
   const [notifPanelOpen, setNotifPanelOpen] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
+  const [profileEditMode, setProfileEditMode] = React.useState(false);
+  const [editForm, setEditForm] = React.useState({ name: "", phone: "", department: "", designation: "" });
   const [settingsOpen, setSettingsOpen] = React.useState(false);
 
   // Filter nav items based on role & apply role-specific labels
@@ -905,53 +908,139 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <NotificationPanel open={notifPanelOpen} onOpenChange={setNotifPanelOpen} />
 
       {/* ── Profile Dialog ── */}
-      <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+      <Dialog open={profileOpen} onOpenChange={(open) => { setProfileOpen(open); if (!open) setProfileEditMode(false); }}>
         <DialogContent className="rounded-[24px] max-w-md">
           <DialogHeader>
-            <DialogTitle>My Profile</DialogTitle>
-            <DialogDescription>Your account information</DialogDescription>
+            <DialogTitle>{profileEditMode ? "Edit Profile" : "My Profile"}</DialogTitle>
+            <DialogDescription>{profileEditMode ? "Update your personal information" : "Your account information"}</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="flex items-center gap-4 p-4 rounded-2xl bg-[var(--saptta-bg-2)]">
-              <div className="flex size-16 items-center justify-center rounded-2xl bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)] text-xl font-bold">
-                {user.name.split(" ").map((n) => n[0]).join("")}
+
+          {/* ── View Mode ── */}
+          {!profileEditMode && (
+            <div className="space-y-4 py-2">
+              <div className="flex items-center gap-4 p-4 rounded-2xl bg-[var(--saptta-bg-2)]">
+                <div className="flex size-16 items-center justify-center rounded-2xl bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)] text-xl font-bold">
+                  {user.name.split(" ").map((n) => n[0]).join("")}
+                </div>
+                <div>
+                  <p className="text-base font-semibold text-[var(--saptta-ink)]">{user.name}</p>
+                  <p className="text-sm text-[var(--saptta-mute)]">{user.email}</p>
+                  <span className="mt-1 inline-block rounded-full bg-[var(--saptta-accent)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--saptta-accent)] capitalize">{user.role?.replace("_", " ")}</span>
+                </div>
               </div>
-              <div>
-                <p className="text-base font-semibold text-[var(--saptta-ink)]">{user.name}</p>
-                <p className="text-sm text-[var(--saptta-mute)]">{user.email}</p>
-                <span className="mt-1 inline-block rounded-full bg-[var(--saptta-accent)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--saptta-accent)] capitalize">{user.role?.replace("_", " ")}</span>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                {user.department && (
+                  <div className="rounded-xl p-3 bg-[var(--saptta-bg-2)]">
+                    <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--saptta-mute)] mb-0.5">Department</p>
+                    <p className="font-medium text-[var(--saptta-ink)]">{user.department}</p>
+                  </div>
+                )}
+                {user.designation && (
+                  <div className="rounded-xl p-3 bg-[var(--saptta-bg-2)]">
+                    <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--saptta-mute)] mb-0.5">Designation</p>
+                    <p className="font-medium text-[var(--saptta-ink)]">{user.designation}</p>
+                  </div>
+                )}
+                {user.phone && (
+                  <div className="rounded-xl p-3 bg-[var(--saptta-bg-2)]">
+                    <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--saptta-mute)] mb-0.5">Phone</p>
+                    <p className="font-medium text-[var(--saptta-ink)]">{user.phone}</p>
+                  </div>
+                )}
+                <div className="rounded-xl p-3 bg-[var(--saptta-bg-2)]">
+                  <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--saptta-mute)] mb-0.5">Organization</p>
+                  <p className="font-medium text-[var(--saptta-ink)]">{tenant}</p>
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              {user.department && (
-                <div className="rounded-xl p-3 bg-[var(--saptta-bg-2)]">
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--saptta-mute)] mb-0.5">Department</p>
-                  <p className="font-medium text-[var(--saptta-ink)]">{user.department}</p>
+          )}
+
+          {/* ── Edit Mode ── */}
+          {profileEditMode && (
+            <div className="space-y-3 py-2">
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-[var(--saptta-bg-2)] mb-1">
+                <div className="flex size-12 items-center justify-center rounded-xl bg-[var(--saptta-accent)]/10 text-[var(--saptta-accent)] text-lg font-bold shrink-0">
+                  {(editForm.name || user.name).split(" ").map((n) => n[0]).join("").slice(0, 2)}
                 </div>
-              )}
-              {user.designation && (
-                <div className="rounded-xl p-3 bg-[var(--saptta-bg-2)]">
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--saptta-mute)] mb-0.5">Designation</p>
-                  <p className="font-medium text-[var(--saptta-ink)]">{user.designation}</p>
+                <div>
+                  <p className="text-sm font-semibold text-[var(--saptta-ink)]">{editForm.name || user.name}</p>
+                  <p className="text-xs text-[var(--saptta-mute)]">{user.email}</p>
                 </div>
-              )}
-              {user.phone && (
-                <div className="rounded-xl p-3 bg-[var(--saptta-bg-2)]">
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--saptta-mute)] mb-0.5">Phone</p>
-                  <p className="font-medium text-[var(--saptta-ink)]">{user.phone}</p>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[var(--saptta-mute)]">Full Name</label>
+                <Input
+                  value={editForm.name}
+                  onChange={(e) => setEditForm(f => ({ ...f, name: e.target.value }))}
+                  placeholder={user.name}
+                  className="rounded-xl border-[var(--saptta-line)] h-10 text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[var(--saptta-mute)]">Phone</label>
+                <Input
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm(f => ({ ...f, phone: e.target.value }))}
+                  placeholder={user.phone || "+91 XXXXX XXXXX"}
+                  className="rounded-xl border-[var(--saptta-line)] h-10 text-sm"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-[var(--saptta-mute)]">Department</label>
+                  <Input
+                    value={editForm.department}
+                    onChange={(e) => setEditForm(f => ({ ...f, department: e.target.value }))}
+                    placeholder={user.department || "Department"}
+                    className="rounded-xl border-[var(--saptta-line)] h-10 text-sm"
+                  />
                 </div>
-              )}
-              <div className="rounded-xl p-3 bg-[var(--saptta-bg-2)]">
-                <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--saptta-mute)] mb-0.5">Organization</p>
-                <p className="font-medium text-[var(--saptta-ink)]">{tenant}</p>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-[var(--saptta-mute)]">Designation</label>
+                  <Input
+                    value={editForm.designation}
+                    onChange={(e) => setEditForm(f => ({ ...f, designation: e.target.value }))}
+                    placeholder={user.designation || "Designation"}
+                    className="rounded-xl border-[var(--saptta-line)] h-10 text-sm"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
           <DialogFooter>
-            <Button variant="outline" className="rounded-full" onClick={() => setProfileOpen(false)}>Close</Button>
-            <Button className="rounded-full bg-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)]/90 text-white" onClick={() => { setCurrentView("core-hr"); setProfileOpen(false); }}>
-              <User className="size-4 mr-2" />Edit Profile
-            </Button>
+            {!profileEditMode ? (
+              <>
+                <Button variant="outline" className="rounded-full" onClick={() => setProfileOpen(false)}>Close</Button>
+                <Button
+                  className="rounded-full bg-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)]/90 text-white"
+                  onClick={() => {
+                    setEditForm({ name: user.name || "", phone: user.phone || "", department: user.department || "", designation: user.designation || "" });
+                    setProfileEditMode(true);
+                  }}
+                >
+                  <User className="size-4 mr-2" />Edit Profile
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" className="rounded-full" onClick={() => setProfileEditMode(false)}>Cancel</Button>
+                <Button
+                  className="rounded-full bg-[var(--saptta-accent)] hover:bg-[var(--saptta-accent)]/90 text-white"
+                  onClick={() => {
+                    updateUser({
+                      ...(editForm.name.trim()        && { name: editForm.name.trim() }),
+                      ...(editForm.phone.trim()       && { phone: editForm.phone.trim() }),
+                      ...(editForm.department.trim()  && { department: editForm.department.trim() }),
+                      ...(editForm.designation.trim() && { designation: editForm.designation.trim() }),
+                    });
+                    setProfileEditMode(false);
+                  }}
+                >
+                  Save Changes
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

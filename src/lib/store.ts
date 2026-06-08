@@ -82,6 +82,7 @@ export interface AppState {
   setTenant: (tenant: string) => void;
   setNotifications: (count: number) => void;
   setUserRole: (role: UserRole) => void;
+  updateUser: (updates: Partial<User>) => void;
 
   // Notifications
   addNotification: (notification: Omit<Notification, "id" | "read">) => void;
@@ -361,6 +362,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
   setTenant: (tenant) => set({ tenant }),
   setNotifications: (count) => set({ notifications: count }),
+  updateUser: (updates) => set((state) => ({ user: { ...state.user, ...updates } })),
   setUserRole: (role) => set((state) => {
     const isApplicant = role === "applicant";
     return {
